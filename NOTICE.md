@@ -14,7 +14,7 @@
 
 ## Übersicht
 
-TimeTracker PRO ist eine **Vanilla-Anwendung** ohne externe Abhängigkeiten
+Time.Tracker.SingleFile ist eine **Vanilla-Anwendung** ohne externe Abhängigkeiten
 (kein npm, keine externe Libraries). Dieser Abschnitt dokumentiert sämtliche
 Ressourcen, Inspirationen und Quellenangaben.
 
@@ -213,12 +213,12 @@ Semantic Versioning
 ### Dieses Projekt
 
 ```
-TimeTracker PRO
+Time.Tracker.SingleFile
 ┌────────────────────────────────────────────────────┐
 │ Lizenz: MIT License                                │
-│ Copyright: (c) 2025 TimeTracker PRO Contributors   │
+│ Copyright: (c) 2025 Time.Tracker.SingleFile Contributors   │
 │ Datei: LICENSE.md oder LICENSE                     │
-│ Gültig: Alle Quellcode-Dateien                    │
+│ Gültig: Alle Quellcode-Dateien                     │
 └────────────────────────────────────────────────────┘
 
 Was ist erlaubt?
@@ -315,7 +315,7 @@ Wir danken folgenden Organisationen & Communities:
 ## ✅ Compliance Checklist
 
 ```
-Lizenz-Compliance für TimeTracker PRO:
+Lizenz-Compliance für Time.Tracker.SingleFile:
 
 Punkt                                Status  Details
 ─────────────────────────────────────────────────────────
@@ -340,7 +340,7 @@ Gesamtstatus: ✓ COMPLIANT
 
 ## Overview
 
-TimeTracker PRO is a **Vanilla application** with no external dependencies
+Time.Tracker.SingleFile is a **Vanilla application** with no external dependencies
 (no npm, no external libraries). This section documents all resources,
 inspirations, and attributions.
 
@@ -539,10 +539,10 @@ Semantic Versioning
 ### This Project
 
 ```
-TimeTracker PRO
+Time.Tracker.SingleFile
 ┌────────────────────────────────────────────────────┐
 │ License: MIT License                               │
-│ Copyright: (c) 2025 TimeTracker PRO Contributors   │
+│ Copyright: (c) 2025 Time.Tracker.SingleFile Contributors   │
 │ File: LICENSE.md or LICENSE                        │
 │ Valid for: All source code files                   │
 └────────────────────────────────────────────────────┘
@@ -641,7 +641,7 @@ We thank the following organizations & communities:
 ## ✅ Compliance Checklist
 
 ```
-License Compliance for TimeTracker PRO:
+License Compliance for Time.Tracker.SingleFile:
 
 Item                                   Status  Details
 ─────────────────────────────────────────────────────────
@@ -664,6 +664,6 @@ Overall Status: ✓ COMPLIANT
 
 **Open Source & Transparent.**
 
-*TimeTracker PRO respects and follows open source principles and licenses.*
+*Time.Tracker.SingleFile respects and follows open source principles and licenses.*
 
 </div>
