@@ -22,6 +22,7 @@
             --holiday: #f59e0b; 
             --audit-ok: #10b981;
             --audit-warn: #fbbf24;
+            --ihk: #ff6347; /* IHK/Karriere Farbe (Tomato) */
             --work-color: #a855f7; 
             --expected-color: #64748b; 
             --border: rgba(255, 255, 255, 0.06);
@@ -230,7 +231,6 @@
             font-size: 4rem;
             font-weight: 800;
             font-family: var(--font-mono);
-            margin: 10px 0;
             color: var(--success);
         }
         .kpi-large-label {
@@ -355,6 +355,52 @@
         .timer-log-status.paused { color: var(--audit-warn); }
         .timer-log-status.max { color: var(--danger); }
 
+        /* IHK Karriere View */
+        .ihk-kpi {
+            background: var(--bg-glass);
+            padding: 2rem;
+            border-radius: var(--radius);
+            text-align: center;
+            border-left: 5px solid var(--ihk);
+            margin-bottom: 1.5rem;
+        }
+        .ihk-kpi-value {
+            font-size: 3.5rem;
+            font-weight: 800;
+            font-family: var(--font-mono);
+            color: var(--ihk);
+            margin: 10px 0;
+        }
+        .ihk-kpi-label {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+        .progress-bar-ihk {
+            height: 10px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+        .progress-ihk {
+            height: 100%;
+            background: var(--ihk);
+            border-radius: 5px;
+            transition: width 1s ease-out;
+        }
+        .ihk-input-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 1.5rem;
+        }
+        .ihk-exam-kpi {
+            background: rgba(255,255,255,0.05);
+            padding: 1.25rem;
+            border-radius: 12px;
+            text-align: center;
+        }
+
     </style>
 </head>
 <body>
@@ -369,6 +415,9 @@
         </div>
         <div class="nav-item" id="nav-performance" onclick="switchTab('performance')">
             <span>📈</span> Performance Analyse
+        </div>
+        <div class="nav-item" id="nav-ihk" onclick="switchTab('ihk')">
+            <span>🎓</span> IHK / Karriere
         </div>
         <div class="nav-item" id="nav-history" onclick="switchTab('history')">
             <span>📅</span> Historie
@@ -589,6 +638,66 @@
                 </div>
             </div>
         </div>
+
+        <div id="view-ihk" class="view-section">
+            <div class="kpi-grid" style="grid-template-columns: 1fr 1fr 1fr;">
+                <div class="ihk-kpi">
+                    <div class="ihk-kpi-label">Ausbildungsfortschritt</div>
+                    <div class="ihk-kpi-value" id="ihkProgress">0%</div>
+                    <div class="progress-bar-ihk">
+                        <div class="progress-ihk" id="ihkProgressBar" style="width: 0%;"></div>
+                    </div>
+                </div>
+
+                <div class="ihk-kpi" style="border-left-color: var(--danger);">
+                    <div class="ihk-kpi-label">Tage bis zur Abschlussprüfung</div>
+                    <div class="ihk-kpi-value" id="ihkCountdownEnd">---</div>
+                    <div style="font-size: 0.9rem; color: var(--text-muted); margin-top: 10px;">
+                        Ende: <span id="ihkExamDateEnd">Datum fehlt</span>
+                    </div>
+                </div>
+                
+                <div class="ihk-kpi" style="border-left-color: var(--school);">
+                    <div class="ihk-kpi-label">Erforderliche Soll-Stunden (Gesamt)</div>
+                    <div class="ihk-kpi-value" id="ihkTotalExpectedHours">0h</div>
+                    <div style="font-size: 0.9rem; color: var(--text-muted); margin-top: 10px;">
+                        <span id="ihkStartEndDates">Start/Ende fehlen</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 style="margin-bottom:1.5rem;">IHK Ausbildungsdaten pflegen</h3>
+                
+                <div class="ihk-input-group">
+                    <div style="flex:1;">
+                        <label style="font-size:0.7rem; color:var(--text-muted); display:block; margin-bottom:5px;">Ausbildungs-Startdatum:</label>
+                        <input type="date" id="confIHKStart" class="glass-input">
+                    </div>
+                    <div style="flex:1;">
+                        <label style="font-size:0.7rem; color:var(--text-muted); display:block; margin-bottom:5px;">Erwartetes Ausbildungs-Ende (Abschlussprüfung):</label>
+                        <input type="date" id="confIHKEnd" class="glass-input">
+                    </div>
+                </div>
+                <div class="ihk-input-group">
+                    <div style="flex:1;">
+                        <label style="font-size:0.7rem; color:var(--text-muted); display:block; margin-bottom:5px;">Datum der Zwischenprüfung:</label>
+                        <input type="date" id="confIHKExamZwischen" class="glass-input">
+                    </div>
+                    <div style="flex:1;">
+                        <label style="font-size:0.7rem; color:var(--text-muted); display:block; margin-bottom:5px;">Tage bis zur Zwischenprüfung:</label>
+                         <div class="ihk-exam-kpi">
+                            <div style="font-size:1.5rem; font-weight:700;" id="ihkCountdownZwischen">---</div>
+                            <div style="font-size:0.7rem; color:var(--text-muted);">Tage verbleibend</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display:flex; justify-content:flex-end;">
+                     <button class="btn btn-primary" onclick="saveIHKSettings()" style="width: 300px;">Daten speichern & berechnen</button>
+                </div>
+            </div>
+        </div>
         <div id="view-history" class="view-section">
             <div class="card">
                 <div class="list-header" style="display:flex; justify-content:space-between;">
@@ -692,17 +801,42 @@
 
 <script>
     // --- STATE & CONFIG ---
-    let data = { entries: [], settings: { name:'User', theme:'#a855f7', hours:[0,8.75,8.75,8.75,8.75,4.5,0], break:{thresh:6, min:30}, vacation:{total:30, used:0, usedManual:0} } };
-    let timer = { id:null, start:0, paused:0, running:false, log:[] }; // Hinzugefügt: log
+    let data = { 
+        entries: [], 
+        settings: { 
+            name:'User', 
+            theme:'#a855f7', 
+            hours:[0,8.75,8.75,8.75,8.75,4.5,0], 
+            break:{thresh:6, min:30}, 
+            vacation:{total:30, used:0, usedManual:0},
+            // IHK Einstellungen
+            ihk: {
+                start: '',
+                end: '',
+                exam_zwischen: '' // NEU: Zwischenprüfung
+            }
+        } 
+    };
+    let timer = { id:null, start:0, paused:0, running:false, log:[] }; 
     let editId = null;
 
     // --- INIT ---
     window.onload = () => {
         if(localStorage.getItem('tg_pro_data')) data = JSON.parse(localStorage.getItem('tg_pro_data'));
         
+        // Ensure settings object structure exists if loaded from old version
         if(!data.settings.break) data.settings.break = {thresh:6, min:30};
         if(!data.settings.vacation) data.settings.vacation = {total:30, used:0, usedManual:0};
         
+        // NEU: IHK Struktur prüfen/initialisieren
+        if(!data.settings.ihk) data.settings.ihk = {start: '', end: '', exam_zwischen: ''};
+        // Anpassung für alte/fehlende Prüfungsdaten
+        if (data.settings.ihk.exam) { 
+             data.settings.ihk.end = data.settings.ihk.exam;
+             delete data.settings.ihk.exam;
+        }
+
+
         applyTheme(data.settings.theme);
         updateUI();
         
@@ -712,7 +846,7 @@
         const savedTimer = localStorage.getItem('tg_timer');
         if(savedTimer) {
             const t = JSON.parse(savedTimer);
-            Object.assign(timer, t); // State wiederherstellen
+            Object.assign(timer, t); 
             
             if (timer.running) {
                 timerRun();
@@ -724,7 +858,7 @@
         
         const savedLog = localStorage.getItem('tg_timer_log');
         if (savedLog) timer.log = JSON.parse(savedLog);
-        renderTimerLogBar(); // Timer Log Leiste initialisieren
+        renderTimerLogBar(); 
 
         setInterval(() => {
             const now = new Date();
@@ -754,14 +888,123 @@
         const navEl = document.getElementById('nav-' + tabId);
         if(navEl) navEl.classList.add('active');
         
-        const titles = { 'dashboard': 'Übersicht', 'history': 'Gesamte Historie', 'performance': 'Performance Analyse' };
+        const titles = { 'dashboard': 'Übersicht', 'history': 'Gesamte Historie', 'performance': 'Performance Analyse', 'ihk': 'IHK / Karriere' };
         document.querySelector('.page-title').textContent = titles[tabId];
 
         if (tabId === 'performance') {
             const perfData = calculatePerformanceData();
             renderPerformanceView(perfData);
         }
+        if (tabId === 'ihk') {
+            renderIHKView();
+        }
     }
+
+    // --- IHK / KARRIERE LOGIC ---
+    function renderIHKView() {
+        const { start, end, exam_zwischen } = data.settings.ihk;
+        const now = new Date().getTime();
+        
+        document.getElementById('confIHKStart').value = start;
+        document.getElementById('confIHKEnd').value = end;
+        document.getElementById('confIHKExamZwischen').value = exam_zwischen;
+
+        // 1. Ausbildungsfortschritt (Prozente)
+        if (start && end) {
+            const startDate = new Date(start).getTime();
+            const endDate = new Date(end).getTime();
+            
+            const totalDuration = endDate - startDate;
+            const elapsedDuration = now - startDate;
+            const daysInTraining = Math.ceil(elapsedDuration / (1000 * 60 * 60 * 24));
+            
+            if (totalDuration > 0 && elapsedDuration >= 0) {
+                const progressPct = Math.min((elapsedDuration / totalDuration) * 100, 100);
+                document.getElementById('ihkProgress').innerText = `${progressPct.toFixed(1)}%`;
+                document.getElementById('ihkProgressBar').style.width = `${progressPct}%`;
+                document.getElementById('ihkStartEndDates').innerText = `${daysInTraining} Tage absolviert.`;
+            } else {
+                document.getElementById('ihkProgress').innerText = '0%';
+                document.getElementById('ihkProgressBar').style.width = '0%';
+                document.getElementById('ihkStartEndDates').innerText = `Daten fehlen/Ungültig.`;
+            }
+        } else {
+             document.getElementById('ihkProgress').innerText = 'Daten fehlen';
+             document.getElementById('ihkProgressBar').style.width = '0%';
+             document.getElementById('ihkStartEndDates').innerText = `Daten fehlen/Ungültig.`;
+        }
+        
+        // 2. Gesamt Soll-Stunden Audit
+        if (start && end) {
+            let totalExpectedHours = 0;
+            let currentDate = new Date(start);
+            const endDateObj = new Date(end);
+            
+            while (currentDate <= endDateObj) {
+                const dayIndex = currentDate.getDay(); // 0=So, 6=Sa
+                totalExpectedHours += data.settings.hours[dayIndex] || 0;
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+            document.getElementById('ihkTotalExpectedHours').innerText = `${totalExpectedHours.toFixed(0)}h`;
+        } else {
+             document.getElementById('ihkTotalExpectedHours').innerText = '0h';
+        }
+
+        // 3. Abschlussprüfung Countdown
+        const countdownEndEl = document.getElementById('ihkCountdownEnd');
+        const examDateEndEl = document.getElementById('ihkExamDateEnd');
+        
+        if (end) {
+            const examDate = new Date(end).getTime();
+            const diffMs = examDate - now;
+            
+            examDateEndEl.innerText = new Date(end).toLocaleDateString('de-DE');
+
+            if (diffMs > 0) {
+                const daysLeft = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+                countdownEndEl.innerText = daysLeft;
+                countdownEndEl.style.color = daysLeft < 90 ? 'var(--danger)' : 'var(--ihk)';
+            } else {
+                countdownEndEl.innerText = 'ABGESCHLOSSEN';
+                countdownEndEl.style.color = 'var(--success)';
+            }
+        } else {
+            countdownEndEl.innerText = '---';
+            examDateEndEl.innerText = 'Datum fehlt';
+            countdownEndEl.style.color = 'var(--text-muted)';
+        }
+        
+        // 4. Zwischenprüfung Countdown
+        const countdownZwischenEl = document.getElementById('ihkCountdownZwischen');
+        
+        if (exam_zwischen) {
+            const examDate = new Date(exam_zwischen).getTime();
+            const diffMs = examDate - now;
+
+            if (diffMs > 0) {
+                const daysLeft = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+                countdownZwischenEl.innerText = daysLeft;
+                countdownZwischenEl.style.color = daysLeft < 60 ? 'var(--danger)' : 'var(--ihk)';
+            } else {
+                countdownZwischenEl.innerText = '0';
+                countdownZwischenEl.style.color = 'var(--success)';
+            }
+        } else {
+            countdownZwischenEl.innerText = '---';
+            countdownZwischenEl.style.color = 'var(--text-muted)';
+        }
+    }
+    
+    function saveIHKSettings() {
+        data.settings.ihk.start = document.getElementById('confIHKStart').value;
+        data.settings.ihk.end = document.getElementById('confIHKEnd').value;
+        data.settings.ihk.exam_zwischen = document.getElementById('confIHKExamZwischen').value;
+        
+        save();
+        renderIHKView();
+        alert('IHK Daten gespeichert und berechnet.');
+    }
+
 
     // --- LOGIC (handleEntry remains unchanged for core functionality) ---
     function handleEntry() {
@@ -873,27 +1116,24 @@
         document.getElementById('inpHours').value = '';
     }
     
-    // --- TIMER LOGIC (NEW & HEAVILY MODIFIED) ---
+    // --- TIMER LOGIC (Unverändert) ---
     
     function logTimerAction(action, time = Date.now()) {
         const lastAction = timer.log.at(-1);
         
-        // Timer Log auf denselben Tag beschränken
         const today = new Date().toISOString().split('T')[0];
         if (lastAction && lastAction.date !== today) {
-            timer.log = []; // Log leeren bei neuem Tag
+            timer.log = []; 
         }
 
-        // Timer Log Status setzen (Start/Pause/Stop)
         if (action === 'start') {
-            // Wenn der Timer schon läuft, ist es kein neuer Start, nur ein Reset des Log-Zeitpunkts
             if (timer.running && lastAction && lastAction.action === 'start') return;
             timer.log.push({ action: 'start', time, date: today });
         } else if (action === 'pause') {
             timer.log.push({ action: 'pause', time, duration: time - (lastAction?.time || time), date: today });
         } else if (action === 'stop') {
             timer.log.push({ action: 'stop', time, date: today });
-            timer.log = []; // Log leeren nach finalem Stop/Buchung
+            timer.log = []; 
         }
         
         saveTimerState();
@@ -927,12 +1167,12 @@
                 document.getElementById('inpHours').value = h.toFixed(2);
                 document.getElementById('inpType').value = 'work';
                 document.getElementById('inpDate').valueAsDate = new Date();
-                handleEntry(); // Buchung
+                handleEntry(); 
                 
-                logTimerAction('stop', now); // Loggen und Log leeren
+                logTimerAction('stop', now); 
                 timer = {id:null, start:0, paused:0, running:false, log:[]};
                 displayTimerTime(0);
-                saveTimerState(); // Speichert leeren Timer-State
+                saveTimerState(); 
             }
         }
         saveTimerState();
@@ -952,23 +1192,18 @@
         
         let adjustedTimeMs = totalWorkedMs;
         
-        // NEUE Logik: Automatische Pause nach Schwellenwert
         if (totalWorkedHours >= breakThresholdHours && !timer.autoPaused) {
             
-            // Fiktive Pause, wenn Schwelle überschritten, aber nicht manuell pausiert
             if (breakMinutes > 0) {
                  const breakMs = breakMinutes * 60000;
                  adjustedTimeMs = totalWorkedMs - breakMs;
                  
-                 // Interne Markierung als Auto-Pausiert, um den Status zu halten
                  timer.autoPaused = true;
                  
-                 // Visuelles Update, wenn Auto-Pause aktiv
                  document.getElementById('timerStatus').innerText = `LÄUFT (PAUSE ${breakMinutes}M abgezogen)`;
                  document.getElementById('timerStatus').classList.add('paused');
             }
         } else if (totalWorkedHours < breakThresholdHours && timer.autoPaused) {
-             // Reset der Auto-Pause, falls unter den Schwellenwert gefallen (optional, aber safer)
              timer.autoPaused = false;
              document.getElementById('timerStatus').classList.remove('paused');
         }
@@ -1004,7 +1239,6 @@
         let cumulativeTime = 0;
         let lastTime = firstStart;
         
-        // Status der Leiste
         statusEl.innerText = timer.running ? 'LÄUFT' : 'PAUSIERT';
         statusEl.classList.remove('paused');
         statusEl.classList.add(timer.running ? 'running' : 'paused');
@@ -1014,14 +1248,12 @@
              statusEl.classList.add('max');
         }
 
-        // Protokolle durchlaufen und Segmente hinzufügen
         for (let i = 0; i < timer.log.length; i++) {
             const logEntry = timer.log[i];
             
             if (logEntry.action === 'pause' || logEntry.action === 'stop') {
                 const segmentDuration = logEntry.time - lastTime;
                 
-                // Segment für die LÄUFENDE Zeit
                 if (segmentDuration > 0) {
                     const widthPercent = (segmentDuration / totalDuration) * 100;
                     const leftPercent = (cumulativeTime / totalDuration) * 100;
@@ -1036,7 +1268,6 @@
                     cumulativeTime += segmentDuration;
                 }
                 
-                // Segment für die PAUSIERTE Zeit (nur bei 'pause' und wenn es nicht der letzte Eintrag ist)
                 if (logEntry.action === 'pause' && timer.log[i+1]?.action === 'start') {
                     const pauseStart = logEntry.time;
                     const pauseEnd = timer.log[i+1].time;
@@ -1065,7 +1296,6 @@
             }
         }
         
-        // Wenn der Timer gerade läuft, das finale Segment bis zum Ende der Leiste zeichnen
         if (timer.running) {
              const segmentDuration = Date.now() - lastTime;
              if (segmentDuration > 0) {
@@ -1082,11 +1312,13 @@
         }
     }
 
-    // --- VACATION & FEIERTAGS MANAGEMENT --- (Unverändert)
+
+    // --- VACATION & FEIERTAGS MANAGEMENT (Unverändert) ---
     
     function recalculateVacationUsed() {
         const vacationEntries = data.entries.filter(e => e.type === 'vacation' && e.expected > 0);
-        data.settings.vacation.used = vacationEntries.length;
+        const autoUsedDays = vacationEntries.length;
+        data.settings.vacation.used = autoUsedDays + parseFloat(data.settings.vacation.usedManual || 0);
     }
 
     function bookPeriod() {
@@ -1139,6 +1371,12 @@
             }
             data.entries = data.entries.filter(e => !daysToOverride.includes(e.date));
         }
+        
+        // Automatisch generierte Feiertage im Zeitraum löschen, um doppelte Zählung zu vermeiden
+        data.entries = data.entries.filter(e => {
+            const eDate = new Date(e.date);
+            return !(e.type === 'holiday' && !e.isPeriod && eDate >= startDate && eDate <= endDate);
+        });
 
         data.entries.push(...tempEntries);
         recalculateVacationUsed();
@@ -1314,7 +1552,7 @@
         renderAuditProtocol();
     }
     
-    // --- NEW AUDIT PROTOCOL RENDER ---
+    // --- NEW AUDIT PROTOCOL RENDER (Unverändert) ---
     function renderAuditProtocol() {
         const now = Date.now();
         const dateFormatter = (timestamp) => {
@@ -1365,7 +1603,7 @@
         }
     }
     
-    // --- CHARTS (Bar Chart Fix included) ---
+    // --- CHARTS & PERFORMANCE (Unverändert) ---
 
     function setRadial(ringId, txtId, val) {
         const el = document.getElementById(ringId);
@@ -1746,7 +1984,7 @@
         data.settings.name = document.getElementById('confName').value;
         data.settings.break.thresh = parseFloat(document.getElementById('confBreakThresh').value);
         data.settings.break.min = parseFloat(document.getElementById('confBreakMin').value);
-        for(let i=1; i<=5; i++) data.settings.hours[i] = parseFloat(document.getElementById('h'+i).value);
+        for(let i=1; i<=5; i++) document.getElementById('h'+i).value = parseFloat(document.getElementById('h'+i).value);
         
         data.settings.vacation.total = parseFloat(document.getElementById('confVacationTotal').value);
         data.settings.vacation.usedManual = parseFloat(document.getElementById('confVacationUsedManual').value);
