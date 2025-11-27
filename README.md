@@ -15,11 +15,11 @@
 │   • Live-Timer mit visueller Segmentierung      │
 │   • Intelligente Pausenabzüge                   │
 │   • Feiertags-Management (deutschlandweit)      │
-│   • Performance Analytics Dashboard              │
-│   • Gleitzeitkonto mit Prognosen                 │
-│   • Responsive Dark Mode Interface               │
+│   • Performance Analytics Dashboard             │
+│   • Gleitzeitkonto mit Prognosen                │
+│   • Responsive Dark Mode Interface              │
 │   • Lokale Datenspeicherung (IndexedDB Ready)   │
-│   • Import/Export Funktionalität                 │
+│   • Import/Export Funktionalität                │
 └─────────────────────────────────────────────────┘
 ```
 
@@ -30,12 +30,12 @@
 ### Dashboard-Übersicht
 ```
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃                   TIMETRACKER PRO               ┃
+┃                   TIMETRACKER PRO             ┃
 ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫
 ┃  Woche: +2.5h  │  Monat: +8.2h  │ Gleitzeit: +15.7h ┃
 ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫
-┃                   Live-Timer                    ┃
-┃  ▓▓▓▓▓░░░░ (2h 24m 15s)                        ┃
+┃                   Live-Timer                  ┃
+┃  ▓▓▓▓▓░░░░ (2h 24m 15s)                       ┃
 ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫
 ┃  Letzte Aktivitäten  │  Trend-Analyse         ┃
 ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
@@ -219,17 +219,17 @@ Mobile (375px):          Stack-Layout, Touch-optimiert
 ### Primäre Farben
 ```
 ┌──────────────┬───────────────────┐
-│ Purple       │ #a855f7 (Default) │
+│ Purple       │ #a855f7         │
 ├──────────────┼───────────────────┤
-│ Blue         │ #3b82f6           │
+│ Blue         │ #3b82f6         │         
 ├──────────────┼───────────────────┤
-│ Cyan         │ #06b6d4           │
+│ Cyan         │ #06b6d4         │
 ├──────────────┼───────────────────┤
-│ Green        │ #10b981 (Success) │
+│ Green        │ #10b981         │
 ├──────────────┼───────────────────┤
-│ Amber        │ #f59e0b (Warning) │
+│ Amber        │ #f59e0b         │
 ├──────────────┼───────────────────┤
-│ Rose         │ #ec4899           │
+│ Rose         │ #ec4899         │
 └──────────────┴───────────────────┘
 ```
 
