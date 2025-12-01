@@ -1578,6 +1578,66 @@
         </div>
     </div>
 
+    <!-- CUSTOM MODAL SYSTEM (Glassmorphism) -->
+    <div class="modal" id="customMessageModal">
+        <div class="modal-box" style="width:500px; padding:2rem;">
+            <h3 id="customMessageTitle" style="margin-top:0; margin-bottom:1rem;">Nachricht</h3>
+            <p id="customMessageContent" style="color:var(--text-muted); margin-bottom:2rem; font-size:0.95rem; line-height:1.5;"></p>
+            
+            <div style="display:flex; gap:10px; justify-content:flex-end;">
+                <button id="customMessageBtnCancel" class="btn" style="background:transparent; border:1px solid var(--border); display:none;" onclick="closeCustomModal(false)">Abbrechen</button>
+                <button id="customMessageBtnConfirm" class="btn btn-primary" onclick="closeCustomModal(true)">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- EDIT ENTRY MODAL (NEU) -->
+    <div class="modal" id="editEntryModal">
+        <div class="modal-box" style="width:700px; padding:2rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
+                <h3 style="margin:0;">✎ Eintrag bearbeiten</h3>
+                <button onclick="closeEditModal()" style="background:none; border:none; color:#fff; font-size:1.5rem; cursor:pointer;">&times;</button>
+            </div>
+            
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-bottom:2rem;">
+                <div>
+                    <label style="font-size:0.75rem; color:#666; display:block; margin-bottom:5px; font-weight:600;">Datum:</label>
+                    <input type="date" id="editInpDate" class="glass-input">
+                </div>
+                <div>
+                    <label style="font-size:0.75rem; color:#666; display:block; margin-bottom:5px; font-weight:600;">Typ:</label>
+                    <select id="editInpType" class="glass-select">
+                        <option value="work">💼 Arbeit</option>
+                        <option value="school">📚 Berufsschule</option>
+                        <option value="vacation">🌴 Urlaub</option>
+                        <option value="sick">💊 Krank</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-bottom:2rem;">
+                <div>
+                    <label style="font-size:0.75rem; color:#666; display:block; margin-bottom:5px; font-weight:600;">Geleistete Stunden:</label>
+                    <input type="number" id="editInpHours" class="glass-input" step="0.25" placeholder="z.B. 8.5">
+                </div>
+                <div>
+                    <label style="font-size:0.75rem; color:#666; display:block; margin-bottom:5px; font-weight:600;">Projekt/Kunde:</label>
+                    <input type="text" id="editInpProject" class="glass-input" placeholder="z.B. Alpha-Migration">
+                </div>
+            </div>
+            
+            <div style="margin-bottom:2rem;">
+                <label style="font-size:0.75rem; color:#666; display:block; margin-bottom:5px; font-weight:600;">Notizen/Info:</label>
+                <textarea id="editInpNotes" class="glass-input" placeholder="z.B. Bugfix in Modul X" style="min-height:100px; resize:vertical;"></textarea>
+            </div>
+            
+            <div style="display:flex; gap:10px; justify-content:flex-end;">
+                <button class="btn" style="background:transparent; border:1px solid var(--border); padding:10px 20px;" onclick="closeEditModal()">Abbrechen</button>
+                <button class="btn btn-primary" onclick="saveEditEntry()" style="padding:10px 30px; background:var(--success);">💾 Speichern</button>
+            </div>
+        </div>
+    </div>
+
 <script>
     // --- STATE & CONFIG ---
     let data = { 
@@ -1615,6 +1675,133 @@
     let timer = { id:null, start:0, paused:0, running:false, log:[], breakTime: 0 }; // breakTime für präzise Pausenmessung
     let editId = null;
     let isSidebarOpen = true; // Für Desktop standardmäßig offen
+
+    // --- CUSTOM MODAL SYSTEM (Glassmorphism) ---
+    let customModalCallback = null;
+    let customModalResolve = null;
+
+    function showCustomMessage(title, message, type = 'info') {
+        const modal = document.getElementById('customMessageModal');
+        const titleEl = document.getElementById('customMessageTitle');
+        const contentEl = document.getElementById('customMessageContent');
+        const confirmBtn = document.getElementById('customMessageBtnConfirm');
+        const cancelBtn = document.getElementById('customMessageBtnCancel');
+
+        titleEl.innerText = title;
+        contentEl.innerText = message;
+        
+        // Styling je nach Nachrichtentyp
+        if (type === 'error') {
+            titleEl.style.color = 'var(--danger)';
+            confirmBtn.style.background = 'var(--danger)';
+        } else if (type === 'success') {
+            titleEl.style.color = 'var(--success)';
+            confirmBtn.style.background = 'var(--success)';
+        } else {
+            titleEl.style.color = 'var(--primary)';
+            confirmBtn.style.background = 'var(--primary)';
+        }
+        
+        cancelBtn.style.display = 'none';
+        modal.classList.add('active');
+        customModalResolve = null;
+    }
+
+    function showCustomConfirm(title, message, onConfirm, onCancel) {
+        const modal = document.getElementById('customMessageModal');
+        const titleEl = document.getElementById('customMessageTitle');
+        const contentEl = document.getElementById('customMessageContent');
+        const confirmBtn = document.getElementById('customMessageBtnConfirm');
+        const cancelBtn = document.getElementById('customMessageBtnCancel');
+
+        titleEl.innerText = title;
+        contentEl.innerText = message;
+        titleEl.style.color = 'var(--primary)';
+        confirmBtn.style.background = 'var(--primary)';
+        
+        customModalCallback = { onConfirm, onCancel };
+        
+        cancelBtn.style.display = 'block';
+        modal.classList.add('active');
+    }
+
+    function closeCustomModal(confirmed) {
+        const modal = document.getElementById('customMessageModal');
+        modal.classList.remove('active');
+        
+        if (customModalCallback) {
+            if (confirmed && customModalCallback.onConfirm) {
+                customModalCallback.onConfirm();
+            } else if (!confirmed && customModalCallback.onCancel) {
+                customModalCallback.onCancel();
+            }
+            customModalCallback = null;
+        }
+    }
+
+    // --- EDIT ENTRY MODAL FUNCTIONS (NEU) ---
+    let editingEntryId = null;
+
+    function openEditModal(id) {
+        const entry = data.entries.find(x => x.id === id);
+        if (!entry) return;
+
+        editingEntryId = id;
+        
+        document.getElementById('editInpDate').value = entry.date;
+        document.getElementById('editInpType').value = entry.type;
+        document.getElementById('editInpHours').value = entry.worked;
+        document.getElementById('editInpProject').value = entry.project || '';
+        document.getElementById('editInpNotes').value = entry.info || '';
+        
+        document.getElementById('editEntryModal').classList.add('active');
+    }
+
+    function closeEditModal() {
+        document.getElementById('editEntryModal').classList.remove('active');
+        editingEntryId = null;
+    }
+
+    function saveEditEntry() {
+        if (!editingEntryId) return;
+
+        const entry = data.entries.find(x => x.id === editingEntryId);
+        if (!entry) return;
+
+        const newDate = document.getElementById('editInpDate').value;
+        const newType = document.getElementById('editInpType').value;
+        const newWorked = parseFloat(document.getElementById('editInpHours').value);
+        const newProject = document.getElementById('editInpProject').value.trim();
+        const newInfo = document.getElementById('editInpNotes').value.trim();
+
+        if (!newDate || isNaN(newWorked)) {
+            showCustomMessage('❌ Validierungsfehler', 'Bitte fülle alle erforderlichen Felder aus (Datum, Stunden).', 'error');
+            return;
+        }
+
+        // Eintrag aktualisieren
+        entry.date = newDate;
+        entry.type = newType;
+        entry.worked = newWorked;
+        entry.project = newProject || undefined;
+        entry.info = newInfo || undefined;
+
+        // Soll-Zeit und Differenz neu berechnen
+        const dayIndex = new Date(newDate).getDay();
+        entry.expected = data.settings.hours[dayIndex] || 0;
+        entry.diff = entry.worked - entry.expected;
+
+        save();
+        closeEditModal();
+        
+        // Aktive View neu rendern
+        if (document.getElementById('view-history').classList.contains('active')) {
+            renderHistoryView();
+        }
+        
+        showCustomMessage('✅ Erfolg', 'Eintrag erfolgreich aktualisiert!', 'success');
+        updateUI();
+    }
 
     // --- INIT ---
     window.onload = () => {
@@ -1870,7 +2057,7 @@
         const target = parseFloat(document.getElementById('goalTarget').value);
         
         if (!title || isNaN(target) || target <= 0) {
-            return alert('Bitte gib einen gültigen Zielnamen und einen Zielwert (> 0) ein.');
+            return showCustomMessage('❌ Ungültige Eingabe', 'Bitte gib einen gültigen Zielnamen und einen Zielwert (> 0) ein.', 'error');
         }
 
         const newGoal = {
@@ -1885,15 +2072,20 @@
         document.getElementById('goalTitle').value = '';
         document.getElementById('goalTarget').value = '';
         renderGoalsView();
-        alert('Neues Ziel erfolgreich hinzugefügt!');
+        showCustomMessage('✅ Erfolg', 'Neues Ziel erfolgreich hinzugefügt!', 'success');
     }
     
     function deleteCustomGoal(id) {
-         if (confirm('Sicher, dass du dieses Ziel löschen möchtest?')) {
-             data.settings.goals = data.settings.goals.filter(goal => goal.id !== id);
-             save();
-             renderGoalsView();
-         }
+         showCustomConfirm(
+             '⚠️ Ziel löschen?',
+             'Möchtest du dieses Ziel wirklich unwiderruflich löschen?',
+             () => {
+                 data.settings.goals = data.settings.goals.filter(goal => goal.id !== id);
+                 save();
+                 renderGoalsView();
+             },
+             null
+         );
     }
 
     function renderGoalsView() {
@@ -2053,7 +2245,7 @@
         data.settings.school.grades = newGrades;
         save();
         renderSchoolGradesInputs(); 
-        alert('Berufsschulnoten gespeichert!');
+        showCustomMessage('✅ Erfolg', 'Berufsschulnoten erfolgreich gespeichert!', 'success');
     }
     
     function calculateSchoolKPIs() {
@@ -2368,7 +2560,7 @@
         
         save();
         renderIHKView();
-        alert('IHK Daten (inkl. Noten) gespeichert und berechnet.');
+        showCustomMessage('✅ Erfolg', 'IHK Daten (inkl. Noten) erfolgreich gespeichert und berechnet.', 'success');
     }
 
 
@@ -2415,7 +2607,7 @@
         const project = document.getElementById('inpProject').value.trim(); 
         const notes = document.getElementById('inpNotes').value.trim();
 
-        if(!dateStr) return alert('Bitte Datum wählen');
+        if(!dateStr) return showCustomMessage('❌ Fehler', 'Bitte wähle ein Datum aus.', 'error');
         
         const date = new Date(dateStr);
         let worked = 0;
@@ -2483,7 +2675,7 @@
                     const additionalBreakMs = (minBreakRequired - timerBreakMinutes) * 60000;
                     h -= (additionalBreakMs / 3.6e6);
                     breakMinutes = minBreakRequired;
-                    alert(`Hinweis: ${minBreakRequired} Minuten Mindestpause abgezogen (Timer-Pause war zu kurz).`);
+                    showCustomMessage('ℹ️ Hinweis', `${minBreakRequired} Minuten Mindestpause abgezogen (Timer-Pause war zu kurz).`, 'info');
                  } else {
                     breakMinutes = timerBreakMinutes;
                  }
@@ -2498,7 +2690,7 @@
                  saveTimerState();
                  displayTimerTime(0);
 
-            } else return alert('Bitte Zeit, Stunden oder Timer-Daten eingeben');
+            } else return showCustomMessage('❌ Fehler', 'Bitte gebe Zeit, Stunden oder Timer-Daten ein.', 'error');
             
             diff = worked - expected;
 
@@ -2647,22 +2839,27 @@
             let h_netto = h_raw - (timer.breakTime / 3.6e6); // Netto-Stunden
 
             // Manuelle Mindestpausen-Korrektur (wird in handleEntry detailliert durchgeführt)
-            if (confirm(`Zeit stoppen: ${h_netto.toFixed(2)}h (Pausenzeit: ${(timer.breakTime / 3.6e6).toFixed(2)}h)?`)) {
-                // Den Netto-Wert in das Stundenfeld übertragen, damit handleEntry es verarbeitet
-                document.getElementById('inpHours').value = h_netto.toFixed(2);
-                document.getElementById('inpType').value = 'work';
-                document.getElementById('inpDate').valueAsDate = new Date();
-                
-                // Da handleEntry Timer-Daten automatisch übernimmt, rufen wir es auf
-                handleEntry(); 
-                
-                // Timer ist bereits in handleEntry zurückgesetzt
-            } else {
-                // Wenn Abbruch, Log und Timer auf Pause-Status zurücksetzen
-                timer.running = false;
-                timer.log.pop(); // Stop-Eintrag entfernen
-                saveTimerState();
-            }
+            showCustomConfirm(
+                '⏹️ Zeit stoppen?',
+                `Geleistete Zeit: ${h_netto.toFixed(2)}h\nPausenzeit: ${(timer.breakTime / 3.6e6).toFixed(2)}h`,
+                () => {
+                    // Den Netto-Wert in das Stundenfeld übertragen, damit handleEntry es verarbeitet
+                    document.getElementById('inpHours').value = h_netto.toFixed(2);
+                    document.getElementById('inpType').value = 'work';
+                    document.getElementById('inpDate').valueAsDate = new Date();
+                    
+                    // Da handleEntry Timer-Daten automatisch übernimmt, rufen wir es auf
+                    handleEntry(); 
+                    
+                    // Timer ist bereits in handleEntry zurückgesetzt
+                },
+                () => {
+                    // Wenn Abbruch, Log und Timer auf Pause-Status zurücksetzen
+                    timer.running = false;
+                    timer.log.pop(); // Stop-Eintrag entfernen
+                    saveTimerState();
+                }
+            );
         }
     }
     
@@ -2814,38 +3011,42 @@
         const startStr = document.getElementById('periodStart').value;
         const endStr = document.getElementById('periodEnd').value;
         
-        if (!startStr || !endStr) return alert('Bitte Start- und Enddatum für die zu löschende Periode wählen.');
+        if (!startStr || !endStr) return showCustomMessage('❌ Fehler', 'Bitte wähle Start- und Enddatum für die zu löschende Periode.', 'error');
 
         const startDate = new Date(startStr);
         const endDate = new Date(endStr);
         
-        if (startDate > endDate) return alert('Startdatum muss vor Enddatum liegen.');
+        if (startDate > endDate) return showCustomMessage('❌ Fehler', 'Startdatum muss vor Enddatum liegen.', 'error');
         
-        if (!confirm(`Sicher? Alle Periodenbuchungen (Urlaub/Feiertag) zwischen ${startStr} und ${endStr} werden unwiderruflich gelöscht!`)) {
-            return;
-        }
+        showCustomConfirm(
+            '⚠️ Periodenbuchungen löschen?',
+            `Alle Periodenbuchungen (Urlaub/Feiertag) zwischen ${startStr} und ${endStr} werden unwiderruflich gelöscht!`,
+            () => {
+                let deletedCount = 0;
 
-        let deletedCount = 0;
-
-        // Nur Einträge löschen, die vom Typ vacation oder holiday sind UND die in der Periode liegen
-        data.entries = data.entries.filter(e => {
-            const eDate = new Date(e.date);
-            
-            const isTargetType = (e.type === 'vacation' || e.type === 'holiday');
-            const isWithinPeriod = eDate >= startDate && eDate <= endDate;
-            
-            if (isTargetType && isWithinPeriod) {
-                deletedCount++;
-                return false; // Eintrag löschen (nicht behalten)
-            }
-            return true; // Eintrag behalten
-        });
-        
-        recalculateVacationUsed();
-        
-        alert(`${deletedCount} Perioden-Buchungen wurden gelöscht.`);
-        save();
-        document.getElementById('settingsModal').classList.remove('active');
+                // Nur Einträge löschen, die vom Typ vacation oder holiday sind UND die in der Periode liegen
+                data.entries = data.entries.filter(e => {
+                    const eDate = new Date(e.date);
+                    
+                    const isTargetType = (e.type === 'vacation' || e.type === 'holiday');
+                    const isWithinPeriod = eDate >= startDate && eDate <= endDate;
+                    
+                    if (isTargetType && isWithinPeriod) {
+                        deletedCount++;
+                        return false; // Eintrag löschen (nicht behalten)
+                    }
+                    return true; // Eintrag behalten
+                });
+                
+                recalculateVacationUsed();
+                
+                showCustomMessage('✅ Erfolg', `${deletedCount} Perioden-Buchungen wurden gelöscht.`, 'success');
+                save();
+                document.getElementById('settingsModal').classList.remove('active');
+            },
+            null
+        );
+        return;
     }
 
 
@@ -2854,11 +3055,11 @@
         const endStr = document.getElementById('periodEnd').value;
         const periodType = document.getElementById('periodType').value;
         
-        if (!startStr || !endStr) return alert('Bitte Start- und Enddatum wählen.');
+        if (!startStr || !endStr) return showCustomMessage('❌ Fehler', 'Bitte wähle Start- und Enddatum.', 'error');
 
         const startDate = new Date(startStr);
         const endDate = new Date(endStr);
-        if (startDate > endDate) return alert('Startdatum muss vor Enddatum liegen.');
+        if (startDate > endDate) return showCustomMessage('❌ Fehler', 'Startdatum muss vor Enddatum liegen.', 'error');
         
         const tempEntries = [];
         const daysToOverride = [];
@@ -2894,24 +3095,41 @@
         }
 
         if (daysToOverride.length > 0) {
-            if (!confirm(`Achtung! ${daysToOverride.length} Tage haben bereits Einträge (z.B. Arbeit oder Schule). Sollen diese überschrieben/gelöscht werden?`)) {
-                return;
-            }
-            data.entries = data.entries.filter(e => !daysToOverride.includes(e.date));
-        }
-        
-        // Automatisch generierte Feiertage im Zeitraum löschen, um doppelte Zählung zu vermeiden
-        data.entries = data.entries.filter(e => {
-            const eDate = new Date(e.date);
-            return !(e.type === 'holiday' && !e.isPeriod && eDate >= startDate && eDate <= endDate);
-        });
+            showCustomConfirm(
+                '⚠️ Einträge überschreiben?',
+                `Achtung! ${daysToOverride.length} Tage haben bereits Einträge (z.B. Arbeit oder Schule).\nSollen diese überschrieben/gelöscht werden?`,
+                () => {
+                    data.entries = data.entries.filter(e => !daysToOverride.includes(e.date));
+                    
+                    // Automatisch generierte Feiertage im Zeitraum löschen, um doppelte Zählung zu vermeiden
+                    data.entries = data.entries.filter(e => {
+                        const eDate = new Date(e.date);
+                        return !(e.type === 'holiday' && !e.isPeriod && eDate >= startDate && eDate <= endDate);
+                    });
 
-        data.entries.push(...tempEntries);
-        recalculateVacationUsed();
-        
-        alert(`${tempEntries.length} Tage vom Typ "${periodType}" erfolgreich gebucht!`);
-        save();
-        document.getElementById('settingsModal').classList.remove('active');
+                    data.entries.push(...tempEntries);
+                    recalculateVacationUsed();
+                    
+                    showCustomMessage('✅ Erfolg', `${tempEntries.length} Tage vom Typ "${periodType}" erfolgreich gebucht!`, 'success');
+                    save();
+                    document.getElementById('settingsModal').classList.remove('active');
+                },
+                null
+            );
+        } else {
+            // Automatisch generierte Feiertage im Zeitraum löschen, um doppelte Zählung zu vermeiden
+            data.entries = data.entries.filter(e => {
+                const eDate = new Date(e.date);
+                return !(e.type === 'holiday' && !e.isPeriod && eDate >= startDate && eDate <= endDate);
+            });
+
+            data.entries.push(...tempEntries);
+            recalculateVacationUsed();
+            
+            showCustomMessage('✅ Erfolg', `${tempEntries.length} Tage vom Typ "${periodType}" erfolgreich gebucht!`, 'success');
+            save();
+            document.getElementById('settingsModal').classList.remove('active');
+        }
     }
     
     function getGermanHolidays(year) {
@@ -3837,53 +4055,56 @@
     
     // Plan auf die tatsächlichen Entries anwenden (z.B. Urlaub buchen)
     function applyPrognosePlan() {
-        if (!confirm('Plan anwenden? Die Einträge im Plan (Urlaub/Krank/Schule) werden als neue Einträge für die Zukunft gebucht und überschreiben existierende. Arbeitstage werden NICHT gebucht.')) {
-            return;
-        }
-        
-        let bookedCount = 0;
-        const now = new Date();
-        now.setHours(0, 0, 0, 0);
+        showCustomConfirm(
+            '🔮 Prognose-Plan anwenden?',
+            'Die Einträge im Plan (Urlaub/Krank/Schule) werden als neue Einträge für die Zukunft gebucht und überschreiben existierende Einträge. Arbeitstage werden NICHT gebucht.',
+            () => {
+                let bookedCount = 0;
+                const now = new Date();
+                now.setHours(0, 0, 0, 0);
 
-        for (const dateKey in data.settings.prognosePlan) {
-            const planType = data.settings.prognosePlan[dateKey];
-            const dateObj = new Date(dateKey);
+                for (const dateKey in data.settings.prognosePlan) {
+                    const planType = data.settings.prognosePlan[dateKey];
+                    const dateObj = new Date(dateKey);
 
-            // Nur für zukünftige Tage anwenden
-            if (dateObj.getTime() >= now.getTime()) {
-                
-                // Nur Freistellungs-Typen buchen (Arbeit wird über Live-Tracker/Manuell erfasst)
-                if (planType !== 'work' && planType !== 'reset') {
-                    
-                    const dayIndex = dateObj.getDay();
-                    const expected = data.settings.hours[dayIndex] || 0;
+                    // Nur für zukünftige Tage anwenden
+                    if (dateObj.getTime() >= now.getTime()) {
+                        
+                        // Nur Freistellungs-Typen buchen (Arbeit wird über Live-Tracker/Manuell erfasst)
+                        if (planType !== 'work' && planType !== 'reset') {
+                            
+                            const dayIndex = dateObj.getDay();
+                            const expected = data.settings.hours[dayIndex] || 0;
 
-                    // Bestehenden Eintrag im Planungszeitraum überschreiben/löschen
-                    data.entries = data.entries.filter(e => e.date !== dateKey);
-                    
-                    if (expected > 0) {
-                        data.entries.push({
-                            id: Date.now() + Math.random(),
-                            date: dateKey,
-                            type: planType,
-                            worked: expected,
-                            expected: expected,
-                            diff: 0,
-                            info: `Gebucht via Prognose-Plan (${planType})`,
-                            isPeriod: true,
-                            breakMins: 0, shiftEnd: '', shiftWarning: false
-                        });
-                        bookedCount++;
+                            // Bestehenden Eintrag im Planungszeitraum überschreiben/löschen
+                            data.entries = data.entries.filter(e => e.date !== dateKey);
+                            
+                            if (expected > 0) {
+                                data.entries.push({
+                                    id: Date.now() + Math.random(),
+                                    date: dateKey,
+                                    type: planType,
+                                    worked: expected,
+                                    expected: expected,
+                                    diff: 0,
+                                    info: `Gebucht via Prognose-Plan (${planType})`,
+                                    isPeriod: true,
+                                    breakMins: 0, shiftEnd: '', shiftWarning: false
+                                });
+                                bookedCount++;
+                            }
+                        }
                     }
                 }
-            }
-        }
 
-        data.settings.prognosePlan = {}; // Plan nach Anwendung zurücksetzen
-        recalculateVacationUsed();
-        save();
-        alert(`${bookedCount} Tage aus der Prognose (Urlaub/Krank/Schule) wurden als zukünftige Einträge gebucht.`);
-        renderPrognoseView(); // Ansicht neu laden
+                data.settings.prognosePlan = {}; // Plan nach Anwendung zurücksetzen
+                recalculateVacationUsed();
+                save();
+                if (bookedCount > 0) showCustomMessage('✅ Erfolg', `${bookedCount} Tage aus der Prognose (Urlaub/Krank/Schule) wurden als zukünftige Einträge gebucht.`, 'success');
+                renderPrognoseView(); // Ansicht neu laden
+            },
+            null
+        );
     }
     
 
@@ -3960,7 +4181,7 @@
         const filtered = filterHistoryData(); 
 
         if (filtered.length === 0) {
-            return alert('Keine Daten für den Export gefunden. Bitte Filter prüfen.');
+            return showCustomMessage('❌ Fehler', 'Keine Daten für den Export gefunden. Bitte überprüfe deine Filter.', 'error');
         }
 
         let fileContent;
@@ -3985,7 +4206,7 @@
         a.download = fileName;
         a.click();
         
-        alert(`Export von ${filtered.length} gefilterten Einträgen als ${format.toUpperCase()} gestartet.`);
+        showCustomMessage('✅ Export gestartet', `Export von ${filtered.length} gefilterten Einträgen als ${format.toUpperCase()} wird vorbereitet...`, 'success');
     }
 
     function convertToCSV(dataArray) {
@@ -4033,19 +4254,7 @@
     }
 
     function editEntry(id) {
-        const e = data.entries.find(x => x.id === id);
-        editId = id;
-        document.getElementById('inpDate').value = e.date;
-        document.getElementById('inpType').value = e.type;
-        document.getElementById('inpHours').value = e.worked;
-        
-        // NEU: Projekt und Notiz laden
-        document.getElementById('inpProject').value = e.project || '';
-        document.getElementById('inpNotes').value = e.info || ''; 
-
-        document.getElementById('mainBtn').innerText = "Update Speichern";
-        document.getElementById('cancelBtn').style.display = "block";
-        window.scrollTo({top:0, behavior:'smooth'});
+        openEditModal(id);
     }
     
     function resetEdit() {
@@ -4060,14 +4269,19 @@
     }
 
     function delEntry(id) {
-        if(confirm('Löschen?')) {
-            data.entries = data.entries.filter(e => e.id !== id);
-            recalculateVacationUsed(); 
-            save();
-            if (document.getElementById('view-history').classList.contains('active')) {
-                 renderHistoryView();
-            }
-        }
+        showCustomConfirm(
+            '🗑️ Eintrag löschen?',
+            'Möchtest du diesen Eintrag wirklich unwiderruflich löschen?',
+            () => {
+                data.entries = data.entries.filter(e => e.id !== id);
+                recalculateVacationUsed(); 
+                save();
+                if (document.getElementById('view-history').classList.contains('active')) {
+                     renderHistoryView();
+                }
+            },
+            null
+        );
     }
     
     function openCorrection(type) {
@@ -4130,7 +4344,7 @@
                 save(); 
                 location.reload(); 
             } catch(x){
-                alert('Fehler beim Importieren der Datei. Stelle sicher, dass es eine gültige JSON-Backup-Datei ist.');
+                showCustomMessage('❌ Import-Fehler', 'Fehler beim Importieren der Datei. Stelle sicher, dass es eine gültige JSON-Backup-Datei ist.', 'error');
             } 
         };
         r.readAsText(e.target.files[0]);
