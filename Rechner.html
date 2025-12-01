@@ -793,11 +793,11 @@
         .subject-grade-card .ihk-metric-value {
              font-size: 1.8rem;
         }
-        /* Prognose View Styling */
+        /* Prognose View Styling (MODERNISIERT) */
         .prognose-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 10px;
+            gap: 15px;
             margin-bottom: 20px;
         }
         .prognose-header {
@@ -810,32 +810,60 @@
             margin-bottom: 10px;
         }
         .prognose-day {
-            text-align: center;
-            padding: 10px 5px;
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.03);
+            text-align: left;
+            padding: 16px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             font-size: 0.85rem;
             position: relative;
-            min-height: 80px;
+            min-height: 100px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
         .prognose-day:hover {
-            background: rgba(255, 255, 255, 0.1);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.05) 100%);
+            transform: translateY(-6px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.2);
         }
         .prognose-day.today {
-            border: 2px solid var(--primary);
+            border-color: var(--primary);
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.25) 0%, rgba(168, 85, 247, 0.08) 100%);
+            box-shadow: 0 8px 20px rgba(168, 85, 247, 0.2);
         }
-        .prognose-day.type-work { background: var(--primary-dim); border: 1px solid var(--primary); }
-        .prognose-day.type-school { background: rgba(59, 130, 246, 0.1); border: 1px solid var(--school); }
-        .prognose-day.type-vacation { background: rgba(16, 185, 129, 0.1); border: 1px solid var(--success); }
-        .prognose-day.type-holiday, .prognose-day.type-sick { background: rgba(245, 158, 11, 0.1); border: 1px solid var(--holiday); }
+        .prognose-day.type-work { 
+            border-color: rgba(168, 85, 247, 0.5);
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(168, 85, 247, 0.05) 100%);
+        }
+        .prognose-day.type-school { 
+            border-color: rgba(59, 130, 246, 0.5);
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(59, 130, 246, 0.05) 100%);
+        }
+        .prognose-day.type-vacation { 
+            border-color: rgba(16, 185, 129, 0.5);
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0.05) 100%);
+        }
+        .prognose-day.type-holiday { 
+            border-color: rgba(245, 158, 11, 0.5);
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(245, 158, 11, 0.05) 100%);
+        }
+        .prognose-day.type-sick { 
+            border-color: rgba(239, 68, 68, 0.5);
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(239, 68, 68, 0.05) 100%);
+        }
         .day-label { color: var(--text-muted); font-size: 0.7rem; margin-bottom: 5px; }
         .day-expected { font-weight: 600; font-family: var(--font-mono); font-size: 1rem; }
         .day-saldo { font-size: 0.75rem; margin-top: 5px; color: var(--success); }
+        
+        /* Prognose Stats Cards */
+        #prognoseStats {
+            animation: fadeIn 0.4s ease forwards;
+        }
 
 
         /* --- MOBILE RESPONSIVENESS --- */
@@ -931,6 +959,9 @@
         </div>
         <div class="nav-item" id="nav-goals" onclick="switchTab('goals')">
             <span>🏆</span> Ziele & Fokus
+        </div>
+        <div class="nav-item" id="nav-yearview" onclick="switchTab('yearview')">
+            <span>📆</span> Jahresübersicht
         </div>
         <div class="nav-item" id="nav-history" onclick="switchTab('history')">
             <span>🔎</span> Analyse & Historie
@@ -1230,38 +1261,85 @@
         </div>
         
         <div id="view-prognose" class="view-section">
-            <h2 style="margin-bottom:1.5rem; color:#06b6d4;">🔮 Saldo Prognose & Zukunftsplanung</h2>
-            <div class="kpi-grid" style="grid-template-columns: 1fr 1fr;">
-                <div class="card kpi-large" style="border-left: 5px solid #06b6d4;">
-                    <div class="kpi-large-label">SALDO HEUTE (Startwert)</div>
-                    <div class="kpi-large-value" id="prognoseStartSaldo" style="color:var(--text-main);">+0h</div>
-                    <div style="font-size:0.8rem; color:var(--text-muted);">Basierend auf dem aktuellen Gleitzeitkonto</div>
+            <h2 style="margin-bottom:0.5rem; color:#06b6d4;">🔮 Saldo Prognose & Intelligente Zukunftsplanung</h2>
+            <p style="color:var(--text-muted); margin-bottom:2rem;">Plane deine Arbeitszeit für die nächsten 4 Wochen und sieh die Auswirkung auf dein Gleitzeitkonto in Echtzeit.</p>
+            
+            <!-- MODERNE KPI-KARTEN MIT ANIMATIONEN -->
+            <div class="kpi-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); margin-bottom:2rem;">
+                <div class="card" style="background: linear-gradient(135deg, rgba(6, 182, 212, 0.15) 0%, rgba(6, 182, 212, 0.05) 100%); border: 2px solid rgba(6, 182, 212, 0.3); border-left: 5px solid #06b6d4; position: relative; overflow: hidden;">
+                    <div style="position: absolute; top: -20px; right: -20px; width: 80px; height: 80px; background: radial-gradient(circle, rgba(6, 182, 212, 0.2) 0%, transparent 70%); border-radius: 50%;"></div>
+                    <div class="kpi-large-label">🔵 SALDO HEUTE</div>
+                    <div class="kpi-large-value" id="prognoseStartSaldo" style="color:#06b6d4; font-size:3rem; margin:15px 0;">+0h</div>
+                    <div style="font-size:0.85rem; color:var(--text-muted); line-height:1.6;">Dein aktueller Stand im Gleitzeitkonto. Dies ist der Ausgangspunkt für die Planung.</div>
                 </div>
-                 <div class="card kpi-large" style="border-left: 5px solid var(--success);">
-                    <div class="kpi-large-label">SALDO NACH PLANUNG (Endwert)</div>
-                    <div class="kpi-large-value" id="prognoseEndSaldo" style="color:var(--success);">+0h</div>
-                    <div style="font-size:0.8rem; color:var(--text-muted);">Saldo am Ende der Planungsperiode</div>
+                
+                <div class="card" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0.05) 100%); border: 2px solid rgba(16, 185, 129, 0.3); border-left: 5px solid var(--success); position: relative; overflow: hidden;">
+                    <div style="position: absolute; top: -20px; right: -20px; width: 80px; height: 80px; background: radial-gradient(circle, rgba(16, 185, 129, 0.2) 0%, transparent 70%); border-radius: 50%;"></div>
+                    <div class="kpi-large-label">🎯 ZIEL-SALDO</div>
+                    <div class="kpi-large-value" id="prognoseEndSaldo" style="color:var(--success); font-size:3rem; margin:15px 0;">+0h</div>
+                    <div style="font-size:0.85rem; color:var(--text-muted); line-height:1.6;">Dein voraussichtlicher Saldo nach 4 Wochen. Basierend auf deinem Plan.</div>
+                </div>
+                
+                <div class="card" style="background: linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(168, 85, 247, 0.05) 100%); border: 2px solid rgba(168, 85, 247, 0.3); border-left: 5px solid var(--primary); position: relative; overflow: hidden;">
+                    <div style="position: absolute; top: -20px; right: -20px; width: 80px; height: 80px; background: radial-gradient(circle, rgba(168, 85, 247, 0.2) 0%, transparent 70%); border-radius: 50%;"></div>
+                    <div class="kpi-large-label">📊 VERÄNDERUNG</div>
+                    <div class="kpi-large-value" id="prognoseDelta" style="color:var(--primary); font-size:3rem; margin:15px 0;">+0h</div>
+                    <div style="font-size:0.85rem; color:var(--text-muted); line-height:1.6;">Saldo-Differenz zwischen Start und Ziel. Wende den Plan an, um zu buchen.</div>
                 </div>
             </div>
             
-            <div class="card">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
-                    <h3 style="font-size:1.1rem;">Planungs-Kalender (Nächste 4 Wochen)</h3>
-                     <select id="prognosePlanSelect" class="glass-select" style="width:200px;">
-                        <option value="work">💼 Arbeit</option>
-                        <option value="school">📚 Schule</option>
-                        <option value="vacation">🌴 Urlaub</option>
-                        <option value="sick">💊 Krank</option>
-                        <option value="reset">❌ Zurücksetzen</option>
-                    </select>
-                </div>
-                
-                <div class="prognose-grid" id="prognoseCalendar">
+            <!-- INTELLIGENTE PLANER-INTERFACE -->
+            <div class="card" style="background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%); border: 2px solid var(--border); margin-bottom:2rem;">
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin-bottom:2rem;">
+                    <div>
+                        <h3 style="font-size:1.1rem; margin-bottom:1rem; color:var(--text-main);">📅 Planungs-Kalender (Nächste 4 Wochen)</h3>
+                        <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:1rem;">Klicke auf einen Tag, um seinen Status zu ändern. Die Saldo-Prognose aktualisiert sich in Echtzeit.</p>
                     </div>
-                
-                <div style="display:flex; justify-content:flex-end; margin-top: 1.5rem;">
-                     <button class="btn btn-primary" onclick="applyPrognosePlan()" style="width: 300px; background:#06b6d4;">Plan anwenden & Saldo aktualisieren</button>
+                    <div>
+                        <h4 style="font-size:0.9rem; margin-bottom:1rem; color:var(--primary);">⚡ Schnell-Aktionen</h4>
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                            <select id="prognosePlanSelect" class="glass-select" style="padding:12px; border-radius:10px; background:rgba(0,0,0,0.2);" onchange="highlightSelectAction()">
+                                <option value="">-- Modus wählen --</option>
+                                <option value="work">💼 Arbeit</option>
+                                <option value="school">📚 Schule</option>
+                                <option value="vacation">🌴 Urlaub</option>
+                                <option value="sick">💊 Krank</option>
+                                <option value="reset">❌ Zurücksetzen</option>
+                            </select>
+                            <button class="btn" style="background:var(--primary); border:none; padding:12px; border-radius:10px; cursor:pointer; color:#fff; font-weight:600;" onclick="resetPrognosePlan()">↺ Plan Zurücksetzen</button>
+                        </div>
+                    </div>
                 </div>
+                
+                <div class="prognose-grid" id="prognoseCalendar" style="border: 2px solid rgba(255,255,255,0.05); border-radius:16px; padding:20px; background:rgba(0,0,0,0.2);">
+                </div>
+            </div>
+            
+            <!-- PROGNOSE-DETAILS & INFORMATIONEN -->
+            <div class="card" style="display:grid; grid-template-columns: 1fr 1fr; gap:2rem; margin-bottom:2rem;">
+                <div>
+                    <h4 style="color:var(--primary); margin-bottom:1rem; font-size:0.95rem;">📈 Prognose-Statistiken</h4>
+                    <div id="prognoseStats" style="display:flex; flex-direction:column; gap:12px;">
+                        <!-- Werden dynamisch gefüllt -->
+                    </div>
+                </div>
+                <div>
+                    <h4 style="color:var(--success); margin-bottom:1rem; font-size:0.95rem;">💡 Tipps & Hinweise</h4>
+                    <div style="font-size:0.85rem; line-height:1.8; color:var(--text-muted);">
+                        <p>✓ Klicke auf einen Tag um seinen Status zu wechseln</p>
+                        <p>✓ Die Prognose berechnet sich automatisch neu</p>
+                        <p>✓ Der \"Plan anwenden\"-Button bucht die Änderungen als echte Einträge</p>
+                        <p>✓ Arbeitstage beeinflussen den Saldo nicht (nur Freistellungen)</p>
+                        <p>✓ Du kannst den Plan jederzeit zurücksetzen</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- AKTIONS-BUTTONS -->
+            <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:15px; margin-top:2rem;">
+                <button class="btn btn-primary" onclick="applyPrognosePlan()" style="background:var(--success); padding:15px; border-radius:12px; font-size:0.95rem; font-weight:600;">✓ Plan anwenden & buchen</button>
+                <button class="btn btn-primary" onclick="downloadPrognoseReport()" style="background:#06b6d4; padding:15px; border-radius:12px; font-size:0.95rem; font-weight:600;">📥 Plan als Bericht exportieren</button>
+                <button class="btn btn-primary" onclick="showPrognoseHelp()" style="background:var(--primary); padding:15px; border-radius:12px; font-size:0.95rem; font-weight:600;">❓ Hilfe & Erklärung</button>
             </div>
 
         </div>
@@ -1488,6 +1566,85 @@
                     <div class="goal-status">Noch nicht erreicht</div>
                 </div>
             </div>
+        </div>
+
+        <div id="view-yearview" class="view-section">
+            <h2 style="margin-bottom:0.5rem;">📆 Jahresübersicht & Intelligente Insights</h2>
+            <p style="color:var(--text-muted); margin-bottom:2rem;">Deine komplette Arbeitsleistung auf einen Blick. Sieh deine Produktivitätsmuster und erhalte personalisierte Empfehlungen.</p>
+            
+            <!-- JAHRES-STATISTIK HEADER -->
+            <div class="kpi-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom:2rem;">
+                <div class="card" style="border-left: 5px solid var(--primary);">
+                    <div class="audit-label">Gesamte Arbeitszeit</div>
+                    <div style="font-size:2rem; font-weight:800; color:var(--primary); margin:10px 0; font-family:var(--font-mono);" id="yearTotalWorked">0h</div>
+                    <div style="font-size:0.8rem; color:var(--text-muted);">In diesem Jahr</div>
+                </div>
+                <div class="card" style="border-left: 5px solid var(--success);">
+                    <div class="audit-label">Durchschnittlich pro Tag</div>
+                    <div style="font-size:2rem; font-weight:800; color:var(--success); margin:10px 0; font-family:var(--font-mono);" id="yearAvgDaily">0h</div>
+                    <div style="font-size:0.8rem; color:var(--text-muted);">An Arbeitstagen</div>
+                </div>
+                <div class="card" style="border-left: 5px solid #06b6d4;">
+                    <div class="audit-label">Saldo am Jahresende</div>
+                    <div style="font-size:2rem; font-weight:800; color:#06b6d4; margin:10px 0; font-family:var(--font-mono);" id="yearEndSaldo">+0h</div>
+                    <div style="font-size:0.8rem; color:var(--text-muted);">Prognose Dezember</div>
+                </div>
+                <div class="card" style="border-left: 5px solid var(--holiday);">
+                    <div class="audit-label">Produktivste Woche</div>
+                    <div style="font-size:2rem; font-weight:800; color:var(--holiday); margin:10px 0; font-family:var(--font-mono);" id="yearBestWeek">KW --</div>
+                    <div style="font-size:0.8rem; color:var(--text-muted); font-family:var(--font-mono);" id="yearBestWeekValue">+0h</div>
+                </div>
+            </div>
+            
+            <!-- JAHRES-HEATMAP -->
+            <div class="card" style="margin-bottom:2rem;">
+                <h3 style="font-size:1.1rem; margin-bottom:1.5rem;">🔥 Produktivitäts-Heatmap</h3>
+                <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:1.5rem;">Jedes Quadrat = 1 Tag. Farbe zeigt deine Saldo-Leistung. Grün = positiv, Rot = negativ, Grau = kein Eintrag.</p>
+                
+                <div style="overflow-x: auto; padding-bottom: 1rem;">
+                    <div id="yearHeatmap" style="display:inline-block; min-width:100%;"></div>
+                </div>
+                
+                <div style="display:flex; gap:2rem; margin-top:2rem; padding-top:1.5rem; border-top:1px solid var(--border); flex-wrap:wrap; font-size:0.85rem;">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <div style="width:20px; height:20px; background:#ef4444; border-radius:4px;"></div>
+                        <span>Saldo negativ (-)</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <div style="width:20px; height:20px; background:#fbbf24; border-radius:4px;"></div>
+                        <span>Leicht positiv (0-1h)</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <div style="width:20px; height:20px; background:var(--success); border-radius:4px;"></div>
+                        <span>Positiv (1-3h)</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <div style="width:20px; height:20px; background:var(--primary); border-radius:4px;"></div>
+                        <span>Sehr positiv (3h+)</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <div style="width:20px; height:20px; background:#475569; border-radius:4px;"></div>
+                        <span>Kein Eintrag</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- INTELLIGENTE INSIGHTS -->
+            <div class="card" style="margin-bottom:2rem;">
+                <h3 style="font-size:1.1rem; margin-bottom:1.5rem; color:var(--primary);">💡 KI-Insights & Empfehlungen</h3>
+                <div id="yearInsights" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:1.5rem;">
+                    <!-- Werden dynamisch gefüllt -->
+                </div>
+            </div>
+            
+            <!-- MONATS-VERGLEICH -->
+            <div class="card">
+                <h3 style="font-size:1.1rem; margin-bottom:1.5rem;">📊 Monatlicher Vergleich</h3>
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap:1rem;" id="yearMonthlyComparison">
+                    <!-- Werden dynamisch gefüllt -->
+                </div>
+            </div>
+
         </div>
 
         <div id="view-history" class="view-section">
@@ -2129,7 +2286,8 @@
             'ihk': 'IHK / Karriere', 
             'school': 'Berufsschule Audit', 
             'goals': 'Ziele & Fokus',
-            'prognose': 'Saldo Prognose & Zukunftsplanung', // NEU
+            'prognose': 'Saldo Prognose & Zukunftsplanung',
+            'yearview': 'Jahresübersicht & Insights',
         };
         document.querySelector('.page-title').textContent = titles[tabId];
 
@@ -2157,6 +2315,9 @@
         }
         if (tabId === 'prognose') { // NEU
             renderPrognoseView();
+        }
+        if (tabId === 'yearview') {
+            renderYearView();
         }
     }
     
@@ -4127,72 +4288,91 @@
     }
 
 
-    // --- PROGNOSE ENGINE LOGIC (NEU) ---
+    // --- PROGNOSE ENGINE LOGIC (NEU & ÜBERARBEITET) ---
 
     // Initialisiert oder lädt den Prognose-Kalender
     function renderPrognoseView() {
         const calendarEl = document.getElementById('prognoseCalendar');
         const startSaldoEl = document.getElementById('prognoseStartSaldo');
         const endSaldoEl = document.getElementById('prognoseEndSaldo');
+        const deltaEl = document.getElementById('prognoseDelta');
         
         // 1. Aktuellen Saldo bestimmen
         const currentTotalSaldo = data.entries.reduce((sum, e) => sum + e.diff, 0);
         startSaldoEl.innerText = (currentTotalSaldo >= 0 ? '+' : '') + currentTotalSaldo.toFixed(2) + 'h';
-        startSaldoEl.style.color = currentTotalSaldo >= 0 ? 'var(--success)' : 'var(--danger)';
+        startSaldoEl.style.color = currentTotalSaldo >= 0 ? '#06b6d4' : 'var(--danger)';
         
         // 2. Kalender-Daten für die nächsten 4 Wochen generieren
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         let currentDay = new Date(today);
-        let calendarHTML = '<div class="prognose-header"><span>KW</span><span>Mo</span><span>Di</span><span>Mi</span><span>Do</span><span>Fr</span><span>Sa</span><span>So</span></div>';
+        let calendarHTML = '';
         
-        let simulationPlan = JSON.parse(JSON.stringify(data.settings.prognosePlan)); // Kopie des Plans
-
+        let simulationPlan = JSON.parse(JSON.stringify(data.settings.prognosePlan));
         const DAYS_TO_PLAN = 28;
         let cumulativeSaldo = currentTotalSaldo;
         const saldoHistory = {};
+        
+        // Wochenheader
+        const weekDays = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
+        const weekColors = ['#3b82f6', '#06b6d4', '#8b5cf6', '#f59e0b', '#10b981', '#ec4899', '#64748b'];
+        
+        calendarHTML += '<div style="display:grid; grid-template-columns: repeat(7, 1fr); gap:10px; margin-bottom:20px; padding-bottom:15px; border-bottom: 2px solid var(--border);">';
+        weekDays.forEach((day, i) => {
+            calendarHTML += `<div style="text-align:center; font-weight:700; color:${weekColors[i]}; font-size:0.9rem; text-transform:uppercase; letter-spacing:0.5px;">${day}</div>`;
+        });
+        calendarHTML += '</div>';
+        
+        let dayCounter = 0;
+        let weekCounter = 0;
 
         for (let i = 0; i < DAYS_TO_PLAN; i++) {
             const dateKey = currentDay.toISOString().split('T')[0];
             const dayIndex = currentDay.getDay(); // 0=So, 1=Mo
             const isToday = currentDay.toDateString() === today.toDateString();
-            
-            // Wochenbeginn: KW anzeigen
-            if (dayIndex === 1 || i === 0) {
-                 calendarHTML += `<div class="prognose-day" style="background:rgba(255,255,255,0.05); cursor:default; font-weight:700;">KW ${getWeek(currentDay)}</div>`;
-            }
+            const dayOfWeek = dayIndex === 0 ? 6 : dayIndex - 1; // 0=Mo, 6=So
             
             // Soll-Stunden und Planungstyp
             const expectedHours = data.settings.hours[dayIndex] || 0;
-            const planType = simulationPlan[dateKey] || (expectedHours > 0 ? 'work' : 'holiday'); 
+            const planType = simulationPlan[dateKey] || (expectedHours > 0 ? 'work' : 'holiday');
 
-            // Saldo-Berechnung für den Tag (nur Arbeitstypen haben Diff > 0)
-            let dailyDiff = 0;
-            if (planType === 'work') {
-                // Annahme: Volle Sollzeit wird geleistet, Saldo = 0
-                dailyDiff = 0; 
-            } else if (planType === 'school' || planType === 'vacation' || planType === 'sick' || planType === 'holiday' || expectedHours === 0) {
-                // Bei Freistellung oder Nicht-Arbeitstagen keine Saldo-Veränderung
-                dailyDiff = 0;
-            } else {
-                 // Sollte nicht passieren, aber als Fallback
-                 dailyDiff = 0;
-            }
-
-            cumulativeSaldo += dailyDiff;
+            cumulativeSaldo += 0; // Saldo ändert sich nicht in der Prognose
             saldoHistory[dateKey] = cumulativeSaldo;
-
 
             const typeClass = `type-${planType}`;
             const todayClass = isToday ? 'today' : '';
             const saldoColor = cumulativeSaldo >= 0 ? 'var(--success)' : 'var(--danger)';
-            const workedHours = (planType === 'work' || planType === 'school' || planType === 'vacation' || planType === 'sick' || planType === 'holiday') ? expectedHours.toFixed(1) : '---';
+            const dayNumber = currentDay.getDate();
+            const dayName = weekDays[dayOfWeek];
+            const dayLetter = dayName[0];
 
+            // Modern Card Design mit Hover-Effekt
             calendarHTML += `
-                <div class="prognose-day ${typeClass} ${todayClass}" data-date="${dateKey}" onclick="updatePrognoseDay('${dateKey}')">
-                    <div class="day-label">${currentDay.toLocaleDateString('de-DE', {day:'2-digit', month:'2-digit'})}</div>
-                    <div class="day-expected">Soll: ${workedHours}h</div>
-                    <div class="day-saldo" style="color:${saldoColor};">Saldo: ${(cumulativeSaldo >= 0 ? '+' : '')}${cumulativeSaldo.toFixed(1)}h</div>
+                <div class="prognose-day ${typeClass} ${todayClass}" 
+                     data-date="${dateKey}" 
+                     onclick="updatePrognoseDay('${dateKey}')"
+                     style="position:relative; background:linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%); border:2px solid rgba(255,255,255,0.1); border-radius:14px; padding:16px; cursor:pointer; transition:all 0.3s ease; min-height:100px; display:flex; flex-direction:column; justify-content:space-between; ${isToday ? 'border-color: var(--primary); background: linear-gradient(135deg, rgba(168,85,247,0.2) 0%, rgba(168,85,247,0.05) 100%);' : ''}"
+                     onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 12px 24px rgba(0,0,0,0.3)';"
+                     onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+                    
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                        <div>
+                            <div style="font-size:2rem; font-weight:800; color:${weekColors[dayOfWeek]}; line-height:1;">${dayNumber}</div>
+                            <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-top:2px;">${dayName}</div>
+                        </div>
+                        <div style="background:${getTypeColor(planType)}; padding:6px 12px; border-radius:8px; font-size:0.7rem; font-weight:700; text-transform:uppercase; color:#fff; letter-spacing:0.5px;">${getTypeEmoji(planType)}</div>
+                    </div>
+                    
+                    <div style="margin-top:auto;">
+                        <div style="font-size:0.9rem; color:var(--text-muted); margin-bottom:6px;">
+                            Soll: <span style="color:#fff; font-weight:600;">${expectedHours > 0 ? expectedHours.toFixed(1) : '0.0'}h</span>
+                        </div>
+                        <div style="font-size:1.1rem; font-weight:700; color:${saldoColor};">
+                            ${cumulativeSaldo >= 0 ? '+' : ''}${cumulativeSaldo.toFixed(1)}h
+                        </div>
+                    </div>
+                    
+                    ${isToday ? '<div style="position:absolute; top:8px; right:8px; width:12px; height:12px; background:var(--primary); border-radius:50%; box-shadow:0 0 8px var(--primary);"></div>' : ''}
                 </div>
             `;
             
@@ -4201,32 +4381,137 @@
 
         calendarEl.innerHTML = calendarHTML;
         
-        // 3. End-Saldo anzeigen
+        // 3. End-Saldo und Delta anzeigen
         endSaldoEl.innerText = (cumulativeSaldo >= 0 ? '+' : '') + cumulativeSaldo.toFixed(2) + 'h';
         endSaldoEl.style.color = cumulativeSaldo >= 0 ? 'var(--success)' : 'var(--danger)';
+        
+        const delta = cumulativeSaldo - currentTotalSaldo;
+        deltaEl.innerText = (delta >= 0 ? '+' : '') + delta.toFixed(2) + 'h';
+        deltaEl.style.color = delta >= 0 ? 'var(--success)' : 'var(--danger)';
+        
+        // 4. Statistiken rendern
+        updatePrognoseStats(simulationPlan, currentTotalSaldo, cumulativeSaldo);
+    }
+    
+    function getTypeColor(type) {
+        const colors = {
+            'work': 'var(--primary)',
+            'school': 'var(--school)',
+            'vacation': 'var(--success)',
+            'sick': 'var(--danger)',
+            'holiday': 'var(--holiday)',
+            'reset': '#64748b'
+        };
+        return colors[type] || '#666';
+    }
+    
+    function getTypeEmoji(type) {
+        const emojis = {
+            'work': '💼',
+            'school': '📚',
+            'vacation': '🌴',
+            'sick': '💊',
+            'holiday': '🏖️',
+            'reset': '❌'
+        };
+        return emojis[type] || '?';
+    }
+    
+    function updatePrognoseStats(plan, startSaldo, endSaldo) {
+        const statsEl = document.getElementById('prognoseStats');
+        let vacationDays = 0;
+        let sickDays = 0;
+        let schoolDays = 0;
+        let workDays = 0;
+
+        for (const date in plan) {
+            if (plan[date] === 'vacation') vacationDays++;
+            else if (plan[date] === 'sick') sickDays++;
+            else if (plan[date] === 'school') schoolDays++;
+            else if (plan[date] === 'work') workDays++;
+        }
+
+        const html = `
+            <div style="display:flex; align-items:center; justify-content:space-between; padding:12px; background:rgba(255,255,255,0.03); border-radius:10px; border-left:4px solid var(--primary);">
+                <div>
+                    <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase;">Geplante Arbeitstage</div>
+                    <div style="font-size:1.5rem; font-weight:700; color:#fff; margin-top:4px;">${workDays}</div>
+                </div>
+                <div style="font-size:1.5rem;">💼</div>
+            </div>
+            <div style="display:flex; align-items:center; justify-content:space-between; padding:12px; background:rgba(255,255,255,0.03); border-radius:10px; border-left:4px solid var(--success);">
+                <div>
+                    <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase;">Geplante Urlaubstage</div>
+                    <div style="font-size:1.5rem; font-weight:700; color:var(--success); margin-top:4px;">${vacationDays}</div>
+                </div>
+                <div style="font-size:1.5rem;">🌴</div>
+            </div>
+            <div style="display:flex; align-items:center; justify-content:space-between; padding:12px; background:rgba(255,255,255,0.03); border-radius:10px; border-left:4px solid var(--danger);">
+                <div>
+                    <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase;">Geplante Kranktage</div>
+                    <div style="font-size:1.5rem; font-weight:700; color:var(--danger); margin-top:4px;">${sickDays}</div>
+                </div>
+                <div style="font-size:1.5rem;">💊</div>
+            </div>
+            <div style="display:flex; align-items:center; justify-content:space-between; padding:12px; background:rgba(255,255,255,0.03); border-radius:10px; border-left:4px solid var(--school);">
+                <div>
+                    <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase;">Geplante Schultage</div>
+                    <div style="font-size:1.5rem; font-weight:700; color:var(--school); margin-top:4px;">${schoolDays}</div>
+                </div>
+                <div style="font-size:1.5rem;">📚</div>
+            </div>
+        `;
+        statsEl.innerHTML = html;
+    }
+    
+    function highlightSelectAction() {
+        const select = document.getElementById('prognosePlanSelect');
+        if (select.value) {
+            select.style.background = getTypeColor(select.value) + '33';
+            select.style.borderColor = getTypeColor(select.value);
+        }
+    }
+    
+    function resetPrognosePlan() {
+        showCustomConfirm(
+            '↺ Planung zurücksetzen?',
+            'Alle Änderungen im Planungs-Kalender werden verworfen.',
+            () => {
+                data.settings.prognosePlan = {};
+                document.getElementById('prognosePlanSelect').value = '';
+                renderPrognoseView();
+            },
+            null
+        );
     }
 
     // Funktion zum Aktualisieren eines Tages im Prognose-Plan
     function updatePrognoseDay(dateKey) {
         const planType = document.getElementById('prognosePlanSelect').value;
         
-        if (planType === 'reset') {
+        if (!planType || planType === 'reset') {
             delete data.settings.prognosePlan[dateKey];
         } else {
             data.settings.prognosePlan[dateKey] = planType;
         }
 
-        // Simuliere neu, um die Saldo-Änderung sofort zu sehen
-        renderPrognoseView(); 
+        renderPrognoseView();
     }
     
-    // Plan auf die tatsächlichen Entries anwenden (z.B. Urlaub buchen)
+    // Plan auf die tatsächlichen Entries anwenden
     function applyPrognosePlan() {
+        const planCount = Object.keys(data.settings.prognosePlan).length;
+        
+        if (planCount === 0) {
+            return showCustomMessage('ℹ️ Kein Plan', 'Du hast noch keine Änderungen im Planungs-Kalender vorgenommen. Klicke auf Tage, um sie zu planen.', 'info');
+        }
+        
         showCustomConfirm(
             '🔮 Prognose-Plan anwenden?',
-            'Die Einträge im Plan (Urlaub/Krank/Schule) werden als neue Einträge für die Zukunft gebucht und überschreiben existierende Einträge. Arbeitstage werden NICHT gebucht.',
+            `${planCount} Tage aus deinem Plan werden als echte Einträge gebucht:\n\n⚠️ Bestehende Einträge in diesem Zeitraum werden überschrieben.\n\n💡 Arbeitstage werden NICHT gebucht (nur Urlaub/Krank/Schule).`,
             () => {
                 let bookedCount = 0;
+                let overwriteCount = 0;
                 const now = new Date();
                 now.setHours(0, 0, 0, 0);
 
@@ -4237,15 +4522,19 @@
                     // Nur für zukünftige Tage anwenden
                     if (dateObj.getTime() >= now.getTime()) {
                         
-                        // Nur Freistellungs-Typen buchen (Arbeit wird über Live-Tracker/Manuell erfasst)
+                        // Nur Freistellungs-Typen buchen
                         if (planType !== 'work' && planType !== 'reset') {
                             
                             const dayIndex = dateObj.getDay();
                             const expected = data.settings.hours[dayIndex] || 0;
-
-                            // Bestehenden Eintrag im Planungszeitraum überschreiben/löschen
-                            data.entries = data.entries.filter(e => e.date !== dateKey);
                             
+                            // Bestehenden Eintrag löschen, wenn vorhanden
+                            const existingIndex = data.entries.findIndex(e => e.date === dateKey);
+                            if (existingIndex >= 0) {
+                                data.entries.splice(existingIndex, 1);
+                                overwriteCount++;
+                            }
+
                             if (expected > 0) {
                                 data.entries.push({
                                     id: Date.now() + Math.random(),
@@ -4254,9 +4543,9 @@
                                     worked: expected,
                                     expected: expected,
                                     diff: 0,
-                                    info: `Gebucht via Prognose-Plan (${planType})`,
+                                    info: `📅 Prognose-Plan: ${planType.charAt(0).toUpperCase() + planType.slice(1)}`,
                                     isPeriod: true,
-                                    breakMins: 0, shiftEnd: '', shiftWarning: false
+                                    breakMins: 0, shiftEnd: '', shiftWarning: false, project: '', breakLog: []
                                 });
                                 bookedCount++;
                             }
@@ -4264,13 +4553,108 @@
                     }
                 }
 
-                data.settings.prognosePlan = {}; // Plan nach Anwendung zurücksetzen
+                data.settings.prognosePlan = {}; // Plan zurücksetzen
                 recalculateVacationUsed();
+                data.entries.sort((a,b) => new Date(b.date) - new Date(a.date));
                 save();
-                if (bookedCount > 0) showCustomMessage('✅ Erfolg', `${bookedCount} Tage aus der Prognose (Urlaub/Krank/Schule) wurden als zukünftige Einträge gebucht.`, 'success');
-                renderPrognoseView(); // Ansicht neu laden
+                
+                showCustomMessage(
+                    '✅ Plan gebucht!', 
+                    `${bookedCount} Tage wurden als Einträge gebucht${overwriteCount > 0 ? ` (${overwriteCount} bestehende Einträge überschrieben)` : ''}.\n\nDein Saldo und die Statistiken wurden aktualisiert.`,
+                    'success'
+                );
+                
+                renderPrognoseView();
+                updateUI();
+                
+                if (document.getElementById('view-history').classList.contains('active')) {
+                    renderHistoryView();
+                }
             },
             null
+        );
+    }
+    
+    function downloadPrognoseReport() {
+        const startSaldo = data.entries.reduce((sum, e) => sum + e.diff, 0);
+        let reportContent = `PROGNOSE-BERICHT
+=====================================
+Erstellt: ${new Date().toLocaleDateString('de-DE')} um ${new Date().toLocaleTimeString('de-DE')}
+
+AKTUELLER STATUS:
+- Saldo heute: ${(startSaldo >= 0 ? '+' : '')}${startSaldo.toFixed(2)}h
+
+GEPLANTE ÄNDERUNGEN:
+`;
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        let vacationDays = 0, sickDays = 0, schoolDays = 0, workDays = 0;
+
+        for (const date in data.settings.prognosePlan) {
+            if (new Date(date) >= today) {
+                const type = data.settings.prognosePlan[date];
+                const typeLabel = {
+                    'work': 'Arbeit',
+                    'vacation': 'Urlaub',
+                    'sick': 'Krank',
+                    'school': 'Schule',
+                    'holiday': 'Feiertag'
+                }[type] || 'Unbekannt';
+                
+                reportContent += `  ${date} (${new Date(date).toLocaleDateString('de-DE', {weekday:'short'})}): ${typeLabel}\n`;
+                
+                if (type === 'vacation') vacationDays++;
+                else if (type === 'sick') sickDays++;
+                else if (type === 'school') schoolDays++;
+                else if (type === 'work') workDays++;
+            }
+        }
+
+        reportContent += `\nZUSAMMENFASSUNG:
+- Geplante Arbeitstage: ${workDays}
+- Geplante Urlaubstage: ${vacationDays}
+- Geplante Kranktage: ${sickDays}
+- Geplante Schultage: ${schoolDays}
+
+HINWEIS:
+Der Plan wird durch \"Plan anwenden\" als echte Einträge gebucht.
+`;
+
+        const blob = new Blob([reportContent], { type: 'text/plain' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `prognose_${new Date().toISOString().split('T')[0]}.txt`;
+        a.click();
+        
+        showCustomMessage('✅ Export gestartet', 'Prognose-Bericht wird heruntergeladen...', 'success');
+    }
+    
+    function showPrognoseHelp() {
+        showCustomMessage(
+            '🔮 Prognose-Planer Hilfe',
+            `ÜBERSICHT:
+Mit dem Prognose-Planer kannst du deine Arbeitszeit für die nächsten 4 Wochen planen und die Auswirkung auf dein Gleitzeitkonto sehen.
+
+VERWENDUNG:
+1. Wähle einen Typ aus dem Dropdown (Arbeit, Urlaub, Krank, Schule)
+2. Klicke auf die Tage, die du planen möchtest
+3. Die Prognose aktualisiert sich automatisch
+4. Klicke \"Plan anwenden\", um die Einträge zu buchen
+
+FARBEN:
+💼 Blau = Arbeit
+🌴 Grün = Urlaub  
+💊 Rot = Krank
+📚 Orange = Berufsschule
+🏖️ Gelb = Feiertag
+
+TIPPS:
+✓ Der Plan beeinflusst nicht deinen aktuellen Saldo
+✓ Nur zukünftige Tage können geplant werden
+✓ \"Zurücksetzen\" entfernt die Planung für einen Tag
+✓ Die Statistiken zeigen deine geplanten Tage`,
+            'info'
         );
     }
     
@@ -4645,6 +5029,299 @@
 
         setTheme(hex);
         showCustomMessage('✅ Gespeichert', `Farbe: ${hex.toUpperCase()}`, 'success');
+    }
+
+    // --- JAHRESÜBERSICHT & KI-INSIGHTS (NEU) ---
+    
+    function renderYearView() {
+        // 1. Jahres-Statistiken berechnen
+        const yearStats = calculateYearlyStats();
+        
+        // 2. KPIs aktualisieren
+        document.getElementById('yearTotalWorked').innerText = yearStats.totalWorked.toFixed(1) + 'h';
+        document.getElementById('yearAvgDaily').innerText = yearStats.avgDaily.toFixed(1) + 'h';
+        document.getElementById('yearEndSaldo').innerText = (yearStats.endSaldo >= 0 ? '+' : '') + yearStats.endSaldo.toFixed(1) + 'h';
+        document.getElementById('yearEndSaldo').style.color = yearStats.endSaldo >= 0 ? '#06b6d4' : 'var(--danger)';
+        document.getElementById('yearBestWeek').innerText = `KW ${yearStats.bestWeek}`;
+        document.getElementById('yearBestWeekValue').innerText = (yearStats.bestWeekValue >= 0 ? '+' : '') + yearStats.bestWeekValue.toFixed(1) + 'h';
+        
+        // 3. Heatmap rendern
+        renderYearHeatmap(yearStats);
+        
+        // 4. Insights generieren
+        generateYearInsights(yearStats);
+        
+        // 5. Monats-Vergleich rendern
+        renderMonthlyComparison(yearStats);
+    }
+    
+    function calculateYearlyStats() {
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        const daysByMonth = {};
+        let totalWorked = 0;
+        let workDays = 0;
+        let totalSaldo = 0;
+        const weeklyDiffs = {};
+        let bestWeek = 0;
+        let bestWeekValue = 0;
+        
+        // Initialisiere Monate
+        for (let i = 0; i < 12; i++) {
+            daysByMonth[i] = { worked: 0, saldo: 0, count: 0, days: [] };
+        }
+        
+        // Durchlaufe alle Einträge
+        data.entries.forEach(e => {
+            const entryDate = new Date(e.date);
+            if (entryDate.getFullYear() !== currentYear) return;
+            
+            const month = entryDate.getMonth();
+            const week = getWeek(entryDate);
+            
+            daysByMonth[month].worked += e.worked;
+            daysByMonth[month].saldo += e.diff;
+            daysByMonth[month].count++;
+            daysByMonth[month].days.push({
+                date: e.date,
+                diff: e.diff,
+                worked: e.worked,
+                type: e.type
+            });
+            
+            totalWorked += e.worked;
+            totalSaldo += e.diff;
+            
+            if (e.type === 'work') {
+                workDays++;
+            }
+            
+            // Wöchentliche Diffs
+            if (!weeklyDiffs[week]) weeklyDiffs[week] = 0;
+            weeklyDiffs[week] += e.diff;
+        });
+        
+        // Beste Woche finden
+        for (const week in weeklyDiffs) {
+            if (weeklyDiffs[week] > bestWeekValue) {
+                bestWeek = week;
+                bestWeekValue = weeklyDiffs[week];
+            }
+        }
+        
+        const avgDaily = workDays > 0 ? totalWorked / workDays : 0;
+        
+        return {
+            totalWorked,
+            avgDaily,
+            endSaldo: totalSaldo,
+            bestWeek,
+            bestWeekValue,
+            daysByMonth,
+            workDays,
+            weeklyDiffs
+        };
+    }
+    
+    function renderYearHeatmap(yearStats) {
+        const container = document.getElementById('yearHeatmap');
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        const startDate = new Date(currentYear, 0, 1);
+        const endDate = new Date(currentYear, 11, 31);
+        
+        // Erstelle Map aller Einträge für schnelle Zugriffe
+        const entryMap = {};
+        data.entries.forEach(e => {
+            if (new Date(e.date).getFullYear() === currentYear) {
+                entryMap[e.date] = e;
+            }
+        });
+        
+        let html = '<div style="display:grid; gap:2rem;">';
+        
+        // Für jeden Monat
+        for (let month = 0; month < 12; month++) {
+            const monthDate = new Date(currentYear, month, 1);
+            const monthName = monthDate.toLocaleDateString('de-DE', { month: 'long', year: 'numeric' });
+            const daysInMonth = new Date(currentYear, month + 1, 0).getDate();
+            
+            html += `<div>
+                <h4 style="font-size:0.95rem; margin-bottom:1rem; color:var(--text-main);">${monthName}</h4>
+                <div style="display:grid; grid-template-columns:repeat(7, 1fr); gap:6px;">`;
+            
+            // Wochentag-Header (Mo-So)
+            const weekDays = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
+            const firstDayOfMonth = new Date(currentYear, month, 1).getDay();
+            const startDayOffset = (firstDayOfMonth === 0 ? 6 : firstDayOfMonth - 1);
+            
+            // Leere Zellen am Anfang
+            for (let i = 0; i < startDayOffset; i++) {
+                html += '<div style="width:32px; height:32px;"></div>';
+            }
+            
+            // Tage des Monats
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateStr = `${currentYear}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const entry = entryMap[dateStr];
+                const cellDate = new Date(currentYear, month, day);
+                const dayOfWeek = cellDate.getDay();
+                const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+                
+                let color = '#475569'; // Grau = kein Eintrag
+                let opacity = '0.3';
+                
+                if (entry) {
+                    const diff = entry.diff;
+                    if (diff < -1) {
+                        color = '#ef4444'; // Rot = sehr negativ
+                        opacity = '0.8';
+                    } else if (diff < 0) {
+                        color = '#ef4444'; // Rot = negativ
+                        opacity = '0.5';
+                    } else if (diff < 0.5) {
+                        color = '#fbbf24'; // Gelb = leicht positiv
+                        opacity = '0.6';
+                    } else if (diff < 3) {
+                        color = '#10b981'; // Grün = positiv
+                        opacity = '0.7';
+                    } else {
+                        color = 'var(--primary)'; // Lila = sehr positiv
+                        opacity = '0.9';
+                    }
+                } else if (isWeekend) {
+                    opacity = '0.15';
+                }
+                
+                const isToday = cellDate.toDateString() === now.toDateString();
+                const border = isToday ? '2px solid var(--primary)' : '1px solid rgba(255,255,255,0.1)';
+                const tooltip = entry ? `${entry.worked.toFixed(1)}h (${entry.diff >= 0 ? '+' : ''}${entry.diff.toFixed(1)}h)` : 'Kein Eintrag';
+                
+                html += `
+                    <div style="width:32px; height:32px; background:${color}; opacity:${opacity}; border-radius:6px; border:${border}; cursor:pointer; transition:all 0.2s;" 
+                         title="${dateStr}: ${tooltip}"
+                         onmouseover="this.style.transform='scale(1.2)'; this.style.zIndex='10';"
+                         onmouseout="this.style.transform='scale(1)'; this.style.zIndex='0';">
+                    </div>
+                `;
+            }
+            
+            html += '</div></div>';
+        }
+        
+        html += '</div>';
+        container.innerHTML = html;
+    }
+    
+    function generateYearInsights(yearStats) {
+        const container = document.getElementById('yearInsights');
+        const insights = [];
+        
+        // Insight 1: Durchschnitt
+        const avgMonthly = yearStats.totalWorked / 12;
+        insights.push({
+            icon: '📊',
+            title: 'Durchschnittliche Monatsleistung',
+            value: `${avgMonthly.toFixed(1)}h`,
+            description: `Du arbeitest durchschnittlich ${avgMonthly.toFixed(1)} Stunden pro Monat.`
+        });
+        
+        // Insight 2: Beste Leistung
+        const maxMonth = Math.max(...Object.values(yearStats.daysByMonth).map(m => m.worked));
+        const bestMonth = Object.entries(yearStats.daysByMonth).find(([_, m]) => m.worked === maxMonth);
+        if (bestMonth) {
+            const monthName = new Date(new Date().getFullYear(), parseInt(bestMonth[0]), 1).toLocaleDateString('de-DE', { month: 'long' });
+            insights.push({
+                icon: '🏆',
+                title: 'Dein stärkster Monat',
+                value: monthName,
+                description: `${bestMonth[1].worked.toFixed(0)}h Arbeit, ${bestMonth[1].count} Arbeitstage.`
+            });
+        }
+        
+        // Insight 3: Saldo-Trend
+        const saldoTrend = yearStats.endSaldo > 0 ? 'positiv' : (yearStats.endSaldo < 0 ? 'negativ' : 'ausgeglichen');
+        const trendEmoji = yearStats.endSaldo > 0 ? '📈' : (yearStats.endSaldo < 0 ? '📉' : '➡️');
+        insights.push({
+            icon: trendEmoji,
+            title: 'Jahres-Saldo Trend',
+            value: (yearStats.endSaldo >= 0 ? '+' : '') + yearStats.endSaldo.toFixed(1) + 'h',
+            description: `Dein Jahres-Saldo ist ${saldoTrend}. Solltest du mehr arbeiten, um auszugleichen?`,
+            color: yearStats.endSaldo > 0 ? 'var(--success)' : (yearStats.endSaldo < 0 ? 'var(--danger)' : 'var(--primary)')
+        });
+        
+        // Insight 4: Konsistenz
+        const consistencyScore = (yearStats.workDays / 250) * 100; // 250 Arbeitstage im Jahr
+        const consistencyLevel = consistencyScore > 80 ? 'Sehr gut' : (consistencyScore > 60 ? 'Gut' : 'Könnte besser sein');
+        insights.push({
+            icon: '⭐',
+            title: 'Konsistenz-Score',
+            value: `${Math.min(100, consistencyScore).toFixed(0)}%`,
+            description: `Du warst ${consistencyLevel} dabei. ${consistencyScore < 80 ? 'Versuche, regelmäßiger zu arbeiten!' : 'Großartig!'}`
+        });
+        
+        // Insight 5: Beste Woche
+        insights.push({
+            icon: '🎯',
+            title: 'Deine produktivste Woche',
+            value: `KW ${yearStats.bestWeek}`,
+            description: `${yearStats.bestWeekValue.toFixed(1)}h Saldo in dieser Woche. Das war ein Spitzenwert!`
+        });
+        
+        // Insight 6: Prognose
+        const daysLeft = 365 - Math.floor((now - new Date(now.getFullYear(), 0, 1)) / (1000 * 60 * 60 * 24));
+        const avgDaily = yearStats.avgDaily;
+        const projectedSaldo = yearStats.endSaldo + (daysLeft * (avgDaily - 8) / 5);
+        insights.push({
+            icon: '🔮',
+            title: 'Jahresende Prognose',
+            value: (projectedSaldo >= 0 ? '+' : '') + projectedSaldo.toFixed(1) + 'h',
+            description: `Basierend auf deinem aktuellen Tempo wirst du mit einem Saldo von ${projectedSaldo.toFixed(1)}h das Jahr beenden.`
+        });
+        
+        // HTML rendern
+        let html = '';
+        insights.forEach((insight, i) => {
+            const color = insight.color || (i % 3 === 0 ? 'var(--primary)' : (i % 3 === 1 ? 'var(--success)' : '#06b6d4'));
+            html += `
+                <div class="card" style="border-left: 5px solid ${color}; background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%); position: relative; overflow: hidden;">
+                    <div style="position: absolute; top: -10px; right: -10px; font-size: 3rem; opacity: 0.1;">${insight.icon}</div>
+                    
+                    <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">${insight.icon} ${insight.title}</div>
+                    <div style="font-size:2rem; font-weight:800; color:${color}; margin:10px 0; font-family:var(--font-mono);">${insight.value}</div>
+                    <div style="font-size:0.85rem; color:var(--text-muted); line-height:1.5;">${insight.description}</div>
+                </div>
+            `;
+        });
+        
+        container.innerHTML = html;
+    }
+    
+    function renderMonthlyComparison(yearStats) {
+        const container = document.getElementById('yearMonthlyComparison');
+        const monthNames = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
+        
+        let html = '';
+        for (let i = 0; i < 12; i++) {
+            const monthData = yearStats.daysByMonth[i];
+            const maxWorked = Math.max(...Object.values(yearStats.daysByMonth).map(m => m.worked)) || 1;
+            const barHeight = (monthData.worked / maxWorked) * 100;
+            
+            const saldoColor = monthData.saldo > 0 ? 'var(--success)' : (monthData.saldo < 0 ? 'var(--danger)' : '#64748b');
+            
+            html += `
+                <div style="display:flex; flex-direction:column; align-items:center; padding:15px; background:rgba(255,255,255,0.03); border-radius:12px; border:1px solid rgba(255,255,255,0.1); transition:all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.08)'; this.style.transform='translateY(-4px)';" onmouseout="this.style.background='rgba(255,255,255,0.03)'; this.style.transform='translateY(0)';">
+                    <div style="font-weight:700; color:var(--text-main); margin-bottom:8px;">${monthNames[i]}</div>
+                    <div style="width:40px; height:60px; background:var(--primary); border-radius:6px; opacity:0.6; margin-bottom:10px; position:relative;" title="${monthData.worked.toFixed(0)}h">
+                        <div style="width:100%; height:${barHeight}%; background:linear-gradient(180deg, var(--primary), rgba(168,85,247,0.5)); border-radius:6px; position:absolute; bottom:0; transition:all 0.3s;"></div>
+                    </div>
+                    <div style="font-size:0.85rem; font-weight:600; color:var(--text-main); font-family:var(--font-mono);">${monthData.worked.toFixed(0)}h</div>
+                    <div style="font-size:0.75rem; color:${saldoColor}; margin-top:4px; font-family:var(--font-mono);">${monthData.saldo >= 0 ? '+' : ''}${monthData.saldo.toFixed(1)}h</div>
+                </div>
+            `;
+        }
+        
+        container.innerHTML = html;
     }
 
 </script>
