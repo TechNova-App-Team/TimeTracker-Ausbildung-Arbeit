@@ -864,6 +864,125 @@
         #prognoseStats {
             animation: fadeIn 0.4s ease forwards;
         }
+        
+        /* --- ALERTS PANEL STYLES (NEU) --- */
+        #alertsPanel.active {
+            transform: translateX(0) !important;
+        }
+        
+        @media (max-width: 1024px) {
+            #alertsPanel {
+                width: 100% !important;
+            }
+        }
+        
+        .alert-item {
+            padding: 12px;
+            border-radius: 10px;
+            border-left: 4px solid var(--primary);
+            background: rgba(255, 255, 255, 0.03);
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            animation: slideInLeft 0.3s ease;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .alert-item:hover {
+            background: rgba(255, 255, 255, 0.06);
+            transform: translateX(4px);
+        }
+        
+        .alert-item.warning {
+            border-left-color: #f59e0b;
+        }
+        
+        .alert-item.success {
+            border-left-color: #10b981;
+        }
+        
+        .alert-item.danger {
+            border-left-color: #ef4444;
+        }
+        
+        .alert-item-icon {
+            font-size: 1.5rem;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        
+        .alert-item-content {
+            flex: 1;
+        }
+        
+        .alert-item-title {
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin: 0 0 4px 0;
+        }
+        
+        .alert-item-time {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        
+        .alert-item-dismiss {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 0;
+            transition: color 0.2s ease;
+        }
+        
+        .alert-item-dismiss:hover {
+            color: var(--text);
+        }
+        
+        .alert-filter-btn.active {
+            background: var(--primary-dim) !important;
+            color: var(--primary) !important;
+            border-color: var(--primary) !important;
+        }
+        
+        /* --- ONBOARDING TOUR STYLES (NEU) --- */
+        .onboarding-step-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .onboarding-step-dot.active {
+            background: #fff;
+            transform: scale(1.3);
+        }
+        
+        .onboarding-content {
+            animation: slideUp 0.4s ease forwards;
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(100px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        @keyframes slideOutRight {
+            from { opacity: 1; transform: translateX(0); }
+            to { opacity: 0; transform: translateX(100px); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
 
 
         /* --- MOBILE RESPONSIVENESS --- */
@@ -963,11 +1082,21 @@
         <div class="nav-item" id="nav-yearview" onclick="switchTab('yearview')">
             <span>📆</span> Jahresübersicht
         </div>
+        <div class="nav-item" id="nav-monthcompare" onclick="switchTab('monthcompare')">
+            <span>📊</span> Monats-Vergleich
+        </div>
         <div class="nav-item" id="nav-history" onclick="switchTab('history')">
             <span>🔎</span> Analyse & Historie
         </div>
         
         <div class="nav-section">Verwaltung</div>
+        <div class="nav-item" id="nav-alerts" onclick="toggleAlertsPanel()" style="position:relative;">
+            <span>🔔</span> Alerts
+            <div id="alertBadge" style="position:absolute; top:8px; right:8px; background:var(--danger); width:18px; height:18px; border-radius:50%; display:none; font-size:0.7rem; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700;"></div>
+        </div>
+        <div class="nav-item" onclick="startOnboardingTour()">
+            <span>🎓</span> Anleitung
+        </div>
         <div class="nav-item" onclick="openSettings()">
             <span>⚙️</span> Einstellungen
         </div>
@@ -1647,6 +1776,112 @@
 
         </div>
 
+        <div id="view-monthcompare" class="view-section">
+            <h2 style="margin-bottom:0.5rem;">📊 Monats-Vergleich & Detailanalyse</h2>
+            <p style="color:var(--text-muted); margin-bottom:2rem;">Vergleiche deine aktuelle Performance mit dem Vormonat und Jahresschnitt. Identifiziere Trends und Muster.</p>
+            
+            <!-- Monats-Wähler -->
+            <div class="card" style="margin-bottom:2rem; display:flex; gap:15px; align-items:center;">
+                <label style="font-weight:600;">Wähle einen Monat:</label>
+                <select id="monthCompareSelect" class="glass-select" onchange="renderMonthCompareView()" style="flex:1; max-width:200px;">
+                </select>
+            </div>
+            
+            <!-- KPI-Vergleich AKTUELLER vs VORMONAT vs DURCHSCHNITT -->
+            <div class="kpi-grid" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); margin-bottom:2rem;">
+                <div class="card" style="border-left: 5px solid var(--primary);">
+                    <div class="audit-label">📅 Aktueller Monat</div>
+                    <div style="font-size:1.8rem; font-weight:800; color:var(--primary); margin:15px 0; font-family:var(--font-mono);" id="mcCurrentWorked">0h</div>
+                    <div style="font-size:0.85rem; color:var(--text-muted);">Arbeitstage: <span id="mcCurrentDays">0</span></div>
+                </div>
+                
+                <div class="card" style="border-left: 5px solid #fbbf24;">
+                    <div class="audit-label">📅 Vormonat</div>
+                    <div style="font-size:1.8rem; font-weight:800; color:#fbbf24; margin:15px 0; font-family:var(--font-mono);" id="mcPrevWorked">0h</div>
+                    <div style="font-size:0.85rem; color:var(--text-muted); display:flex; align-items:center; gap:8px;">
+                        <span id="mcComparisonDiff">+0h</span>
+                        <span id="mcComparisonPercent">(0%)</span>
+                    </div>
+                </div>
+                
+                <div class="card" style="border-left: 5px solid var(--success);">
+                    <div class="audit-label">📊 Jahres-Ø</div>
+                    <div style="font-size:1.8rem; font-weight:800; color:var(--success); margin:15px 0; font-family:var(--font-mono);" id="mcYearAvg">0h</div>
+                    <div style="font-size:0.85rem; color:var(--text-muted);">Durchschnitt aller Monate</div>
+                </div>
+                
+                <div class="card" style="border-left: 5px solid #06b6d4;">
+                    <div class="audit-label">⚖️ Saldo-Trend</div>
+                    <div style="font-size:1.8rem; font-weight:800; color:#06b6d4; margin:15px 0; font-family:var(--font-mono);" id="mcSaldoTrend">+0h</div>
+                    <div style="font-size:0.85rem; color:var(--text-muted);" id="mcSaldoTrendLabel">Neutral</div>
+                </div>
+            </div>
+            
+            <!-- DETAILLIERTE WOCHENANALYSE -->
+            <div class="card" style="margin-bottom:2rem;">
+                <h3 style="font-size:1.1rem; margin-bottom:1.5rem;">📈 Wochenliste dieses Monats</h3>
+                <div id="mcWeeksList" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:1.5rem;">
+                    <!-- Werden dynamisch gefüllt -->
+                </div>
+            </div>
+            
+            <!-- STATISTIKEN -->
+            <div class="card" style="margin-bottom:2rem;">
+                <h3 style="font-size:1.1rem; margin-bottom:1.5rem;">📊 Detaillierte Statistiken</h3>
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:1rem;">
+                    <div style="padding:1.5rem; background:rgba(255,255,255,0.03); border-radius:12px; border:1px solid rgba(255,255,255,0.1);">
+                        <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:8px;">💼 Arbeitstage</div>
+                        <div style="font-size:1.5rem; font-weight:700;" id="mcStats_workDays">0</div>
+                    </div>
+                    <div style="padding:1.5rem; background:rgba(255,255,255,0.03); border-radius:12px; border:1px solid rgba(255,255,255,0.1);">
+                        <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:8px;">⏱️ Ø pro Arbeitstag</div>
+                        <div style="font-size:1.5rem; font-weight:700; font-family:var(--font-mono);" id="mcStats_avgPerDay">0h</div>
+                    </div>
+                    <div style="padding:1.5rem; background:rgba(255,255,255,0.03); border-radius:12px; border:1px solid rgba(255,255,255,0.1);">
+                        <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:8px;">📚 Schultage</div>
+                        <div style="font-size:1.5rem; font-weight:700;" id="mcStats_schoolDays">0</div>
+                    </div>
+                    <div style="padding:1.5rem; background:rgba(255,255,255,0.03); border-radius:12px; border:1px solid rgba(255,255,255,0.1);">
+                        <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:8px;">🌴 Urlaubstage</div>
+                        <div style="font-size:1.5rem; font-weight:700;" id="mcStats_vacationDays">0</div>
+                    </div>
+                    <div style="padding:1.5rem; background:rgba(255,255,255,0.03); border-radius:12px; border:1px solid rgba(255,255,255,0.1);">
+                        <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:8px;">💊 Kranktage</div>
+                        <div style="font-size:1.5rem; font-weight:700;" id="mcStats_sickDays">0</div>
+                    </div>
+                    <div style="padding:1.5rem; background:rgba(255,255,255,0.03); border-radius:12px; border:1px solid rgba(255,255,255,0.1);">
+                        <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:8px;">🏖️ Feiertage</div>
+                        <div style="font-size:1.5rem; font-weight:700;" id="mcStats_holidayDays">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VERGLEICHSCHART (AKTUELLER vs VORMONAT) -->
+            <div class="card">
+                <h3 style="font-size:1.1rem; margin-bottom:1.5rem;">📊 Side-by-Side Vergleich</h3>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:2rem; align-items:center;">
+                    <div id="mcChart_current" style="display:flex; flex-direction:column; align-items:center;">
+                        <div style="font-size:0.9rem; font-weight:600; margin-bottom:1rem; color:var(--primary);">📅 Aktueller Monat</div>
+                        <svg width="200" height="200" viewBox="0 0 200 200" style="transform: rotate(-90deg);">
+                            <circle cx="100" cy="100" r="80" fill="transparent" stroke="rgba(255,255,255,0.1)" stroke-width="20"></circle>
+                            <circle id="mcChartCurrent" cx="100" cy="100" r="80" fill="transparent" stroke="var(--primary)" stroke-width="20" stroke-dasharray="251 502" stroke-linecap="round"></circle>
+                        </svg>
+                        <div style="font-size:1.5rem; font-weight:700; margin-top:1rem; font-family:var(--font-mono);" id="mcChartCurrentValue">0h</div>
+                    </div>
+                    
+                    <div id="mcChart_prev" style="display:flex; flex-direction:column; align-items:center;">
+                        <div style="font-size:0.9rem; font-weight:600; margin-bottom:1rem; color:#fbbf24;">📅 Vormonat</div>
+                        <svg width="200" height="200" viewBox="0 0 200 200" style="transform: rotate(-90deg);">
+                            <circle cx="100" cy="100" r="80" fill="transparent" stroke="rgba(255,255,255,0.1)" stroke-width="20"></circle>
+                            <circle id="mcChartPrev" cx="100" cy="100" r="80" fill="transparent" stroke="#fbbf24" stroke-width="20" stroke-dasharray="251 502" stroke-linecap="round"></circle>
+                        </svg>
+                        <div style="font-size:1.5rem; font-weight:700; margin-top:1rem; font-family:var(--font-mono);" id="mcChartPrevValue">0h</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
         <div id="view-history" class="view-section">
 <div class="card">
                 <div class="filter-header">
@@ -1720,9 +1955,7 @@
                         <div class="color-dot" style="background:#06b6d4" onclick="setTheme('#06b6d4')" title="Cyan"></div>
                         <div class="color-dot" style="background:#10b981" onclick="setTheme('#10b981')" title="Grün"></div>
                         <div class="color-dot" style="background:#f59e0b" onclick="setTheme('#f59e0b')" title="Gelb"></div>
-                        <div class="color-dot" style="background:#ec4899" onclick="setTheme('#ec4899')" title="Pink"></div>
-                        
-                        <!-- Zusätzliche Premium Farben -->
+                        <div class="color-dot" style="background:#ec4899" onclick="setTheme('#ec4899')" title="Pink"></div>              
                         <div class="color-dot" style="background:#ef4444" onclick="setTheme('#ef4444')" title="Rot"></div>
                         <div class="color-dot" style="background:#8b5cf6" onclick="setTheme('#8b5cf6')" title="Indigo"></div>
                         <div class="color-dot" style="background:#6366f1" onclick="setTheme('#6366f1')" title="Indigo-Hell"></div>
@@ -1914,6 +2147,120 @@
             </div>
         </div>
     </div>
+
+    <!-- ALERTS PANEL (NEU) -->
+    <div id="alertsPanel" style="position:fixed; right:0; top:0; width:450px; height:100vh; background:var(--bg-sidebar); backdrop-filter:blur(24px); border-left:1px solid var(--border); z-index:1000; transform:translateX(100%); transition:transform 0.3s ease; overflow-y:auto; display:flex; flex-direction:column;">
+        <!-- Header -->
+        <div style="padding:1.5rem; border-bottom:1px solid var(--border); flex-shrink:0;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                <h3 style="margin:0; font-size:1.2rem;">🔔 Intelligente Alerts</h3>
+                <button onclick="toggleAlertsPanel()" style="background:none; border:none; color:var(--text-muted); font-size:1.5rem; cursor:pointer;">×</button>
+            </div>
+            <div style="display:flex; gap:10px; font-size:0.8rem;">
+                <button onclick="filterAlerts('all')" class="alert-filter-btn" style="background:var(--primary-dim); color:var(--primary); padding:6px 12px; border:1px solid var(--primary); border-radius:6px; cursor:pointer;">
+                    Alle
+                </button>
+                <button onclick="filterAlerts('warning')" class="alert-filter-btn" style="background:transparent; color:var(--text-muted); padding:6px 12px; border:1px solid var(--border); border-radius:6px; cursor:pointer;">
+                    ⚠️ Warnungen
+                </button>
+                <button onclick="filterAlerts('success')" class="alert-filter-btn" style="background:transparent; color:var(--text-muted); padding:6px 12px; border:1px solid var(--border); border-radius:6px; cursor:pointer;">
+                    ✅ Erfolge
+                </button>
+            </div>
+        </div>
+        
+        <!-- Alert Settings -->
+        <div style="padding:1.5rem; border-bottom:1px solid var(--border); flex-shrink:0;">
+            <h4 style="font-size:0.9rem; color:var(--text-muted); margin:0 0 1rem 0; text-transform:uppercase; letter-spacing:0.5px;">Alert-Einstellungen</h4>
+            
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; padding:12px; background:rgba(255,255,255,0.02); border-radius:10px;">
+                <label style="display:flex; align-items:center; gap:10px; cursor:pointer; margin:0;">
+                    <input type="checkbox" id="alertSaldoPositive" checked onchange="saveAlertSettings()" style="width:18px; height:18px; cursor:pointer;">
+                    <span style="font-size:0.9rem;">Saldo > +20h</span>
+                </label>
+            </div>
+            
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; padding:12px; background:rgba(255,255,255,0.02); border-radius:10px;">
+                <label style="display:flex; align-items:center; gap:10px; cursor:pointer; margin:0;">
+                    <input type="checkbox" id="alertSaldoNegative" checked onchange="saveAlertSettings()" style="width:18px; height:18px; cursor:pointer;">
+                    <span style="font-size:0.9rem;">Saldo < -5h</span>
+                </label>
+            </div>
+            
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; padding:12px; background:rgba(255,255,255,0.02); border-radius:10px;">
+                <label style="display:flex; align-items:center; gap:10px; cursor:pointer; margin:0;">
+                    <input type="checkbox" id="alertShiftMax" checked onchange="saveAlertSettings()" style="width:18px; height:18px; cursor:pointer;">
+                    <span style="font-size:0.9rem;">Schicht > 10h</span>
+                </label>
+            </div>
+            
+            <div style="display:flex; align-items:center; justify-content:space-between; padding:12px; background:rgba(255,255,255,0.02); border-radius:10px;">
+                <label style="display:flex; align-items:center; gap:10px; cursor:pointer; margin:0;">
+                    <input type="checkbox" id="alertVacationLow" checked onchange="saveAlertSettings()" style="width:18px; height:18px; cursor:pointer;">
+                    <span style="font-size:0.9rem;">Urlaub fast aufgebraucht</span>
+                </label>
+            </div>
+        </div>
+        
+        <!-- Alerts List -->
+        <div style="flex:1; overflow-y:auto; padding:1.5rem;">
+            <div id="alertsList" style="display:flex; flex-direction:column; gap:12px;">
+                <!-- Werden dynamisch gefüllt -->
+            </div>
+        </div>
+        
+        <!-- Clear Button -->
+        <div style="padding:1.5rem; border-top:1px solid var(--border); flex-shrink:0;">
+            <button class="btn btn-primary" onclick="clearAllAlerts()" style="width:100%; background:rgba(239,68,68,0.2); color:var(--danger); border:1px solid var(--danger);">
+                🗑️ Alle Alerts löschen
+            </button>
+        </div>
+    </div>
+    
+    <!-- ALERTS OVERLAY -->
+    <div id="alertsOverlay" onclick="toggleAlertsPanel()" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.3); z-index:999; transition:opacity 0.3s ease;"></div>
+
+    <!-- ONBOARDING TOUR MODAL (NEU) -->
+    <div class="modal" id="onboardingModal">
+        <div class="modal-box" style="width:700px; padding:0; overflow:hidden;">
+            <!-- Header mit Progress -->
+            <div style="background:linear-gradient(135deg, var(--primary), #06b6d4); padding:2rem; position:relative; overflow:hidden;">
+                <div style="position:absolute; top:0; right:-50px; width:200px; height:200px; background:radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%); border-radius:50%;"></div>
+                
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; position:relative; z-index:1;">
+                    <h2 style="margin:0; font-size:1.5rem; color:#fff;">🎓 TimeTracker Tour</h2>
+                    <button onclick="endOnboardingTour()" style="background:rgba(255,255,255,0.2); border:none; color:#fff; width:40px; height:40px; border-radius:50%; font-size:1.2rem; cursor:pointer; transition:0.2s;"
+                            onmouseover="this.style.background='rgba(255,255,255,0.4)';"
+                            onmouseout="this.style.background='rgba(255,255,255,0.2)';">×</button>
+                </div>
+                
+                <div style="display:flex; gap:8px; position:relative; z-index:1;">
+                    <div id="onboardingProgress" style="display:flex; gap:6px;"></div>
+                </div>
+            </div>
+            
+            <!-- Content Area -->
+            <div style="padding:2.5rem; min-height:300px; display:flex; flex-direction:column;">
+                <div id="onboardingContent" style="flex:1;">
+                    <!-- Wird dynamisch gefüllt -->
+                </div>
+                
+                <!-- Buttons -->
+                <div style="display:flex; gap:12px; margin-top:2rem; justify-content:space-between;">
+                    <button id="onboardingPrevBtn" class="btn" style="background:transparent; border:1px solid var(--border); padding:12px 24px; border-radius:10px;" onclick="previousOnboardingStep()">← Zurück</button>
+                    
+                    <div style="display:flex; gap:8px;">
+                        <button id="onboardingSkipBtn" class="btn" style="background:transparent; border:1px solid var(--border); padding:12px 24px; border-radius:10px;" onclick="endOnboardingTour()">Überspringen</button>
+                        <button id="onboardingNextBtn" class="btn btn-primary" style="padding:12px 32px; border-radius:10px; background:var(--primary);" onclick="nextOnboardingStep()">Weiter →</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ONBOARDING SPOTLIGHT OVERLAY (NEU) -->
+    <div id="spotlightOverlay" style="display:none; position:fixed; inset:0; z-index:180; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px);"></div>
+    <div id="spotlightHighlight" style="display:none; position:fixed; z-index:181; border:3px solid var(--primary); border-radius:12px; box-shadow:0 0 30px rgba(168,85,247,0.5); transition:all 0.4s cubic-bezier(0.4,0,0.2,1);"></div>
 
     <!-- EDIT ENTRY MODAL (NEU) -->
     <div class="modal" id="editEntryModal">
@@ -2261,6 +2608,7 @@
         localStorage.setItem('tg_pro_data', JSON.stringify(data)); 
         localStorage.setItem('tg_last_save', Date.now()); 
         console.log('✅ Daten gespeichert (inkl. IHK, Berufsschule, Ziele):', data.settings);
+        checkAlertsThresholds(); // Alert System überprüfen
         updateUI(); 
     }
     function saveTimerState() { 
@@ -2288,6 +2636,7 @@
             'goals': 'Ziele & Fokus',
             'prognose': 'Saldo Prognose & Zukunftsplanung',
             'yearview': 'Jahresübersicht & Insights',
+            'monthcompare': 'Monats-Vergleich & Detailanalyse',
         };
         document.querySelector('.page-title').textContent = titles[tabId];
 
@@ -2318,6 +2667,9 @@
         }
         if (tabId === 'yearview') {
             renderYearView();
+        }
+        if (tabId === 'monthcompare') {
+            renderMonthCompareView();
         }
     }
     
@@ -5031,8 +5383,923 @@ TIPPS:
         showCustomMessage('✅ Gespeichert', `Farbe: ${hex.toUpperCase()}`, 'success');
     }
 
-    // --- JAHRESÜBERSICHT & KI-INSIGHTS (NEU) ---
+    // --- ONBOARDING TOUR SYSTEM (NEU & EPISCH) ---
     
+    let onboardingStep = 0;
+    let onboardingActive = false;
+    const onboardingSteps = [
+        {
+            title: '👋 Willkommen bei TimeTracker!',
+            description: 'Dein intelligentes Gleitzeitmanagement-Tool für Ausbildung und Beruf. Diese kurze Tour zeigt dir, wie alles funktioniert.',
+            content: `
+                <h3 style="font-size:1.5rem; margin-bottom:1rem;">Willkommen! 🎉</h3>
+                <p style="font-size:1.1rem; line-height:1.8; color:var(--text-muted);">
+                    TimeTracker hilft dir, deine Arbeitszeit zu tracken, Ziele zu setzen und intelligente Insights zu erhalten.
+                </p>
+                <div style="background:var(--primary-dim); padding:1.5rem; border-radius:12px; border-left:4px solid var(--primary); margin-top:1.5rem;">
+                    <p style="margin:0; color:var(--text-muted);">
+                        💡 <strong>Tipp:</strong> Diese Tour kannst du jederzeit über "🎓 Anleitung" im Menü erneut starten.
+                    </p>
+                </div>
+            `,
+            target: null,
+            highlight: false
+        },
+        {
+            title: '📊 Das Dashboard',
+            description: 'Hier siehst du deine wichtigsten KPIs: Saldo diese Woche/Monat, Gleitzeitkonto und Urlaubsstand.',
+            content: `
+                <h3 style="font-size:1.3rem; margin-bottom:1rem;">📊 Dashboard - Deine Übersicht</h3>
+                <p style="line-height:1.8; color:var(--text-muted); margin-bottom:1.5rem;">
+                    Das Dashboard zeigt dir deine aktuelle Leistung auf einen Blick:
+                </p>
+                <ul style="list-style:none; padding:0; margin-bottom:1.5rem;">
+                    <li style="padding:0.8rem 0; border-bottom:1px solid var(--border); color:var(--text-muted);">
+                        <strong style="color:#fff;">⏰ Saldo Woche/Monat</strong> - Wie viele Stunden vor/nach Soll
+                    </li>
+                    <li style="padding:0.8rem 0; border-bottom:1px solid var(--border); color:var(--text-muted);">
+                        <strong style="color:#fff;">💰 Gleitzeitkonto</strong> - Gesamter Saldo
+                    </li>
+                    <li style="padding:0.8rem 0; border-bottom:1px solid var(--border); color:var(--text-muted);">
+                        <strong style="color:#fff;">🌴 Urlaubstage</strong> - Verbrauchte/Verfügbare Tage
+                    </li>
+                    <li style="padding:0.8rem 0; color:var(--text-muted);">
+                        <strong style="color:#fff;">📊 Charts</strong> - Trend & Verteilung deiner Arbeitszeit
+                    </li>
+                </ul>
+            `,
+            target: '#view-dashboard',
+            highlight: true
+        },
+        {
+            title: '⏱️ Timer & Zeiten erfassen',
+            description: 'Erfasse deine Arbeitszeiten mit dem integrierten Timer oder manuell.',
+            content: `
+                <h3 style="font-size:1.3rem; margin-bottom:1rem;">⏱️ Zeit erfassen - Drei Methoden</h3>
+                <div style="background:rgba(255,255,255,0.02); padding:1.5rem; border-radius:12px; margin-bottom:1.5rem;">
+                    <h4 style="color:var(--primary); margin-bottom:0.5rem;">1️⃣ Live Timer</h4>
+                    <p style="color:var(--text-muted); margin:0;">Start/Pause/Stop - Ideal für längere Schichten</p>
+                </div>
+                <div style="background:rgba(255,255,255,0.02); padding:1.5rem; border-radius:12px; margin-bottom:1.5rem;">
+                    <h4 style="color:#06b6d4; margin-bottom:0.5rem;">2️⃣ Start-Ende Zeit</h4>
+                    <p style="color:var(--text-muted); margin:0;">Gib an, wann du angefangen/aufgehört hast. Pausen werden automatisch abgezogen.</p>
+                </div>
+                <div style="background:rgba(255,255,255,0.02); padding:1.5rem; border-radius:12px;">
+                    <h4 style="color:var(--success); margin-bottom:0.5rem;">3️⃣ Manuelle Eingabe</h4>
+                    <p style="color:var(--text-muted); margin:0;">Einfach die Stunden eingeben - Perfekt für rückwirkende Einträge</p>
+                </div>
+            `,
+            target: '#timerBox',
+            highlight: true
+        },
+        {
+            title: '📈 Performance Analyse',
+            description: 'Detaillierte Analysen: Soll-Ist Vergleich, Projektverteilung, Produktivitätsmuster.',
+            content: `
+                <h3 style="font-size:1.3rem; margin-bottom:1rem;">📈 Performance Analyse</h3>
+                <p style="line-height:1.8; color:var(--text-muted); margin-bottom:1.5rem;">
+                    Tiefgehende Einblicke in deine Arbeitsleistung:
+                </p>
+                <ul style="list-style:none; padding:0; margin-bottom:1.5rem;">
+                    <li style="padding:0.8rem 0; color:var(--text-muted);">
+                        <strong style="color:#fff;">📊 Wöchentlicher Vergleich</strong> - Deine Ist-Zeit vs. Soll-Zeit
+                    </li>
+                    <li style="padding:0.8rem 0; color:var(--text-muted);">
+                        <strong style="color:#fff;">🎯 Projekt-Verteilung</strong> - Welche Projekte kosten Zeit?
+                    </li>
+                    <li style="padding:0.8rem 0; color:var(--text-muted);">
+                        <strong style="color:#fff;">📅 Wochentag-Analyse</strong> - An welchen Tagen bist du produktiv?
+                    </li>
+                    <li style="padding:0.8rem 0; color:var(--text-muted);">
+                        <strong style="color:#fff;">🔥 Stunden-Heatmap</strong> - Wann bist du am produktivsten?
+                    </li>
+                </ul>
+            `,
+            target: null,
+            highlight: false
+        },
+        {
+            title: '🔮 Prognose & Planung',
+            description: 'Plane deine nächsten 4 Wochen und sieh Saldo-Veränderungen live.',
+            content: `
+                <h3 style="font-size:1.3rem; margin-bottom:1rem;">🔮 Intelligente Zukunftsplanung</h3>
+                <p style="line-height:1.8; color:var(--text-muted); margin-bottom:1.5rem;">
+                    Plane deine Arbeitszeit intelligent:
+                </p>
+                <div style="background:var(--primary-dim); padding:1.5rem; border-radius:12px; border-left:4px solid var(--primary); margin-bottom:1.5rem;">
+                    <p style="margin:0; color:var(--text-muted);">
+                        📅 <strong>Klick auf einen Tag</strong> um ihn als Urlaub/Schule/Krank zu markieren. Der Saldo aktualisiert sich LIVE!
+                    </p>
+                </div>
+                <p style="color:var(--text-muted);">
+                    Perfekt um zu planen: "Wenn ich nächste Woche 3 Tage Urlaub nehme, wie sieht mein Saldo aus?"
+                </p>
+            `,
+            target: null,
+            highlight: false
+        },
+        {
+            title: '📆 Jahresübersicht',
+            description: 'Alle 365 Tage auf einen Blick mit intelligenten KI-Insights.',
+            content: `
+                <h3 style="font-size:1.3rem; margin-bottom:1rem;">📆 Jahresübersicht & KI-Insights</h3>
+                <p style="line-height:1.8; color:var(--text-muted); margin-bottom:1.5rem;">
+                    Die Heatmap zeigt dir das ganze Jahr:
+                </p>
+                <ul style="list-style:none; padding:0; margin-bottom:1.5rem;">
+                    <li style="padding:0.8rem 0; color:var(--text-muted);">
+                        🟢 <strong style="color:#fff;">Grüne Felder</strong> = Produktive Tage (positiver Saldo)
+                    </li>
+                    <li style="padding:0.8rem 0; color:var(--text-muted);">
+                        🔴 <strong style="color:#fff;">Rote Felder</strong> = Weniger produktive Tage (negativer Saldo)
+                    </li>
+                    <li style="padding:0.8rem 0; color:var(--text-muted);">
+                        ⚪ <strong style="color:#fff;">Graue Felder</strong> = Keine Einträge
+                    </li>
+                </ul>
+                <p style="color:var(--text-muted);">
+                    Plus: 6 KI-Insights über deine Produktivität! 🤖
+                </p>
+            `,
+            target: null,
+            highlight: false
+        },
+        {
+            title: '🎓 IHK & Berufsschule',
+            description: 'Verwalte Ausbildungs-Daten, Noten und Prüfungstermine.',
+            content: `
+                <h3 style="font-size:1.3rem; margin-bottom:1rem;">🎓 Ausbildungs-Management</h3>
+                <p style="line-height:1.8; color:var(--text-muted); margin-bottom:1.5rem;">
+                    Alles für deine Ausbildung an einem Ort:
+                </p>
+                <ul style="list-style:none; padding:0; margin-bottom:1.5rem;">
+                    <li style="padding:0.8rem 0; color:var(--text-muted);">
+                        <strong style="color:#fff;">🎓 IHK-Audit</strong> - Ausbildungsfortschritt, Prüfungsdaten, Noten
+                    </li>
+                    <li style="padding:0.8rem 0; color:var(--text-muted);">
+                        <strong style="color:#fff;">📚 Berufsschul-Noten</strong> - Fächer-Noten, Durchschnitte, Trends
+                    </li>
+                    <li style="padding:0.8rem 0; color:var(--text-muted);">
+                        <strong style="color:#fff;">📊 Compliance-Check</strong> - Ruhezeiten, Max-Arbeitszeit, Fehlzeitenquote
+                    </li>
+                </ul>
+            `,
+            target: null,
+            highlight: false
+        },
+        {
+            title: '🏆 Ziele & Fokus',
+            description: 'Definiere eigene Ziele und tracke deinen Fortschritt.',
+            content: `
+                <h3 style="font-size:1.3rem; margin-bottom:1rem;">🏆 Ziele setzen & erreichen</h3>
+                <p style="line-height:1.8; color:var(--text-muted); margin-bottom:1.5rem;">
+                    Motiviere dich mit individuellen Zielen:
+                </p>
+                <div style="background:var(--primary-dim); padding:1.5rem; border-radius:12px; border-left:4px solid var(--primary); margin-bottom:1.5rem;">
+                    <p style="margin:0; color:var(--text-muted);">
+                        ✨ Beispiele: "100h Überstunden", "50 positive Wochen", "50 perfekte Schichten"
+                    </p>
+                </div>
+                <p style="color:var(--text-muted);">
+                    Jedes erreichte Ziel bringt dir ein Trophäen-Badge! 🏅
+                </p>
+            `,
+            target: null,
+            highlight: false
+        },
+        {
+            title: '🔎 Daten-Analyse & Historie',
+            description: 'Filter, such und exportiere deine gesamte Arbeitshistorie.',
+            content: `
+                <h3 style="font-size:1.3rem; margin-bottom:1rem;">🔎 Vollständige Dateikontrolle</h3>
+                <p style="line-height:1.8; color:var(--text-muted); margin-bottom:1.5rem;">
+                    Volle Kontrolle über deine Daten:
+                </p>
+                <ul style="list-style:none; padding:0; margin-bottom:1.5rem;">
+                    <li style="padding:0.8rem 0; color:var(--text-muted);">
+                        🔍 <strong style="color:#fff;">Filter & Suche</strong> - Nach Datum, Typ, Projekt, Stunden
+                    </li>
+                    <li style="padding:0.8rem 0; color:var(--text-muted);">
+                        📥 <strong style="color:#fff;">CSV/JSON Export</strong> - Für Excel, Reports, Audits
+                    </li>
+                    <li style="padding:0.8rem 0; color:var(--text-muted);">
+                        💾 <strong style="color:#fff;">Backup & Restore</strong> - Alle Daten sicher speichern
+                    </li>
+                    <li style="padding:0.8rem 0; color:var(--text-muted);">
+                        ✏️ <strong style="color:#fff;">Eintrag bearbeiten</strong> - Jederzeit korrigierbar
+                    </li>
+                </ul>
+            `,
+            target: null,
+            highlight: false
+        },
+        {
+            title: '⚙️ Einstellungen anpassen',
+            description: 'Personalisiere deine Arbeitszeiten, Pausen und Design.',
+            content: `
+                <h3 style="font-size:1.3rem; margin-bottom:1rem;">⚙️ Alles individuell einstellen</h3>
+                <p style="line-height:1.8; color:var(--text-muted); margin-bottom:1.5rem;">
+                    TimeTracker passt sich an dich an:
+                </p>
+                <ul style="list-style:none; padding:0; margin-bottom:1.5rem;">
+                    <li style="padding:0.8rem 0; color:var(--text-muted);">
+                        👤 <strong style="color:#fff;">Profil</strong> - Dein Name, Lieblingsfarbe
+                    </li>
+                    <li style="padding:0.8rem 0; color:var(--text-muted);">
+                        ⏱️ <strong style="color:#fff;">Arbeitszeiten</strong> - Soll-Stunden pro Tag, Pausen
+                    </li>
+                    <li style="padding:0.8rem 0; color:var(--text-muted);">
+                        🌴 <strong style="color:#fff;">Urlaub</strong> - Jahresanspruch, Feiertage, Blockbuchungen
+                    </li>
+                </ul>
+            `,
+            target: null,
+            highlight: false
+        },
+        {
+            title: '🚀 Du bist ready!',
+            description: 'Jetzt geht\'s los. Tracke deine erste Stunde und lass dich von den Insights überraschen!',
+            content: `
+                <h3 style="font-size:1.5rem; margin-bottom:1rem;">🎉 Du bist startklar!</h3>
+                <p style="line-height:1.8; color:var(--text-muted); margin-bottom:2rem;">
+                    Du kennst jetzt alle Features von TimeTracker. Es ist Zeit, durchzustarten!
+                </p>
+                <div style="background:linear-gradient(135deg, var(--primary-dim) 0%, rgba(6,182,212,0.1) 100%); padding:2rem; border-radius:12px; border:2px solid var(--primary); margin-bottom:1.5rem; text-align:center;">
+                    <p style="font-size:1.2rem; margin:0; color:var(--text-main);">
+                        💡 <strong>Pro-Tipp:</strong> Starte mit dem Live-Timer - das ist der schnellste Weg!
+                    </p>
+                </div>
+                <p style="color:var(--text-muted); text-align:center;">
+                    Diese Tour kannst du jederzeit über "🎓 Anleitung" im Menü erneut starten.
+                </p>
+            `,
+            target: null,
+            highlight: false
+        }
+    ];
+    
+    function startOnboardingTour() {
+        onboardingStep = 0;
+        onboardingActive = true;
+        document.getElementById('onboardingModal').classList.add('active');
+        document.getElementById('spotlightOverlay').style.display = 'block';
+        renderOnboardingStep();
+    }
+    
+    function renderOnboardingStep() {
+        const step = onboardingSteps[onboardingStep];
+        
+        // Render Content
+        const contentEl = document.getElementById('onboardingContent');
+        contentEl.innerHTML = `<div class="onboarding-content">${step.content}</div>`;
+        
+        // Update Progress Dots
+        const progressEl = document.getElementById('onboardingProgress');
+        let progressHTML = '';
+        for (let i = 0; i < onboardingSteps.length; i++) {
+            progressHTML += `<div class="onboarding-step-dot ${i === onboardingStep ? 'active' : ''}" onclick="jumpToStep(${i})"></div>`;
+        }
+        progressEl.innerHTML = progressHTML;
+        
+        // Update Button States
+        document.getElementById('onboardingPrevBtn').style.display = onboardingStep === 0 ? 'none' : 'block';
+        document.getElementById('onboardingNextBtn').innerText = onboardingStep === onboardingSteps.length - 1 ? '✓ Fertig!' : 'Weiter →';
+        
+        // Highlight Element
+        if (step.highlight && step.target) {
+            highlightElement(step.target);
+        } else {
+            document.getElementById('spotlightHighlight').style.display = 'none';
+            document.getElementById('spotlightOverlay').style.display = 'none';
+        }
+        
+        // Scroll to Top
+        document.getElementById('onboardingModal').scrollTop = 0;
+    }
+    
+    function highlightElement(selector) {
+        const element = document.querySelector(selector);
+        if (!element) return;
+        
+        const rect = element.getBoundingClientRect();
+        const highlight = document.getElementById('spotlightHighlight');
+        
+        highlight.style.display = 'block';
+        highlight.style.left = (rect.left - 6) + 'px';
+        highlight.style.top = (rect.top - 6) + 'px';
+        highlight.style.width = (rect.width + 12) + 'px';
+        highlight.style.height = (rect.height + 12) + 'px';
+        
+        document.getElementById('spotlightOverlay').style.display = 'block';
+    }
+    
+    function nextOnboardingStep() {
+        if (onboardingStep < onboardingSteps.length - 1) {
+            onboardingStep++;
+            renderOnboardingStep();
+        } else {
+            endOnboardingTour();
+        }
+    }
+    
+    function previousOnboardingStep() {
+        if (onboardingStep > 0) {
+            onboardingStep--;
+            renderOnboardingStep();
+        }
+    }
+    
+    function jumpToStep(step) {
+        onboardingStep = step;
+        renderOnboardingStep();
+    }
+    
+    function endOnboardingTour() {
+        onboardingActive = false;
+        document.getElementById('onboardingModal').classList.remove('active');
+        document.getElementById('spotlightOverlay').style.display = 'none';
+        document.getElementById('spotlightHighlight').style.display = 'none';
+        showCustomMessage('✅ Tour abgeschlossen', 'Du kennst jetzt alle Features! Viel Erfolg beim Tracken! 🚀', 'success');
+    }
+    
+    // ===== SMART ALERTS SYSTEM (IMPROVED) =====
+    let alertsHistory = [];
+    let alertSettings = {
+        saldoPositive: true,
+        saldoNegative: true,
+        shiftMax: true,
+        vacationLow: true
+    };
+    let lastAlertCheck = {};
+    const ALERT_STORAGE_KEY = 'timetracker_alerts_v2';
+    const ALERT_SETTINGS_KEY = 'timetracker_alert_settings_v2';
+    const ALERT_CHECK_KEY = 'timetracker_alert_check';
+    const ALERT_WELCOME_SHOWN = 'timetracker_alert_welcome_shown';
+    const ALERT_RETENTION_DAYS = 7; // Alerts nach 7 Tagen löschen
+    
+    function initializeAlerts() {
+        // Lade komplettes Alert-System aus localStorage
+        const savedAlerts = localStorage.getItem(ALERT_STORAGE_KEY);
+        if (savedAlerts) {
+            try {
+                alertsHistory = JSON.parse(savedAlerts);
+                // Cleanup: Alte Alerts entfernen (älter als 7 Tage)
+                const cutoffTime = Date.now() - (ALERT_RETENTION_DAYS * 24 * 60 * 60 * 1000);
+                alertsHistory = alertsHistory.filter(a => a.timestamp > cutoffTime);
+            } catch (e) {
+                console.warn('Alert history corrupt, resetting');
+                alertsHistory = [];
+            }
+        }
+        
+        const savedSettings = localStorage.getItem(ALERT_SETTINGS_KEY);
+        if (savedSettings) {
+            try {
+                alertSettings = { ...alertSettings, ...JSON.parse(savedSettings) };
+            } catch (e) {
+                console.warn('Alert settings corrupt');
+            }
+        }
+        
+        const savedCheck = localStorage.getItem(ALERT_CHECK_KEY);
+        if (savedCheck) {
+            try {
+                lastAlertCheck = JSON.parse(savedCheck);
+            } catch (e) {
+                console.warn('Alert check data corrupt');
+            }
+        }
+        
+        // Restore UI state
+        document.getElementById('alertSaldoPositive').checked = alertSettings.saldoPositive;
+        document.getElementById('alertSaldoNegative').checked = alertSettings.saldoNegative;
+        document.getElementById('alertShiftMax').checked = alertSettings.shiftMax;
+        document.getElementById('alertVacationLow').checked = alertSettings.vacationLow;
+        
+        // Zeige Willkommens-Alert nur beim ERSTEN Start (nie wieder danach)
+        const welcomeShown = localStorage.getItem(ALERT_WELCOME_SHOWN);
+        if (!welcomeShown && alertsHistory.length === 0) {
+            const welcomeAlert = createAlert('Willkommen! 👋', 'Dein Alert-System ist aktiv. Wichtige Meldungen werden hier angezeigt und bleiben gespeichert.', 'success', '✨');
+            welcomeAlert.isRead = false;
+            alertsHistory.push(welcomeAlert);
+            localStorage.setItem(ALERT_WELCOME_SHOWN, 'true');
+            persistAlerts();
+        }
+        
+        // Initiales Rendern
+        checkAlertsThresholds();
+        updateAlertBadge();
+        renderAlertsList();
+        
+        console.log('✅ Alert System initialized', { alerts: alertsHistory.length });
+    }
+    
+    function persistAlerts() {
+        // Speichere mit Error-Handling
+        try {
+            localStorage.setItem(ALERT_STORAGE_KEY, JSON.stringify(alertsHistory));
+            localStorage.setItem(ALERT_CHECK_KEY, JSON.stringify(lastAlertCheck));
+        } catch (e) {
+            console.error('Failed to persist alerts:', e);
+        }
+    }
+    
+    function saveAlertSettings() {
+        alertSettings.saldoPositive = document.getElementById('alertSaldoPositive').checked;
+        alertSettings.saldoNegative = document.getElementById('alertSaldoNegative').checked;
+        alertSettings.shiftMax = document.getElementById('alertShiftMax').checked;
+        alertSettings.vacationLow = document.getElementById('alertVacationLow').checked;
+        try {
+            localStorage.setItem(ALERT_SETTINGS_KEY, JSON.stringify(alertSettings));
+        } catch (e) {
+            console.error('Failed to save alert settings:', e);
+        }
+    }
+    
+    function toggleAlertsPanel() {
+        const panel = document.getElementById('alertsPanel');
+        const overlay = document.getElementById('alertsOverlay');
+        const badge = document.getElementById('alertBadge');
+        
+        if (panel.classList.contains('active')) {
+            panel.classList.remove('active');
+            overlay.style.display = 'none';
+            overlay.style.opacity = '0';
+        } else {
+            panel.classList.add('active');
+            overlay.style.display = 'block';
+            overlay.style.opacity = '1';
+            // Markiere alle als gelesen wenn Panel öffnet
+            markAllAlertsAsRead();
+            renderAlertsList();
+        }
+    }
+    
+    function checkAlertsThresholds() {
+        const now = new Date();
+        const today = now.toLocaleDateString('de-DE');
+        let newAlertsCreated = false;
+        
+        // 1. Prüfe positives Saldo
+        if (alertSettings.saldoPositive && data.saldo >= 20) {
+            const checkKey = `saldoPositive_${today}`;
+            if (!lastAlertCheck[checkKey]) {
+                const alert = createAlert('🏆 Saldo überschritten', `Glückwunsch! Dein Saldo hat +20h erreicht!`, 'warning', '🏆');
+                alert.isRead = false;
+                alertsHistory.unshift(alert);
+                lastAlertCheck[checkKey] = true;
+                newAlertsCreated = true;
+                showToastNotification(alert);
+            }
+        }
+        
+        // 2. Prüfe negatives Saldo
+        if (alertSettings.saldoNegative && data.saldo <= -5) {
+            const checkKey = `saldoNegative_${today}`;
+            if (!lastAlertCheck[checkKey]) {
+                const alert = createAlert('⚠️ Saldo kritisch', `Dein Saldo ist unter -5h gefallen. Mehr arbeiten empfohlen!`, 'danger', '⚠️');
+                alert.isRead = false;
+                alertsHistory.unshift(alert);
+                lastAlertCheck[checkKey] = true;
+                newAlertsCreated = true;
+                showToastNotification(alert);
+            }
+        }
+        
+        // 3. Prüfe heute's Schichten-Länge
+        if (alertSettings.shiftMax) {
+            const todayEntries = data.entries.filter(e => e.date === today && e.type === 'work');
+            let totalToday = 0;
+            todayEntries.forEach(e => {
+                const start = parseTime(e.start);
+                const end = parseTime(e.end);
+                totalToday += (end - start) / 60;
+            });
+            
+            if (totalToday > 10) {
+                const checkKey = `shiftMax_${today}`;
+                if (!lastAlertCheck[checkKey]) {
+                    const alert = createAlert('⏰ Lange Schicht heute', `Du hast bereits ${totalToday.toFixed(1)}h gearbeitet. Passe auf deine Gesundheit auf!`, 'warning', '⏰');
+                    alert.isRead = false;
+                    alertsHistory.unshift(alert);
+                    lastAlertCheck[checkKey] = true;
+                    newAlertsCreated = true;
+                    showToastNotification(alert);
+                }
+            }
+        }
+        
+        // 4. Prüfe Urlaub
+        if (alertSettings.vacationLow && data.vacationUsed > data.vacationMax * 0.8) {
+            const checkKey = `vacationLow_${today}`;
+            if (!lastAlertCheck[checkKey]) {
+                const remaining = data.vacationMax - data.vacationUsed;
+                const alert = createAlert('📅 Urlaub läuft aus', `Nur noch ${remaining.toFixed(1)} Urlaubstage übrig. Planen Sie rechtzeitig!`, 'warning', '📅');
+                alert.isRead = false;
+                alertsHistory.unshift(alert);
+                lastAlertCheck[checkKey] = true;
+                newAlertsCreated = true;
+                showToastNotification(alert);
+            }
+        }
+        
+        // Speichern und UI update
+        if (newAlertsCreated) {
+            persistAlerts();
+            updateAlertBadge();
+        }
+    }
+    
+    function showToastNotification(alert) {
+        // Toast-Popup in der oberen rechten Ecke
+        const toast = document.createElement('div');
+        toast.className = 'alert-toast';
+        toast.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--bg-sidebar);
+            border-left: 5px solid ${alert.type === 'danger' ? 'var(--danger)' : alert.type === 'warning' ? '#f59e0b' : 'var(--success)'};
+            padding: 16px 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            backdrop-filter: blur(24px);
+            z-index: 2000;
+            animation: slideInRight 0.4s ease;
+            max-width: 350px;
+        `;
+        
+        toast.innerHTML = `
+            <div style="display: flex; gap: 12px; align-items: flex-start;">
+                <div style="font-size: 1.5rem; flex-shrink: 0;">${alert.icon}</div>
+                <div style="flex: 1;">
+                    <div style="font-weight: 600; margin-bottom: 4px; color: var(--text-main);">${alert.title}</div>
+                    <div style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.4;">${alert.message}</div>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(toast);
+        
+        // Auto-entfernen nach 6 Sekunden
+        setTimeout(() => {
+            toast.style.animation = 'slideOutRight 0.4s ease';
+            setTimeout(() => toast.remove(), 400);
+        }, 6000);
+    }
+    
+    function createAlert(title, message, severity = 'info', icon = 'ℹ️') {
+        return {
+            id: Date.now() + Math.random(),
+            title: title,
+            message: message,
+            type: severity,
+            icon: icon,
+            date: new Date().toLocaleDateString('de-DE'),
+            time: new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }),
+            timestamp: Date.now(),
+            isRead: false
+        };
+    }
+    
+    function markAllAlertsAsRead() {
+        alertsHistory.forEach(alert => alert.isRead = true);
+        persistAlerts();
+    }
+    
+    function updateAlertBadge() {
+        const badge = document.getElementById('alertBadge');
+        const unreadCount = alertsHistory.filter(a => !a.isRead).length;
+        
+        if (unreadCount > 0) {
+            badge.innerText = unreadCount > 99 ? '99+' : unreadCount;
+            badge.style.opacity = '1';
+            badge.style.display = 'flex';
+            badge.style.animation = 'pulse 2s infinite';
+        } else {
+            badge.style.display = 'none';
+            badge.style.animation = 'none';
+        }
+    }
+    
+    function renderAlertsList() {
+        const container = document.getElementById('alertsList');
+        container.innerHTML = '';
+        
+        if (alertsHistory.length === 0) {
+            container.innerHTML = '<div style="text-align:center; padding:3rem 1rem; color:var(--text-muted);">✨<br>Keine Alerts – alles läuft perfekt!</div>';
+            return;
+        }
+        
+        alertsHistory.forEach(alert => {
+            const alertEl = document.createElement('div');
+            alertEl.className = `alert-item ${alert.type}`;
+            alertEl.style.opacity = alert.isRead ? '0.6' : '1';
+            alertEl.style.borderLeftWidth = alert.isRead ? '2px' : '4px';
+            alertEl.innerHTML = `
+                <div class="alert-item-icon">${alert.icon}</div>
+                <div class="alert-item-content">
+                    <div class="alert-item-title" style="font-weight: ${alert.isRead ? '400' : '700'};">${alert.title}</div>
+                    <div style="font-size:0.9rem; margin-bottom:4px; color:var(--text-main);">${alert.message}</div>
+                    <div class="alert-item-time">${alert.date} · ${alert.time}</div>
+                </div>
+                <button class="alert-item-dismiss" onclick="dismissAlert(${alert.id})">×</button>
+            `;
+            container.appendChild(alertEl);
+        });
+    }
+    
+    function filterAlerts(type) {
+        // Update button states
+        document.querySelectorAll('.alert-filter-btn').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+        
+        const container = document.getElementById('alertsList');
+        if (type === 'all') {
+            renderAlertsList();
+        } else {
+            const filtered = alertsHistory.filter(a => a.type === type);
+            container.innerHTML = '';
+            if (filtered.length === 0) {
+                container.innerHTML = `<div style="text-align:center; padding:2rem; color:var(--text-muted);">Keine ${type === 'warning' ? 'Warnungen' : 'Erfolge'} gefunden.</div>`;
+            } else {
+                filtered.forEach(alert => {
+                    const alertEl = document.createElement('div');
+                    alertEl.className = `alert-item ${alert.type}`;
+                    alertEl.style.opacity = alert.isRead ? '0.6' : '1';
+                    alertEl.innerHTML = `
+                        <div class="alert-item-icon">${alert.icon}</div>
+                        <div class="alert-item-content">
+                            <div class="alert-item-title">${alert.title}</div>
+                            <div style="font-size:0.9rem; margin-bottom:4px;">${alert.message}</div>
+                            <div class="alert-item-time">${alert.date} · ${alert.time}</div>
+                        </div>
+                        <button class="alert-item-dismiss" onclick="dismissAlert(${alert.id})">×</button>
+                    `;
+                    container.appendChild(alertEl);
+                });
+            }
+        }
+    }
+    
+    function dismissAlert(id) {
+        alertsHistory = alertsHistory.filter(a => a.id !== id);
+        persistAlerts();
+        updateAlertBadge();
+        renderAlertsList();
+    }
+    
+    function clearAllAlerts() {
+        if (confirm('Alle Alerts wirklich löschen? Dies kann nicht rückgängig gemacht werden.')) {
+            alertsHistory = [];
+            lastAlertCheck = {};
+            persistAlerts();
+            updateAlertBadge();
+            renderAlertsList();
+            showCustomMessage('✅ Alle Alerts gelöscht', 'Dein Alert-Verlauf wurde zurückgesetzt.', 'success');
+        }
+    }
+
+    
+    // ===== MONATS-VERGLEICH SYSTEM (NEU) =====
+    function renderMonthCompareView() {
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        const currentMonth = now.getMonth();
+        
+        // 1. Fülle Monats-Dropdown (nur wenn leer)
+        const select = document.getElementById('monthCompareSelect');
+        if (select && select.children.length === 0) {
+            for (let m = 0; m < 12; m++) {
+                const date = new Date(currentYear, m, 1);
+                const option = document.createElement('option');
+                option.value = m;
+                const monthName = date.toLocaleDateString('de-DE', { month: 'long', year: 'numeric' });
+                option.textContent = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+                select.appendChild(option);
+            }
+            select.value = currentMonth;
+        }
+        
+        // 2. Nutze den gewählten Monat aus dem Dropdown (nicht den aktuellen!)
+        const selectedMonth = select ? parseInt(select.value) : currentMonth;
+        
+        // 3. Berechne Stats für gewählten Monat
+        const stats = calculateMonthStats(selectedMonth, currentYear);
+        const prevMonth = selectedMonth === 0 ? 11 : selectedMonth - 1;
+        const prevYear = selectedMonth === 0 ? currentYear - 1 : currentYear;
+        const prevStats = calculateMonthStats(prevMonth, prevYear);
+        
+        // 4. Berechne Jahres-Durchschnitt
+        let yearTotal = 0, monthCount = 0;
+        for (let m = 0; m < 12; m++) {
+            const mStats = calculateMonthStats(m, currentYear);
+            if (mStats.worked > 0) {
+                yearTotal += mStats.worked;
+                monthCount++;
+            }
+        }
+        const yearAvg = monthCount > 0 ? yearTotal / monthCount : 0;
+        
+        // 5. Update KPIs
+        document.getElementById('mcCurrentWorked').innerText = stats.worked.toFixed(1) + 'h';
+        document.getElementById('mcCurrentDays').innerText = stats.workDays;
+        
+        document.getElementById('mcPrevWorked').innerText = prevStats.worked.toFixed(1) + 'h';
+        const diff = stats.worked - prevStats.worked;
+        const percent = prevStats.worked > 0 ? ((diff / prevStats.worked) * 100).toFixed(0) : 0;
+        document.getElementById('mcComparisonDiff').innerText = (diff >= 0 ? '+' : '') + diff.toFixed(1) + 'h';
+        document.getElementById('mcComparisonDiff').style.color = diff >= 0 ? 'var(--success)' : 'var(--danger)';
+        document.getElementById('mcComparisonPercent').innerText = `(${percent}%)`;
+        document.getElementById('mcComparisonPercent').style.color = diff >= 0 ? 'var(--success)' : 'var(--danger)';
+        
+        document.getElementById('mcYearAvg').innerText = yearAvg.toFixed(1) + 'h';
+        
+        // Saldo-Trend
+        const saldoTrend = stats.saldo;
+        document.getElementById('mcSaldoTrend').innerText = (saldoTrend >= 0 ? '+' : '') + saldoTrend.toFixed(1) + 'h';
+        document.getElementById('mcSaldoTrend').style.color = saldoTrend >= 0 ? 'var(--success)' : 'var(--danger)';
+        const trendLabel = saldoTrend > 10 ? '🚀 Sehr positiv' : (saldoTrend > 0 ? '📈 Positiv' : (saldoTrend < -10 ? '📉 Kritisch' : '↔️ Neutral'));
+        document.getElementById('mcSaldoTrendLabel').innerText = trendLabel;
+        
+        // 5. Render Wochenanalyse
+        renderMonthWeeksList(stats);
+        
+        // 6. Update Statistiken
+        document.getElementById('mcStats_workDays').innerText = stats.workDays;
+        document.getElementById('mcStats_avgPerDay').innerText = stats.workDays > 0 ? (stats.worked / stats.workDays).toFixed(1) + 'h' : '0h';
+        document.getElementById('mcStats_schoolDays').innerText = stats.schoolDays;
+        document.getElementById('mcStats_vacationDays').innerText = stats.vacationDays;
+        document.getElementById('mcStats_sickDays').innerText = stats.sickDays;
+        document.getElementById('mcStats_holidayDays').innerText = stats.holidayDays;
+        
+        // 7. Render Charts
+        renderMonthCompareCharts(stats, prevStats);
+    }
+    
+    function calculateMonthStats(month, year) {
+        const firstDay = new Date(year, month, 1);
+        const lastDay = new Date(year, month + 1, 0);
+
+        let stats = {
+            worked: 0,
+            workDays: 0,
+            schoolDays: 0,
+            vacationDays: 0,
+            sickDays: 0,
+            holidayDays: 0,
+            saldo: 0,
+            weeks: []
+        };
+
+        // Sammle alle Einträge für diesen Monat
+        const monthEntries = data.entries.filter(e => {
+            // Unterstütze sowohl 'YYYY-MM-DD' als auch ISO 'YYYY-MM-DDTHH:MM' Formate
+            const dateOnly = (e.date || '').split('T')[0];
+            const eDate = new Date(dateOnly + 'T00:00:00');
+            return eDate >= firstDay && eDate <= lastDay;
+        });
+
+        // Gruppiere Einträge pro Tag, damit mehrere Einträge an einem Tag aggregiert werden
+        const byDate = {};
+        monthEntries.forEach(e => {
+            const dateOnly = (e.date || '').split('T')[0];
+            if (!byDate[dateOnly]) byDate[dateOnly] = [];
+            byDate[dateOnly].push(e);
+        });
+
+        // Iteriere über alle Tage des Monats und berechne Tageswerte
+        for (let d = firstDay.getDate(); d <= lastDay.getDate(); d++) {
+            const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+            const dayEntries = byDate[dateStr] || [];
+            if (dayEntries.length === 0) continue;
+
+            let dayWorkedHours = 0;
+            let dayHasWork = false;
+            let dayHasSchool = false;
+            let dayHasVacation = false;
+            let dayHasSick = false;
+            let dayHasHoliday = false;
+
+            dayEntries.forEach(e => {
+                const type = e.type;
+                if (type === 'work') {
+                    // Berechne Stunden: bevorzugt neu gespeicherte 'worked',
+                    // sonst 'shiftStart'/'shiftEnd', sonst altes 'start'/'end' oder 'hours'
+                    let hours = 0;
+                    if (typeof e.worked === 'number' && isFinite(e.worked) && e.worked > 0) {
+                        hours = e.worked;
+                    } else if (e.shiftStart && e.shiftEnd) {
+                        const diff = (parseTime(e.shiftEnd) - parseTime(e.shiftStart)) / 60;
+                        if (isFinite(diff) && diff > 0) hours = diff;
+                    } else if (e.start && e.end) {
+                        const diff = (parseTime(e.end) - parseTime(e.start)) / 60;
+                        if (isFinite(diff) && diff > 0) hours = diff;
+                    } else if (typeof e.hours === 'number') {
+                        hours = e.hours;
+                    } else if (e.hours) {
+                        hours = Number(e.hours) || 0;
+                    }
+                    dayWorkedHours += hours;
+                    if (hours > 0) dayHasWork = true;
+                } else if (type === 'school') {
+                    dayHasSchool = true;
+                } else if (type === 'vacation') {
+                    dayHasVacation = true;
+                } else if (type === 'sick') {
+                    dayHasSick = true;
+                } else if (type === 'holiday') {
+                    dayHasHoliday = true;
+                }
+            });
+
+            // Tageszusammenfassung in die Statistiken einfließen lassen
+            if (dayHasWork) {
+                stats.worked += dayWorkedHours;
+                stats.workDays += 1; // pro Arbeitstag nur einmal zählen
+                stats.saldo += (dayWorkedHours - 8.75);
+            }
+            if (dayHasSchool) stats.schoolDays += 1;
+            if (dayHasVacation) stats.vacationDays += 1;
+            if (dayHasSick) stats.sickDays += 1;
+            if (dayHasHoliday) stats.holidayDays += 1;
+
+            // Wochen-Statistik (Woche im Monat: 1..5)
+            const weekNum = Math.ceil(d / 7);
+            let week = stats.weeks.find(w => w.weekNum === weekNum);
+            if (!week) {
+                week = { weekNum: weekNum, entries: 0, hours: 0 };
+                stats.weeks.push(week);
+            }
+            if (dayHasWork) week.entries += 1; // Arbeitstage pro Woche
+            week.hours += dayWorkedHours;
+        }
+
+        return stats;
+    }
+    
+    function renderMonthWeeksList(stats) {
+        const container = document.getElementById('mcWeeksList');
+        container.innerHTML = '';
+        
+        if (stats.weeks.length === 0) {
+            container.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:2rem; color:var(--text-muted);">Keine Einträge in diesem Monat</div>';
+            return;
+        }
+        
+        stats.weeks.forEach(week => {
+            const avgDay = week.entries > 0 ? week.hours / week.entries : 0;
+            const saldo = week.hours - (week.entries * 8.75);
+            const saldoColor = saldo >= 0 ? 'var(--success)' : 'var(--danger)';
+            
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.style.borderLeft = `5px solid ${saldoColor}`;
+            card.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                    <div style="font-weight:600; font-size:1.1rem;">📅 Woche ${week.weekNum}</div>
+                    <div style="font-size:0.85rem; color:var(--text-muted);">${week.entries} Tage</div>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem;">
+                    <div>
+                        <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:4px;">Gesamt</div>
+                        <div style="font-size:1.5rem; font-weight:700; font-family:var(--font-mono);" id="week-${week.weekNum}-total">${week.hours.toFixed(1)}h</div>
+                    </div>
+                    <div>
+                        <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:4px;">Ø pro Tag</div>
+                        <div style="font-size:1.5rem; font-weight:700; font-family:var(--font-mono);">${avgDay.toFixed(1)}h</div>
+                    </div>
+                </div>
+                <div style="padding:12px; background:rgba(255,255,255,0.03); border-radius:8px; border-left:3px solid ${saldoColor};">
+                    <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:4px;">⚖️ Saldo</div>
+                    <div style="font-size:1.2rem; font-weight:700; color:${saldoColor}; font-family:var(--font-mono);">${saldo >= 0 ? '+' : ''}${saldo.toFixed(1)}h</div>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    }
+    
+    function renderMonthCompareCharts(currentStats, prevStats) {
+        // Circular Chart für Current
+        const maxHours = Math.max(currentStats.worked, prevStats.worked, 200);
+        const currentPercent = (currentStats.worked / maxHours) * 100;
+        const prevPercent = (prevStats.worked / maxHours) * 100;
+        
+        const currentDasharray = (currentPercent * 502) / 100;
+        const prevDasharray = (prevPercent * 502) / 100;
+        
+        document.getElementById('mcChartCurrent').setAttribute('stroke-dasharray', `${currentDasharray} 502`);
+        document.getElementById('mcChartPrev').setAttribute('stroke-dasharray', `${prevDasharray} 502`);
+        
+        document.getElementById('mcChartCurrentValue').innerText = currentStats.worked.toFixed(1) + 'h';
+        document.getElementById('mcChartPrevValue').innerText = prevStats.worked.toFixed(1) + 'h';
+    }
+    
+    function parseTime(timeStr) {
+        const [h, m] = timeStr.split(':').map(Number);
+        return h * 60 + m;
+    }
+
     function renderYearView() {
         // 1. Jahres-Statistiken berechnen
         const yearStats = calculateYearlyStats();
@@ -5322,6 +6589,42 @@ TIPPS:
         }
         
         container.innerHTML = html;
+    }
+
+    // ===== INITIALIZATION (NEU) =====
+    function initializeApp() {
+        // Load data from localStorage
+        const saved = localStorage.getItem('tg_pro_data');
+        if (saved) {
+            data = JSON.parse(saved);
+        }
+        
+        // Initialize Alerts System
+        initializeAlerts();
+        
+        // Load timer state
+        const timerSaved = localStorage.getItem('tg_timer');
+        if (timerSaved) {
+            timer = JSON.parse(timerSaved);
+        }
+        
+        // Set default date to today
+        const today = new Date().toISOString().split('T')[0];
+        const dateInput = document.getElementById('inpDate');
+        if (dateInput) dateInput.value = today;
+        
+        // Initial UI render
+        recalculateVacationUsed();
+        updateUI();
+        
+        console.log('✅ App initialized with Smart Alerts enabled');
+    }
+
+    // Call initialization on load
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeApp);
+    } else {
+        initializeApp();
     }
 
 </script>
