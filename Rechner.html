@@ -302,7 +302,16 @@
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 200; justify-content: center; align-items: center; backdrop-filter: blur(10px); }
         .modal.active { display: flex; animation: fadeIn 0.2s ease; }
         /* Modal Box für Einstellungen ist breiter für das Urlaubs-Dashboard */
-        .modal-box { background: #121215; border: 1px solid var(--border); width: 680px; padding: 2.5rem; border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
+        .modal-box { background: #121215; border: 1px solid var(--border); width: 680px; padding: 0; border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
+        
+        .settings-tab { transition: all 0.2s ease; }
+        .settings-tab.active { 
+            color: var(--primary) !important; 
+            border-bottom-color: var(--primary) !important; 
+        }
+        .settings-tab:hover { color: var(--primary); }
+        
+        .settings-tab-content { animation: fadeIn 0.3s ease; }
         
         .color-dot { width: 32px; height: 32px; border-radius: 50%; cursor: pointer; border: 2px solid rgba(255,255,255,0.1); transition: 0.2s; }
         .color-dot.active { border-color: #fff; transform: scale(1.1); }
@@ -1407,86 +1416,154 @@
     </main>
 
     <div class="modal" id="settingsModal">
-<div class="modal-box">
-            <div style="display:flex; justify-content:space-between; margin-bottom:2rem;">
-                <h2>Einstellungen</h2>
+        <div class="modal-box" style="display:flex; flex-direction:column; height:90vh; max-height:90vh; width:900px; padding:0;">
+            
+            <!-- Header mit Tabs -->
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:1.5rem 2rem; border-bottom:1px solid var(--border); flex-shrink:0;">
+                <h2 style="margin:0;">⚙️ Einstellungen</h2>
                 <button onclick="closeSettings()" style="background:none; border:none; color:#fff; font-size:1.5rem; cursor:pointer;">&times;</button>
             </div>
             
-            <h4 style="color:var(--text-muted); margin-bottom:10px; font-size:0.8rem;">PROFIL & Design</h4>
-            <input type="text" id="confName" class="glass-input" style="margin-bottom:1.5rem;" placeholder="Dein Name">
-
-            <h4 style="color:var(--text-muted); margin-bottom:10px; font-size:0.8rem;">DESIGN ACCENT</h4>
-            <div style="display:flex; gap:15px; margin-bottom:2rem;">
-                <div class="color-dot" style="background:#a855f7" onclick="setTheme('#a855f7')"></div>
-                <div class="color-dot" style="background:#3b82f6" onclick="setTheme('#3b82f6')"></div>
-                <div class="color-dot" style="background:#06b6d4" onclick="setTheme('#06b6d4')"></div>
-                <div class="color-dot" style="background:#10b981" onclick="setTheme('#10b981')"></div>
-                <div class="color-dot" style="background:#f59e0b" onclick="setTheme('#f59e0b')"></div>
-                <div class="color-dot" style="background:#ec4899" onclick="setTheme('#ec4899')"></div>
-            </div>
-
-            <h4 style="color:var(--text-muted); margin-bottom:10px; font-size:0.8rem;">ARBEITSZEITEN & PAUSE</h4>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-bottom:1.5rem;">
-                <div>
-                    <label style="font-size:0.7rem; color:#666; display:block; margin-bottom:5px;">Ab Stunden (Pause):</label>
-                    <input type="number" id="confBreakThresh" class="glass-input" value="6">
-                </div>
-                <div>
-                    <label style="font-size:0.7rem; color:#666; display:block; margin-bottom:5px;">Abzug (Min):</label>
-                    <input type="number" id="confBreakMin" class="glass-input" value="30">
-                </div>
-            </div>
-
-            <h4 style="color:var(--text-muted); margin-bottom:10px; font-size:0.8rem;">SOLL-STUNDEN (MO-FR)</h4>
-            <div style="display:grid; grid-template-columns: repeat(5, 1fr); gap:8px; margin-bottom:2rem;">
-                <input type="number" id="h1" class="glass-input" style="padding:10px; text-align:center;">
-                <input type="number" id="h2" class="glass-input" style="padding:10px; text-align:center;">
-                <input type="number" id="h3" class="glass-input" style="padding:10px; text-align:center;">
-                <input type="number" id="h4" class="glass-input" style="padding:10px; text-align:center;">
-                <input type="number" id="h5" class="glass-input" style="padding:10px; text-align:center;">
-            </div>
-
-            <h4 style="color:var(--text-muted); margin-bottom:10px; font-size:0.8rem;">URLAUBSVERWALTUNG</h4>
-            <div style="display:flex; gap:15px; margin-bottom:1.5rem;">
-                <div style="flex:1;">
-                    <label style="font-size:0.7rem; color:#666; display:block; margin-bottom:5px;">Jahresanspruch (Tage):</label>
-                    <input type="number" id="confVacationTotal" class="glass-input" value="30">
-                </div>
-                <div style="flex:1;">
-                    <label style="font-size:0.7rem; color:#666; display:block; margin-bottom:5px;">Schon genommene Tage (manuell):</label>
-                    <input type="number" id="confVacationUsedManual" class="glass-input" value="0">
-                </div>
+            <!-- Tab Navigation -->
+            <div style="display:flex; gap:5px; padding:10px 20px; border-bottom:1px solid var(--border); overflow-x:auto; flex-shrink:0;">
+                <button class="settings-tab active" onclick="switchSettingsTab('profile')" style="padding:10px 15px; border:none; background:none; color:var(--text-muted); cursor:pointer; border-bottom:2px solid transparent; transition:0.2s;">👤 Profil</button>
+                <button class="settings-tab" onclick="switchSettingsTab('work')" style="padding:10px 15px; border:none; background:none; color:var(--text-muted); cursor:pointer; border-bottom:2px solid transparent; transition:0.2s;">⏱️ Arbeitszeiten</button>
+                <button class="settings-tab" onclick="switchSettingsTab('vacation')" style="padding:10px 15px; border:none; background:none; color:var(--text-muted); cursor:pointer; border-bottom:2px solid transparent; transition:0.2s;">🌴 Urlaub</button>
             </div>
             
-            <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:1.5rem;">
-                <p>Aktueller, anteiliger Urlaubsanspruch (basierend auf IHK-Start): <strong id="vacationProRata" style="color:var(--success);">0</strong> Tage</p>
-                <p>Der Wert oben ('Jahresanspruch') wird automatisch auf diesen Wert gesetzt, wenn du die Einstellungen speicherst.</p>
-            </div>
+            <!-- Content Area mit Scroll -->
+            <div style="flex:1; overflow-y:auto; padding:2rem; display:flex; flex-direction:column;">
+                
+                <!-- Tab: Profil -->
+                <div id="settings-tab-profile" class="settings-tab-content">
+                    <h4 style="color:var(--primary); margin-bottom:15px; font-size:1rem;">👤 Profil & Design</h4>
+                    
+                    <label style="font-size:0.75rem; color:#666; display:block; margin-bottom:5px; font-weight:600;">Dein Name:</label>
+                    <input type="text" id="confName" class="glass-input" style="margin-bottom:2rem;" placeholder="z.B. Sven">
 
-            <div class="vacation-grid">
-                <div style="text-align:center; padding:10px 0;">
-                    <div style="font-size:3rem; font-weight:800; color:var(--success);" id="vacationRemaining">0</div>
-                    <div style="font-size:0.8rem; color:var(--text-muted); text-transform:uppercase;">Verfügbar (Tage)</div>
-                </div>
-
-                <div class="vacation-block-tool">
-                    <h5 style="margin-bottom:10px;">Blockbuchung verwalten</h5>
-                    <select id="periodType" class="glass-select" style="margin-bottom:10px;">
-                        <option value="vacation">🌴 Urlaub buchen</option>
-                        <option value="holiday">🏖️ Firmen-Frei/Feiertag buverchen</option>
-                    </select>
-                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:10px;">
-                        <input type="date" id="periodStart" class="glass-input" placeholder="Startdatum">
-                        <input type="date" id="periodEnd" class="glass-input" placeholder="Enddatum">
+                    <label style="font-size:0.75rem; color:#666; display:block; margin-bottom:10px; font-weight:600;">Design Accent Farbe:</label>
+                    <div style="display:flex; gap:12px; margin-bottom:2rem;">
+                        <div class="color-dot" style="background:#a855f7" onclick="setTheme('#a855f7')" title="Lila"></div>
+                        <div class="color-dot" style="background:#3b82f6" onclick="setTheme('#3b82f6')" title="Blau"></div>
+                        <div class="color-dot" style="background:#06b6d4" onclick="setTheme('#06b6d4')" title="Cyan"></div>
+                        <div class="color-dot" style="background:#10b981" onclick="setTheme('#10b981')" title="Grün"></div>
+                        <div class="color-dot" style="background:#f59e0b" onclick="setTheme('#f59e0b')" title="Gelb"></div>
+                        <div class="color-dot" style="background:#ec4899" onclick="setTheme('#ec4899')" title="Pink"></div>
                     </div>
-                    <button class="btn btn-primary" onclick="bookPeriod()">Tage buchen & überschreiben</button>
-                    <button class="btn btn-danger" onclick="deletePeriod()" style="margin-top:10px; background:var(--danger);">Perioden-Buchungen löschen</button>
                 </div>
+                
+                <!-- Tab: Arbeitszeiten -->
+                <div id="settings-tab-work" class="settings-tab-content" style="display:none;">
+                    <h4 style="color:var(--primary); margin-bottom:15px; font-size:1rem;">⏱️ Arbeitszeiten & Pausen</h4>
+                    
+                    <label style="font-size:0.75rem; color:#666; display:block; margin-bottom:5px; font-weight:600;">Automatische Pause ab (Stunden):</label>
+                    <input type="number" id="confBreakThresh" class="glass-input" style="margin-bottom:2rem; max-width:200px;" value="6">
+
+                    <label style="font-size:0.75rem; color:#666; display:block; margin-bottom:10px; font-weight:600;">Pausenzeiten pro Wochentag (Minuten):</label>
+                    <div style="display:grid; grid-template-columns: repeat(7, 1fr); gap:10px; margin-bottom:2rem;">
+                        <div style="text-align:center;">
+                            <input type="number" id="breakMin_0" class="glass-input" style="padding:10px; text-align:center; margin-bottom:5px;" title="Sonntag">
+                            <small style="color:var(--text-muted);">So</small>
+                        </div>
+                        <div style="text-align:center;">
+                            <input type="number" id="breakMin_1" class="glass-input" style="padding:10px; text-align:center; margin-bottom:5px;" title="Montag">
+                            <small style="color:var(--text-muted);">Mo</small>
+                        </div>
+                        <div style="text-align:center;">
+                            <input type="number" id="breakMin_2" class="glass-input" style="padding:10px; text-align:center; margin-bottom:5px;" title="Dienstag">
+                            <small style="color:var(--text-muted);">Di</small>
+                        </div>
+                        <div style="text-align:center;">
+                            <input type="number" id="breakMin_3" class="glass-input" style="padding:10px; text-align:center; margin-bottom:5px;" title="Mittwoch">
+                            <small style="color:var(--text-muted);">Mi</small>
+                        </div>
+                        <div style="text-align:center;">
+                            <input type="number" id="breakMin_4" class="glass-input" style="padding:10px; text-align:center; margin-bottom:5px;" title="Donnerstag">
+                            <small style="color:var(--text-muted);">Do</small>
+                        </div>
+                        <div style="text-align:center;">
+                            <input type="number" id="breakMin_5" class="glass-input" style="padding:10px; text-align:center; margin-bottom:5px;" title="Freitag">
+                            <small style="color:var(--text-muted);">Fr</small>
+                        </div>
+                        <div style="text-align:center;">
+                            <input type="number" id="breakMin_6" class="glass-input" style="padding:10px; text-align:center; margin-bottom:5px;" title="Samstag">
+                            <small style="color:var(--text-muted);">Sa</small>
+                        </div>
+                    </div>
+
+                    <label style="font-size:0.75rem; color:#666; display:block; margin-bottom:10px; font-weight:600;">Soll-Stunden pro Tag (Mo-Fr):</label>
+                    <div style="display:grid; grid-template-columns: repeat(5, 1fr); gap:10px; margin-bottom:2rem;">
+                        <div style="text-align:center;">
+                            <input type="number" id="h1" class="glass-input" style="padding:10px; text-align:center; margin-bottom:5px;">
+                            <small style="color:var(--text-muted);">Mo</small>
+                        </div>
+                        <div style="text-align:center;">
+                            <input type="number" id="h2" class="glass-input" style="padding:10px; text-align:center; margin-bottom:5px;">
+                            <small style="color:var(--text-muted);">Di</small>
+                        </div>
+                        <div style="text-align:center;">
+                            <input type="number" id="h3" class="glass-input" style="padding:10px; text-align:center; margin-bottom:5px;">
+                            <small style="color:var(--text-muted);">Mi</small>
+                        </div>
+                        <div style="text-align:center;">
+                            <input type="number" id="h4" class="glass-input" style="padding:10px; text-align:center; margin-bottom:5px;">
+                            <small style="color:var(--text-muted);">Do</small>
+                        </div>
+                        <div style="text-align:center;">
+                            <input type="number" id="h5" class="glass-input" style="padding:10px; text-align:center; margin-bottom:5px;">
+                            <small style="color:var(--text-muted);">Fr</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tab: Urlaub -->
+                <div id="settings-tab-vacation" class="settings-tab-content" style="display:none;">
+                    <h4 style="color:var(--primary); margin-bottom:15px; font-size:1rem;">🌴 Urlaubsverwaltung</h4>
+                    
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-bottom:2rem;">
+                        <div>
+                            <label style="font-size:0.75rem; color:#666; display:block; margin-bottom:5px; font-weight:600;">Jahresanspruch (Tage):</label>
+                            <input type="number" id="confVacationTotal" class="glass-input" value="30">
+                        </div>
+                        <div>
+                            <label style="font-size:0.75rem; color:#666; display:block; margin-bottom:5px; font-weight:600;">Manuell hinzugefügt:</label>
+                            <input type="number" id="confVacationUsedManual" class="glass-input" value="0">
+                        </div>
+                    </div>
+                    
+                    <div style="background:rgba(16,185,129,0.1); padding:12px; border-radius:8px; border-left:4px solid var(--success); margin-bottom:2rem;">
+                        <p style="font-size:0.8rem; color:var(--text-muted); margin:0 0 8px 0;">Aktueller anteiliger Anspruch (basierend auf IHK-Start):</p>
+                        <p style="font-size:1.2rem; font-weight:700; color:var(--success); margin:0;"><span id="vacationProRata">0</span> Tage noch verfügbar</p>
+                    </div>
+
+                    <div style="background:rgba(168,85,247,0.1); padding:15px; border-radius:12px; border:1px solid rgba(168,85,247,0.3); margin-bottom:2rem;">
+                        <h5 style="margin-top:0; color:var(--primary);">📅 Blockbuchung</h5>
+                        
+                        <select id="periodType" class="glass-select" style="margin-bottom:12px;">
+                            <option value="vacation">🌴 Urlaub</option>
+                            <option value="holiday">🏖️ Firmen-Frei/Feiertag</option>
+                        </select>
+                        
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:12px;">
+                            <input type="date" id="periodStart" class="glass-input" placeholder="Startdatum">
+                            <input type="date" id="periodEnd" class="glass-input" placeholder="Enddatum">
+                        </div>
+                        
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                            <button class="btn btn-primary" onclick="bookPeriod()" style="background:var(--success);">✓ Buchen</button>
+                            <button class="btn btn-primary" onclick="deletePeriod()" style="background:var(--danger);">✕ Löschen</button>
+                        </div>
+                    </div>
+                </div>
+                
             </div>
-
-
-            <button class="btn btn-primary" onclick="saveSettings()" style="margin-top:2rem;">Einstellungen speichern</button>
+            
+            <!-- Footer mit Save Button -->
+            <div style="padding:1.5rem 2rem; border-top:1px solid var(--border); flex-shrink:0; display:flex; gap:10px; justify-content:flex-end;">
+                <button class="btn" style="background:transparent; border:1px solid var(--border); padding:10px 20px;" onclick="closeSettings()">Abbrechen</button>
+                <button class="btn btn-primary" onclick="saveSettings()" style="padding:10px 30px;">💾 Speichern</button>
+            </div>
+            
         </div>
     </div>
 
@@ -1509,7 +1586,7 @@
             name:'User', 
             theme:'#a855f7', 
             hours:[0,8.75,8.75,8.75,8.75,4.5,0], 
-            break:{thresh:6, min:30}, 
+            break:{thresh:6, min:[0, 15, 30, 30, 30, 30, 0]}, // Pro Wochentag unterschiedliche Pausenzeiten (So-Sa)
             vacation:{total:30, used:0, usedManual:0},
             // IHK Einstellungen (ERWEITERT)
             ihk: {
@@ -1544,7 +1621,13 @@
         if(localStorage.getItem('tg_pro_data')) data = JSON.parse(localStorage.getItem('tg_pro_data'));
         
         // Structure ensuring checks
-        if(!data.settings.break) data.settings.break = {thresh:6, min:30};
+        if(!data.settings.break) data.settings.break = {thresh:6, min:[0, 30, 30, 30, 30, 30, 0]};
+        
+        // MIGRATION: Wenn break.min noch ein einfacher Wert ist (alte Daten), konvertieren
+        if(!Array.isArray(data.settings.break.min)) {
+            const oldBreakMin = data.settings.break.min || 30;
+            data.settings.break.min = [0, oldBreakMin, oldBreakMin, oldBreakMin, oldBreakMin, 15, 0]; // 15 Min Pause für Freitag
+        }
         if(!data.settings.vacation) data.settings.vacation = {total:30, used:0, usedManual:0};
         
         if(!data.settings.ihk || !data.settings.ihk.note_zwischen) {
@@ -2345,8 +2428,13 @@
                 let hoursDiff = (d2 - d1) / 3.6e6;
                 if(hoursDiff < 0) hoursDiff += 24;
                 
+                // Hole Pausenzeit für diesen Wochentag
+                const breakMinutesForDay = Array.isArray(data.settings.break.min) 
+                    ? data.settings.break.min[dayIndex] 
+                    : data.settings.break.min; // Fallback für alte Daten
+                
                 if(data.settings.break.thresh > 0 && hoursDiff >= data.settings.break.thresh) {
-                    breakMinutes = data.settings.break.min;
+                    breakMinutes = breakMinutesForDay;
                     hoursDiff -= (breakMinutes / 60);
                     info = `${start} - ${end} (${breakMinutes}m Pause) | ${info}`; // Zeitdetails im Info behalten
                 } else {
@@ -2371,8 +2459,13 @@
                  // Präzise Pausenlogik: Abzug der gemessenen Pausenzeit
                  h -= (timer.breakTime / 3.6e6); // Abzug der im Timer gemessenen Pausenzeit (NEU)
 
+                 // Hole Pausenzeit für diesen Wochentag
+                 const breakMinutesForDay = Array.isArray(data.settings.break.min) 
+                    ? data.settings.break.min[dayIndex] 
+                    : data.settings.break.min; // Fallback für alte Daten
+                 
                  // Automatischer Abzug der Mindestpause (falls Timer-Pausen < Mindestpause)
-                 const minBreakRequired = data.settings.break.min;
+                 const minBreakRequired = breakMinutesForDay;
                  const timerBreakMinutes = timer.breakTime / 60000;
 
                  if (h * 60 >= data.settings.break.thresh * 60 && timerBreakMinutes < minBreakRequired) {
@@ -4033,11 +4126,38 @@
     }
     
     function closeSettings() { document.getElementById('settingsModal').classList.remove('active'); }
+    
+    function switchSettingsTab(tabName) {
+        // Alle Tab-Contents verstecken
+        document.querySelectorAll('.settings-tab-content').forEach(el => el.style.display = 'none');
+        // Alle Tab-Buttons deaktivieren
+        document.querySelectorAll('.settings-tab').forEach(el => el.classList.remove('active'));
+        
+        // Aktiven Tab zeigen
+        const contentEl = document.getElementById('settings-tab-' + tabName);
+        if (contentEl) {
+            contentEl.style.display = 'block';
+        }
+        
+        // Aktiven Button markieren
+        event.target.classList.add('active');
+    }
+    
     function openSettings() {
         document.getElementById('settingsModal').classList.add('active');
+        switchSettingsTab('profile'); // Standardmäßig auf Profile Tab
+        
         document.getElementById('confName').value = data.settings.name;
         document.getElementById('confBreakThresh').value = data.settings.break.thresh;
-        document.getElementById('confBreakMin').value = data.settings.break.min;
+        
+        // Lade Pausenzeiten pro Wochentag
+        const breakMins = data.settings.break.min;
+        const dayLabels = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
+        for(let i=0; i<7; i++) {
+            const el = document.getElementById('breakMin_'+i);
+            if(el) el.value = Array.isArray(breakMins) ? breakMins[i] : 30;
+        }
+        
         for(let i=1; i<=5; i++) document.getElementById('h'+i).value = data.settings.hours[i];
         
         // Urlaub: Pro-rata Anspruch berechnen und anzeigen
@@ -4046,12 +4166,18 @@
         
         document.getElementById('confVacationTotal').value = data.settings.vacation.total || 30;
         document.getElementById('confVacationUsedManual').value = data.settings.vacation.usedManual || 0;
-        document.getElementById('vacationRemaining').innerText = (data.settings.vacation.total - data.settings.vacation.used).toFixed(0);
     }
     function saveSettings() {
         data.settings.name = document.getElementById('confName').value;
         data.settings.break.thresh = parseFloat(document.getElementById('confBreakThresh').value);
-        data.settings.break.min = parseFloat(document.getElementById('confBreakMin').value);
+        
+        // Speichere Pausenzeiten pro Wochentag
+        const breakMinutesArray = [];
+        for(let i=0; i<7; i++) {
+            const el = document.getElementById('breakMin_'+i);
+            breakMinutesArray.push(el ? parseFloat(el.value) : 30);
+        }
+        data.settings.break.min = breakMinutesArray;
         
         // Sollstunden speichern (Index 1 bis 5 für Mo-Fr)
         for(let i=1; i<=5; i++) {
