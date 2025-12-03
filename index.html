@@ -1119,6 +1119,11 @@
             <span>🔎</span> Analyse & Historie
         </div>
         
+        <div class="nav-section" style="margin-top: 1.5rem; opacity: 0.7;">Support</div>
+        <div class="nav-item" id="nav-support" onclick="switchTab('support')">
+            <span>☕</span> Unterstützung
+        </div>
+        
         <div class="nav-section">Verwaltung</div>
         <div class="nav-item" id="nav-alerts" onclick="toggleAlertsPanel()" style="position:relative;">
             <span>🔔</span> Alerts
@@ -1948,8 +1953,177 @@
             </div>
         </div>
 
+        <!-- Support Section -->
+        <div id="view-support" class="view-section">
+            <div class="view-header">
+                <h2 class="view-title">🤝 Community</h2>
+                <p style="color:var(--text-muted); margin-top:8px;">Werde Teil von etwas Größerem</p>
+            </div>
+
+            <!-- Hero Section with Animation -->
+            <div style="margin-top:3rem; padding:4rem 3rem; text-align:center; background:linear-gradient(135deg, rgba(168, 85, 247, 0.12), rgba(168, 85, 247, 0.03)); border-radius:24px; border:1px solid rgba(168, 85, 247, 0.3); position:relative; overflow:hidden;">
+                <div style="position:absolute; top:-50%; right:-10%; width:400px; height:400px; background:radial-gradient(circle, rgba(168, 85, 247, 0.1), transparent); border-radius:50%; pointer-events:none;"></div>
+                <div style="position:relative; z-index:1;">
+                    <div style="font-size:5rem; margin-bottom:1.5rem; animation:float 3s ease-in-out infinite;">❤️</div>
+                    <h3 style="color:var(--text-main); font-size:2rem; font-weight:700; margin-bottom:1rem;">
+                        <span style="background:linear-gradient(120deg, var(--primary), #06b6d4); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">TIME.PRO wächst durch euch!</span>
+                    </h3>
+                    <p style="color:var(--text-muted); font-size:1.05rem; max-width:650px; margin:0 auto; line-height:1.8;">
+                        Egal ob du Code schreibst, Bugs findest, tolle Ideen hast oder einfach das Projekt teilst - 
+                        <span style="color:var(--primary); font-weight:600;">du machst einen Unterschied!</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Add animation styles -->
+            <style>
+                @keyframes float {
+                    0%, 100% { transform: translateY(0px); }
+                    50% { transform: translateY(-20px); }
+                }
+                @keyframes slideIn {
+                    from { opacity: 0; transform: translateY(20px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                .community-card {
+                    animation: slideIn 0.6s ease forwards;
+                }
+                .community-card:nth-child(1) { animation-delay: 0.1s; }
+                .community-card:nth-child(2) { animation-delay: 0.2s; }
+                .community-card:nth-child(3) { animation-delay: 0.3s; }
+                .community-card:nth-child(4) { animation-delay: 0.4s; }
+                .community-card:nth-child(5) { animation-delay: 0.5s; }
+                .community-card:nth-child(6) { animation-delay: 0.6s; }
+            </style>
+
+            <!-- Main Action Grid -->
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:18px; margin-top:3.5rem;">
+                
+                <div class="community-card" style="padding:2.5rem 1.5rem; background:linear-gradient(135deg, rgba(88, 166, 255, 0.12), rgba(88, 166, 255, 0.02)); border:1px solid rgba(88, 166, 255, 0.3); border-radius:18px; text-align:center; transition:all 0.3s ease; cursor:pointer; position:relative; overflow:hidden;" onmouseover="this.style.borderColor='rgba(88, 166, 255, 0.7)'; this.style.boxShadow='0 8px 32px rgba(88, 166, 255, 0.15)'; this.style.transform='translateY(-8px)'" onmouseout="this.style.borderColor='rgba(88, 166, 255, 0.3)'; this.style.boxShadow='none'; this.style.transform='translateY(0)'">
+                    <div style="position:absolute; top:-30%; right:-20%; width:200px; height:200px; background:radial-gradient(circle, rgba(88, 166, 255, 0.1), transparent); border-radius:50%; pointer-events:none;"></div>
+                    <div style="position:relative; z-index:1;">
+                        <div style="font-size:3rem; margin-bottom:1rem;">💻</div>
+                        <h3 style="color:var(--text-main); font-weight:700; margin-bottom:0.5rem; font-size:1.15rem;">Code</h3>
+                        <p style="color:var(--text-muted); font-size:0.9rem; margin:0; line-height:1.5;">Fork, Code, Pull Request - deine Skills sind wertvoll!</p>
+                    </div>
+                </div>
+
+                <div class="community-card" style="padding:2.5rem 1.5rem; background:linear-gradient(135deg, rgba(251, 146, 60, 0.12), rgba(251, 146, 60, 0.02)); border:1px solid rgba(251, 146, 60, 0.3); border-radius:18px; text-align:center; transition:all 0.3s ease; cursor:pointer; position:relative; overflow:hidden;" onmouseover="this.style.borderColor='rgba(251, 146, 60, 0.7)'; this.style.boxShadow='0 8px 32px rgba(251, 146, 60, 0.15)'; this.style.transform='translateY(-8px)'" onmouseout="this.style.borderColor='rgba(251, 146, 60, 0.3)'; this.style.boxShadow='none'; this.style.transform='translateY(0)'">
+                    <div style="position:absolute; top:-30%; right:-20%; width:200px; height:200px; background:radial-gradient(circle, rgba(251, 146, 60, 0.1), transparent); border-radius:50%; pointer-events:none;"></div>
+                    <div style="position:relative; z-index:1;">
+                        <div style="font-size:3rem; margin-bottom:1rem;">💡</div>
+                        <h3 style="color:var(--text-main); font-weight:700; margin-bottom:0.5rem; font-size:1.15rem;">Ideen</h3>
+                        <p style="color:var(--text-muted); font-size:0.9rem; margin:0; line-height:1.5;">Deine Ideen treiben uns voran - Feature Request oder Feedback!</p>
+                    </div>
+                </div>
+
+                <div class="community-card" style="padding:2.5rem 1.5rem; background:linear-gradient(135deg, rgba(168, 85, 247, 0.15), rgba(168, 85, 247, 0.03)); border:1.5px solid rgba(168, 85, 247, 0.4); border-radius:18px; text-align:center; transition:all 0.3s ease; cursor:pointer; position:relative; overflow:hidden;" onmouseover="this.style.borderColor='rgba(168, 85, 247, 0.8)'; this.style.boxShadow='0 8px 32px rgba(168, 85, 247, 0.2)'; this.style.transform='translateY(-8px)'" onmouseout="this.style.borderColor='rgba(168, 85, 247, 0.4)'; this.style.boxShadow='none'; this.style.transform='translateY(0)'">
+                    <div style="position:absolute; top:-30%; right:-20%; width:200px; height:200px; background:radial-gradient(circle, rgba(168, 85, 247, 0.15), transparent); border-radius:50%; pointer-events:none;"></div>
+                    <div style="position:relative; z-index:1;">
+                        <div style="font-size:3rem; margin-bottom:1rem;">👥</div>
+                        <h3 style="color:var(--text-main); font-weight:700; margin-bottom:0.5rem; font-size:1.15rem;">Community</h3>
+                        <p style="color:var(--text-muted); font-size:0.9rem; margin:0; line-height:1.5;">Discord, Diskussionen, Austausch - du bist nicht allein!</p>
+                    </div>
+                </div>
+
+                <div class="community-card" style="padding:2.5rem 1.5rem; background:linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(16, 185, 129, 0.02)); border:1px solid rgba(16, 185, 129, 0.3); border-radius:18px; text-align:center; transition:all 0.3s ease; cursor:pointer; position:relative; overflow:hidden;" onmouseover="this.style.borderColor='rgba(16, 185, 129, 0.7)'; this.style.boxShadow='0 8px 32px rgba(16, 185, 129, 0.15)'; this.style.transform='translateY(-8px)'" onmouseout="this.style.borderColor='rgba(16, 185, 129, 0.3)'; this.style.boxShadow='none'; this.style.transform='translateY(0)'">
+                    <div style="position:absolute; top:-30%; right:-20%; width:200px; height:200px; background:radial-gradient(circle, rgba(16, 185, 129, 0.1), transparent); border-radius:50%; pointer-events:none;"></div>
+                    <div style="position:relative; z-index:1;">
+                        <div style="font-size:3rem; margin-bottom:1rem;">🐛</div>
+                        <h3 style="color:var(--text-main); font-weight:700; margin-bottom:0.5rem; font-size:1.15rem;">Bugs</h3>
+                        <p style="color:var(--text-muted); font-size:0.9rem; margin:0; line-height:1.5;">Bugs gefunden? Melde sie & hilf uns, besser zu werden!</p>
+                    </div>
+                </div>
+
+                <div class="community-card" style="padding:2.5rem 1.5rem; background:linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(59, 130, 246, 0.02)); border:1px solid rgba(59, 130, 246, 0.3); border-radius:18px; text-align:center; transition:all 0.3s ease; cursor:pointer; position:relative; overflow:hidden;" onmouseover="this.style.borderColor='rgba(59, 130, 246, 0.7)'; this.style.boxShadow='0 8px 32px rgba(59, 130, 246, 0.15)'; this.style.transform='translateY(-8px)'" onmouseout="this.style.borderColor='rgba(59, 130, 246, 0.3)'; this.style.boxShadow='none'; this.style.transform='translateY(0)'">
+                    <div style="position:absolute; top:-30%; right:-20%; width:200px; height:200px; background:radial-gradient(circle, rgba(59, 130, 246, 0.1), transparent); border-radius:50%; pointer-events:none;"></div>
+                    <div style="position:relative; z-index:1;">
+                        <div style="font-size:3rem; margin-bottom:1rem;">📚</div>
+                        <h3 style="color:var(--text-main); font-weight:700; margin-bottom:0.5rem; font-size:1.15rem;">Docs</h3>
+                        <p style="color:var(--text-muted); font-size:0.9rem; margin:0; line-height:1.5;">Bessere Dokumentation macht alles leichter!</p>
+                    </div>
+                </div>
+
+                <div class="community-card" style="padding:2.5rem 1.5rem; background:linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(245, 158, 11, 0.02)); border:1px solid rgba(245, 158, 11, 0.3); border-radius:18px; text-align:center; transition:all 0.3s ease; cursor:pointer; position:relative; overflow:hidden;" onmouseover="this.style.borderColor='rgba(245, 158, 11, 0.7)'; this.style.boxShadow='0 8px 32px rgba(245, 158, 11, 0.15)'; this.style.transform='translateY(-8px)'" onmouseout="this.style.borderColor='rgba(245, 158, 11, 0.3)'; this.style.boxShadow='none'; this.style.transform='translateY(0)'">
+                    <div style="position:absolute; top:-30%; right:-20%; width:200px; height:200px; background:radial-gradient(circle, rgba(245, 158, 11, 0.1), transparent); border-radius:50%; pointer-events:none;"></div>
+                    <div style="position:relative; z-index:1;">
+                        <div style="font-size:3rem; margin-bottom:1rem;">🌍</div>
+                        <h3 style="color:var(--text-main); font-weight:700; margin-bottom:0.5rem; font-size:1.15rem;">Sprachen</h3>
+                        <p style="color:var(--text-muted); font-size:0.9rem; margin:0; line-height:1.5;">Übersetze & mache TIME.PRO global!</p>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Spacer -->
+            <div style="height:2.5rem;"></div>
+
+            <!-- Inspiration Quote -->
+            <div style="background:rgba(168, 85, 247, 0.08); border-left:4px solid var(--primary); border-radius:12px; padding:2rem; margin-bottom:2rem;">
+                <p style="color:var(--text-muted); margin:0; font-size:1rem; line-height:1.7;">
+                    <span style="color:var(--primary); font-weight:700; font-size:1.1rem;">✨ Wusstest du?</span> Viele unserer besten Features wurden von Community-Mitgliedern vorgeschlagen oder sogar selbst umgesetzt. Jeder Beitrag zählt!
+                </p>
+            </div>
+
+            <!-- CTA Button Section -->
+            <div style="text-align:center;">
+                <button class="btn btn-primary" style="background:linear-gradient(135deg, var(--primary), #06b6d4); padding:18px 56px; font-size:1.05rem; font-weight:700; box-shadow:0 8px 24px rgba(168, 85, 247, 0.3); transition:all 0.3s ease;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 12px 32px rgba(168, 85, 247, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 24px rgba(168, 85, 247, 0.3)'">
+                    🚀 Jetzt mitgestalten!
+                </button>
+                <p style="color:var(--text-muted); margin-top:1rem; font-size:0.9rem;">
+                    oder
+                    <span style="color:var(--primary); cursor:pointer; font-weight:600;">erfahre mehr über uns →</span>
+                </p>
+            </div>
+
+        </div>
 
     </main>
+
+    <!-- DSGVO/Privacy Modal -->
+    <div class="modal" id="privacyModal" style="display:none;">
+        <div class="modal-box" style="width:90%; max-width:600px; padding:32px; backdrop-filter:blur(20px); border-radius:24px; border:1px solid rgba(168, 85, 247, 0.3); position:relative;">
+            <div style="text-align:center; margin-bottom:24px;">
+                <div style="font-size:3rem; margin-bottom:12px;">🔐</div>
+                <h2 style="color:var(--text-main); font-size:1.8rem; font-weight:700; margin:0 0 8px 0;">Deine Daten sind sicher</h2>
+                <p style="color:var(--text-muted); margin:0; font-size:0.95rem;">Transparenz über deine Privatsphäre</p>
+            </div>
+
+            <div style="background:rgba(16, 185, 129, 0.08); border:1px solid rgba(16, 185, 129, 0.3); border-radius:16px; padding:16px; margin-bottom:20px;">
+                <p style="color:var(--text-main); font-weight:600; margin:0 0 10px 0; font-size:0.95rem;">✅ Das ist wichtig:</p>
+                <ul style="color:var(--text-muted); font-size:0.9rem; list-style:none; padding:0; margin:0; line-height:1.8;">
+                    <li>🔒 <strong>Keine externen Server:</strong> Alle Daten werden nur in deinem Browser gespeichert (LocalStorage)</li>
+                    <li>🚫 <strong>Keine Cookies:</strong> Wir setzen keine Tracking- oder Werbe-Cookies</li>
+                    <li>👤 <strong>Keine Datensammlung:</strong> Wir tracken dich nicht und sammeln keine persönlichen Daten</li>
+                    <li>📊 <strong>Keine Analytics:</strong> Keine Auswertungen, Analysen oder Drittanbieter</li>
+                    <li>🔄 <strong>Nur du:</strong> Du bestimmst was mit deinen Daten passiert - nur du hast Zugriff</li>
+                </ul>
+            </div>
+
+            <div style="background:rgba(59, 130, 246, 0.08); border:1px solid rgba(59, 130, 246, 0.3); border-radius:16px; padding:16px; margin-bottom:20px;">
+                <p style="color:var(--text-main); font-weight:600; margin:0 0 10px 0; font-size:0.95rem;">📱 Deine Kontrolle:</p>
+                <ul style="color:var(--text-muted); font-size:0.9rem; list-style:none; padding:0; margin:0; line-height:1.8;">
+                    <li>💾 <strong>Export:</strong> Du kannst jederzeit deine Daten als JSON/CSV exportieren</li>
+                    <li>📂 <strong>Import:</strong> Deine Daten können jederzeit importiert werden</li>
+                    <li>🗑️ <strong>Löschen:</strong> Nutze die Browser Dev Tools (LocalStorage), um alles zu löschen</li>
+                    <li>🔄 <strong>Offline:</strong> Keine Internetverbindung nötig - alles funktioniert offline!</li>
+                </ul>
+            </div>
+
+            <div style="background:rgba(255, 255, 255, 0.04); border-left:4px solid var(--primary); border-radius:8px; padding:12px; margin-bottom:24px;">
+                <p style="color:var(--text-muted); font-size:0.85rem; margin:0; line-height:1.6;">
+                    <strong style="color:var(--text-main);">Fragen?</strong> TIME.PRO ist Open Source auf GitHub. 
+                    Der gesamte Code ist transparent einsehbar und überprüfbar.
+                </p>
+            </div>
+
+            <div style="display:flex; gap:12px; justify-content:flex-end;">
+                <button class="btn btn-primary" onclick="closePrivacyModal()" style="background:var(--primary); padding:12px 32px; font-weight:600;">
+                    ✅ Verstanden & weiter
+                </button>
+            </div>
+        </div>
+    </div>
 
     <div class="modal" id="settingsModal">
         <div class="modal-box" style="display:flex; flex-direction:column; height:90vh; max-height:90vh; width:900px; padding:0;">
@@ -2649,7 +2823,42 @@
         if (document.getElementById('view-ihk').classList.contains('active')) {
              renderIHKView();
         }
+
+        // Zeige Privacy Modal beim ersten Besuch
+        if (!localStorage.getItem('privacy_acknowledged')) {
+            showPrivacyModal();
+        }
     };
+
+    function showPrivacyModal() {
+        const modal = document.getElementById('privacyModal');
+        if (modal) {
+            modal.style.display = 'flex';
+            modal.style.animation = 'fadeIn 0.3s ease forwards';
+        }
+    }
+
+    function closePrivacyModal() {
+        const modal = document.getElementById('privacyModal');
+        if (modal) {
+            modal.style.animation = 'fadeOut 0.3s ease forwards';
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 300);
+        }
+        // Speichere, dass Nutzer das Modal gesehen hat
+        localStorage.setItem('privacy_acknowledged', 'true');
+    }
+
+    // Schließe Modal bei ESC-Taste
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            const privacyModal = document.getElementById('privacyModal');
+            if (privacyModal && privacyModal.style.display !== 'none') {
+                closePrivacyModal();
+            }
+        }
+    });
 
     function toggleSidebar() {
         const sidebar = document.getElementById('sidebar');
