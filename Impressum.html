@@ -322,7 +322,7 @@
         // Theme-Farbe von localStorage laden (von index.html)
         function loadTheme() {
             try {
-                const stored = localStorage.getItem('data');
+                const stored = localStorage.getItem('tg_pro_data');
                 if (stored) {
                     const data = JSON.parse(stored);
                     if (data.settings && data.settings.theme) {
