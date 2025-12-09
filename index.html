@@ -310,6 +310,24 @@
         .btn-ghost { background: rgba(255,255,255,0.05); color: #fff; flex: 1; padding: 10px; }
         .btn-ghost:hover { background: rgba(255,255,255,0.1); }
 
+        /* Very small slim help button that uses the theme color */
+        .help-slim {
+            width: 28px;
+            height: 28px;
+            padding: 0;
+            border-radius: 6px;
+            background: var(--primary);
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(168,85,247,0.12);
+        }
+        .help-slim:hover { filter:brightness(1.05); }
+
         /* --- LISTS --- */
         .entry-row {
             display: flex; justify-content: space-between; align-items: center;
@@ -1161,7 +1179,10 @@
         <header class="header">
             <div>
                 <div class="greeting" id="userGreeting">Willkommen</div>
-                <h1 class="page-title">Übersicht</h1>
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <h1 class="page-title">Übersicht</h1>
+                    <button class="help-slim" title="Hilfe" onclick="openQuickHelp('global')">?</button>
+                </div>
             </div>
             <div class="date-badge" id="currentDate">loading...</div>
         </header>
@@ -1269,7 +1290,10 @@
 
             <div class="card input-wrapper">
                 <div style="display:flex; flex-direction:column; gap:1.25rem;">
-                    <h3 style="font-size:1.1rem;">Eintrag erfassen</h3>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <h3 style="font-size:1.1rem; margin:0;">Eintrag erfassen</h3>
+                        <button class="help-slim" title="Hilfe" onclick="openQuickHelp('entry')">?</button>
+                    </div>
                     <div style="display:flex; gap:15px;">
                         <input type="date" id="inpDate" class="glass-input">
                         <select type="date" id="inpType" class="glass-select" onchange="toggleTimeInputs()">
@@ -1309,7 +1333,10 @@
                 </div>
 
                 <div class="timer-box" id="timerBox">
-                    <span style="color:var(--text-muted); font-size:0.8rem; text-transform:uppercase; letter-spacing:1px;">Live Tracker</span>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span style="color:var(--text-muted); font-size:0.8rem; text-transform:uppercase; letter-spacing:1px;">Live Tracker</span>
+                            <button class="help-slim" title="Hilfe" onclick="openQuickHelp('timer')">?</button>
+                        </div>
                     <div class="timer-display" id="timerDisplay">00:00:00</div>
                     
                     <div class="timer-log">
@@ -2198,6 +2225,12 @@
                     <label style="font-size:0.75rem; color:#666; display:block; margin-bottom:5px; font-weight:600;">Dein Name:</label>
                     <input type="text" id="confName" class="glass-input" style="margin-bottom:2rem;" placeholder="z.B. Sven">
 
+                        <label style="font-size:0.75rem; color:#666; display:block; margin-bottom:8px; font-weight:600;">Tastenkürzel aktivieren:</label>
+                        <div style="display:flex; align-items:center; gap:10px; margin-bottom:1.5rem;">
+                            <input type="checkbox" id="confShortcuts" />
+                            <small style="color:var(--text-muted);">Ermöglicht S/P/E und Ctrl/Cmd+Enter Shortcuts</small>
+                        </div>
+
                     <label style="font-size:0.75rem; color:#666; display:block; margin-bottom:10px; font-weight:600;">Design Accent Farbe:</label>
                     <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(45px, 1fr)); gap:12px; margin-bottom:2rem;">
                         <!-- Primär Farben -->
@@ -2628,6 +2661,37 @@
     <div id="spotlightOverlay" style="display:none; position:fixed; inset:0; z-index:180; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px);"></div>
     <div id="spotlightHighlight" style="display:none; position:fixed; z-index:181; border:3px solid var(--primary); border-radius:12px; box-shadow:0 0 30px rgba(168,85,247,0.5); transition:all 0.4s cubic-bezier(0.4,0,0.2,1);"></div>
 
+    <!-- QUICK HELP MODAL (Kompakt) -->
+    <div class="modal" id="quickHelpModal">
+        <div class="modal-box" style="width:520px; padding:1.25rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                <h3 style="margin:0;">❓ Schnell-Hilfe</h3>
+                <button onclick="closeQuickHelp()" style="background:none; border:none; color:#fff; font-size:1.25rem; cursor:pointer;">&times;</button>
+            </div>
+
+            <div style="line-height:1.6; color:var(--text-muted);">
+                <p style="margin:0 0 8px 0;">Kurze Übersicht wichtiger Aktionen:</p>
+                <ul style="margin:0 0 12px 18px; color:var(--text-muted);">
+                    <li><strong>S</strong> : Timer starten</li>
+                    <li><strong>P</strong> : Timer pausieren</li>
+                    <li><strong>E</strong> : Timer stoppen</li>
+                    <li><strong>Ctrl/Cmd+Enter</strong> : Formular speichern</li>
+                </ul>
+
+                <p style="margin:0 0 8px 0;">Schnellaktionen:</p>
+                <ul style="margin:0 0 12px 18px; color:var(--text-muted);">
+                    <li>„Jetzt“-Buttons neben Start/Ende fügen die aktuelle Uhrzeit (HH:MM) ein.</li>
+                    <li>Entwürfe werden automatisch gespeichert; im Formular kannst du sie wiederherstellen oder löschen.</li>
+                </ul>
+
+                <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:12px;">
+                    <button class="btn" onclick="startOnboardingTour()">Tour starten</button>
+                    <button class="btn btn-primary" onclick="closeQuickHelp()">Schließen</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- EDIT ENTRY MODAL (NEU) -->
     <div class="modal" id="editEntryModal">
         <div class="modal-box" style="width:700px; padding:2rem;">
@@ -2881,6 +2945,8 @@
         
         if(!data.settings.goals) data.settings.goals = []; // NEU
         if(!data.settings.prognosePlan) data.settings.prognosePlan = {}; // NEU
+        // Shortcuts enabled by default
+        if (typeof data.settings.shortcutsEnabled === 'undefined') data.settings.shortcutsEnabled = true;
         
         if (data.settings.ihk.exam) { 
              data.settings.ihk.end = data.settings.ihk.exam;
@@ -5681,6 +5747,8 @@ TIPPS:
         switchSettingsTab('profile'); // Standardmäßig auf Profile Tab
         
         document.getElementById('confName').value = data.settings.name;
+        // Shortcuts checkbox
+        const confShortcutsEl = document.getElementById('confShortcuts'); if (confShortcutsEl) confShortcutsEl.checked = (data.settings.shortcutsEnabled !== false);
         document.getElementById('confBreakThresh').value = data.settings.break.thresh;
         
         // Lade Pausenzeiten pro Wochentag
@@ -5714,6 +5782,9 @@ TIPPS:
     }
     function saveSettings() {
         data.settings.name = document.getElementById('confName').value;
+        // Shortcuts setting
+        const confShortcutsEl = document.getElementById('confShortcuts');
+        if (confShortcutsEl) data.settings.shortcutsEnabled = !!confShortcutsEl.checked;
         data.settings.break.thresh = parseFloat(document.getElementById('confBreakThresh').value);
         
         // Speichere Pausenzeiten pro Wochentag
@@ -6848,6 +6919,178 @@ TIPPS:
         
         document.getElementById('spotlightOverlay').style.display = 'block';
     }
+
+    // --- Quick Help (contextual) ---
+    function openQuickHelp(context) {
+        try {
+            const modal = document.getElementById('quickHelpModal');
+            const titleEl = modal.querySelector('h3');
+            const bodyEl = modal.querySelector('.modal-box > div:nth-child(2)');
+
+            // Default content
+            let title = '❓ Schnell-Hilfe';
+            let html = '';
+
+            if (context === 'entry') {
+                title = '✍️ Hilfe: Eintrag erfassen';
+                html = `
+                    <p style="margin:0 0 8px 0;">So erstellst du einen Eintrag:</p>
+                    <ul style="margin:0 0 12px 18px; color:var(--text-muted);">
+                        <li>Wähle das Datum und den Typ (Arbeit / Schule / Urlaub / Krank).</li>
+                        <li>Nutze die <strong>Jetzt</strong>-Buttons neben Start/Ende für die aktuelle Uhrzeit.</li>
+                        <li>Oder gib Stunden manuell ein (z.B. 7.5).</li>
+                        <li>Drücke <strong>Ctrl/Cmd+Enter</strong> zum schnellen Speichern.</li>
+                    </ul>
+                    <p style="margin:0; color:var(--text-muted);">Entwürfe werden automatisch gespeichert. Mit <em>Wiederherstellen</em> lädst du den Entwurf (danach wird er gelöscht).</p>
+                `;
+            } else if (context === 'timer') {
+                title = '⏱️ Hilfe: Live Timer';
+                html = `
+                    <p style="margin:0 0 8px 0;">Der Live-Tracker misst deine Arbeitszeit:</p>
+                    <ul style="margin:0 0 12px 18px; color:var(--text-muted);">
+                        <li><strong>S</strong> startet den Timer, <strong>P</strong> pausiert, <strong>E</strong> stoppt.</li>
+                        <li>Beim Stoppen kannst du die gemessene Zeit als Eintrag speichern.</li>
+                        <li>Pausen werden automatisch erfasst und ggf. Mindestpausen abgezogen.</li>
+                    </ul>
+                    <p style="margin:0; color:var(--text-muted);">Tipp: Nutze den Timer für längere Sessions, und die Start/Ende-Felder für kurze Fix-Buchungen.</p>
+                `;
+            } else { // global or default - show page-specific help when possible
+                const active = document.querySelector('.view-section.active');
+                const aid = active ? active.id : null;
+
+                switch(aid) {
+                    case 'view-dashboard':
+                        title = '📊 Hilfe: Dashboard';
+                        html = `
+                            <p style="margin:0 0 8px 0;">Das Dashboard zeigt deine wichtigsten Kennzahlen:</p>
+                            <ul style="margin:0 0 12px 18px; color:var(--text-muted);">
+                                <li><strong>Saldo & KPI</strong> - Überblick über Soll/Ist und Gleitzeit.</li>
+                                <li><strong>Projektverteilung</strong> - Welche Projekte verbrauchen Zeit.</li>
+                                <li><strong>Schnellaktionen</strong> - Direkt Timer starten oder Einträge anlegen.</li>
+                            </ul>
+                        `;
+                        break;
+                    case 'view-performance':
+                        title = '📈 Hilfe: Performance';
+                        html = `
+                            <p style="margin:0 0 8px 0;">Hier findest du Analysen und Muster:</p>
+                            <ul style="margin:0 0 12px 18px; color:var(--text-muted);">
+                                <li>Trendlinien, Heatmaps und Projektverteilungen.</li>
+                                <li>Nutze Filter, um Zeiträume oder Projekte einzugrenzen.</li>
+                                <li>Klicke Diagramme für Detailinfos.</li>
+                            </ul>
+                        `;
+                        break;
+                    case 'view-prognose':
+                        title = '🔮 Hilfe: Prognose & Planung';
+                        html = `
+                            <p style="margin:0 0 8px 0;">Plane deine nächsten Wochen und simuliere Saldo-Änderungen:</p>
+                            <ul style="margin:0 0 12px 18px; color:var(--text-muted);">
+                                <li>Markiere Tage als Urlaub/Schule/Krank und sieh sofort die Auswirkung.</li>
+                                <li>Verwende verschiedene Szenarien, um das Jahresziel zu erreichen.</li>
+                            </ul>
+                        `;
+                        break;
+                    case 'view-ihk':
+                        title = '🎓 Hilfe: IHK & Ausbildung';
+                        html = `
+                            <p style="margin:0 0 8px 0;">Alles rund um deine Ausbildung und Prüfungsdaten:</p>
+                            <ul style="margin:0 0 12px 18px; color:var(--text-muted);">
+                                <li>Trage Prüfungsdaten und Noten ein, um Fortschritt zu berechnen.</li>
+                                <li>Die Sektion hilft bei Audit- und Nachweiszwecken.</li>
+                            </ul>
+                        `;
+                        break;
+                    case 'view-school':
+                        title = '🏫 Hilfe: Berufsschule';
+                        html = `
+                            <p style="margin:0 0 8px 0;">Berufsschul- und Stundenverwaltung:</p>
+                            <ul style="margin:0 0 12px 18px; color:var(--text-muted);">
+                                <li>Automatische Erkennung von Schultagen und Zuordnung von Stunden.</li>
+                                <li>Manuelle Einträge möglich für Sonderfälle.</li>
+                            </ul>
+                        `;
+                        break;
+                    case 'view-goals':
+                        title = '🎯 Hilfe: Ziele';
+                        html = `
+                            <p style="margin:0 0 8px 0;">Setze persönliche Zeit- und Wochenziele:</p>
+                            <ul style="margin:0 0 12px 18px; color:var(--text-muted);">
+                                <li>Erstelle Zielvorgaben und verfolge den Fortschritt.</li>
+                                <li>Nutze Prognosen, um Planabweichungen zu erkennen.</li>
+                            </ul>
+                        `;
+                        break;
+                    case 'view-yearview':
+                    case 'view-monthcompare':
+                        title = '📅 Hilfe: Jahres-/Monatsansicht';
+                        html = `
+                            <p style="margin:0 0 8px 0;">Zeige deine Leistung über längere Zeiträume:</p>
+                            <ul style="margin:0 0 12px 18px; color:var(--text-muted);">
+                                <li>Heatmaps und Monatsvergleiche für Trendanalyse.</li>
+                                <li>Klicke auf Tage für Detailansichten.</li>
+                            </ul>
+                        `;
+                        break;
+                    case 'view-history':
+                        title = '📜 Hilfe: Historie';
+                        html = `
+                            <p style="margin:0 0 8px 0;">Alle Einträge und Filteroptionen:</p>
+                            <ul style="margin:0 0 12px 18px; color:var(--text-muted);">
+                                <li>Filtern nach Datum, Projekt oder Typ.</li>
+                                <li>Einträge bearbeiten oder exportieren.</li>
+                            </ul>
+                        `;
+                        break;
+                    case 'view-support':
+                        title = '🛠️ Hilfe & Support';
+                        html = `
+                            <p style="margin:0 0 8px 0;">Support- und Kontaktoptionen:</p>
+                            <ul style="margin:0 0 12px 18px; color:var(--text-muted);">
+                                <li>Fehler melden, Feedback geben oder Dokumentation lesen.</li>
+                            </ul>
+                        `;
+                        break;
+                    default:
+                        title = '❓ Schnell-Hilfe';
+                        html = `
+                            <p style="margin:0 0 8px 0;">Kurze Übersicht wichtiger Aktionen:</p>
+                            <ul style="margin:0 0 12px 18px; color:var(--text-muted);">
+                                <li><strong>S</strong> : Timer starten</li>
+                                <li><strong>P</strong> : Timer pausieren</li>
+                                <li><strong>E</strong> : Timer stoppen</li>
+                                <li><strong>Ctrl/Cmd+Enter</strong> : Formular speichern</li>
+                            </ul>
+                            <p style="margin:0; color:var(--text-muted);">Klicke 'Tour starten' um die Einführung zu sehen.</p>
+                        `;
+                }
+            }
+
+            // Inject content into modal
+            if (titleEl) titleEl.innerText = title;
+            // Replace the second child (body) content inside modal-box
+            const modalBox = document.querySelector('#quickHelpModal .modal-box');
+            if (modalBox) {
+                // Keep header and buttons, but replace the content area (which starts at index 1)
+                // The structure is: modal-box > [header div, content div]
+                const children = modalBox.children;
+                if (children.length >= 2) {
+                    children[1].innerHTML = html + `
+                        <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:12px;">
+                            <button class="btn" onclick="startOnboardingTour()">Tour starten</button>
+                            <button class="btn btn-primary" onclick="closeQuickHelp()">Schließen</button>
+                        </div>`;
+                }
+            }
+
+            modal.classList.add('active');
+        } catch (e) { console.warn('openQuickHelp error', e); }
+    }
+
+    function closeQuickHelp() {
+        const modal = document.getElementById('quickHelpModal');
+        if (modal) modal.classList.remove('active');
+    }
     
     function nextOnboardingStep() {
         if (onboardingStep < onboardingSteps.length - 1) {
@@ -7847,7 +8090,10 @@ TIPPS:
                 document.getElementById('inpEnd').value = draft.end || '';
                 document.getElementById('inpHours').value = draft.hours || '';
                 document.getElementById('inpNotes').value = draft.notes || '';
-                showCustomMessage && showCustomMessage('✅ Entwurf wiederhergestellt', 'Der gespeicherte Entwurf wurde in das Formular geladen.', 'success');
+                // After restoring, remove the draft (Wiederherstellen löscht Entwurf)
+                clearDraft();
+                updateDraftUI();
+                showCustomMessage && showCustomMessage('✅ Entwurf wiederhergestellt', 'Der gespeicherte Entwurf wurde in das Formular geladen und entfernt.', 'success');
             } catch(e) { console.warn('restoreDraft', e); }
         }
 
@@ -7903,6 +8149,8 @@ TIPPS:
 
         // --- Keyboard Shortcuts ---
         document.addEventListener('keydown', (e) => {
+            // Allow disabling shortcuts via settings
+            if (data && data.settings && data.settings.shortcutsEnabled === false) return;
             // Ctrl/Cmd + Enter -> save entry (allow from inputs)
             if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
                 e.preventDefault();
