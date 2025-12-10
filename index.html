@@ -1265,6 +1265,16 @@
                         <h5 style="margin:0; color:var(--text-main); font-size:0.9rem;">Streak: <span id="streakCount" style="color:var(--success); font-weight:800;">0</span> | <span style="font-size:0.75rem; color:var(--text-muted);" id="streakBest">Best: 0</span></h5>
                     </div>
                 </div>
+                <div id="quickTicker" style="margin-top:8px; font-family:var(--font-mono); font-size:0.82rem; color:var(--text-muted); overflow:hidden; white-space:nowrap;">
+                    <!-- Ticker wird per JS gefüllt -->
+                    <div id="quickTickerInner" style="display:inline-block; padding-left:100%; animation: tickerScroll 12s linear infinite;">&nbsp;</div>
+                </div>
+                <style>
+                    @keyframes tickerScroll {
+                        0% { transform: translateX(0%); }
+                        100% { transform: translateX(-100%); }
+                    }
+                </style>
             </div>
 
             <div class="card" style="background:linear-gradient(135deg, rgba(239,68,68,0.1) 0%, rgba(239,68,68,0.05) 100%); border:1px solid rgba(239,68,68,0.2); display:none;" id="pomodoroCard">
@@ -2686,6 +2696,25 @@
                     <input type="checkbox" id="alertVacationLow" checked onchange="saveAlertSettings()" style="width:18px; height:18px; cursor:pointer;">
                     <span style="font-size:0.9rem;">Urlaub fast aufgebraucht</span>
                 </label>
+            </div>
+            
+            <div style="display:flex; flex-direction:column; gap:8px; margin-top:10px;">
+                <div style="display:flex; align-items:center; justify-content:space-between; padding:12px; background:rgba(255,255,255,0.02); border-radius:10px;">
+                    <label style="display:flex; align-items:center; gap:10px; cursor:pointer; margin:0;">
+                        <input type="checkbox" id="alertExportReminder" onchange="saveAlertSettings()" style="width:18px; height:18px; cursor:pointer;">
+                        <span style="font-size:0.9rem;">Backup-Erinnerung (7 Tage)</span>
+                    </label>
+                </div>
+
+                <div id="alertExportSection" style="display:flex; align-items:center; justify-content:space-between; padding:10px 12px; background:rgba(255,255,255,0.01); border-radius:10px;">
+                    <div style="display:flex; flex-direction:column; gap:4px;">
+                        <div style="font-size:0.85rem; color:var(--text-muted);">Letztes Backup</div>
+                        <div id="lastExportInfo" style="font-weight:600;">—</div>
+                    </div>
+                    <div style="display:flex; gap:8px;">
+                        <button class="btn" onclick="exportData('json'); setTimeout(updateAlertExportInfo, 800);">💾 Backup jetzt</button>
+                    </div>
+                </div>
             </div>
         </div>
         
@@ -5791,12 +5820,20 @@ TIPPS:
              a.href = URL.createObjectURL(new Blob([JSON.stringify(data)], {type:'application/json'}));
              a.download = 'time_pro_backup.json';
              a.click();
+             try { localStorage.setItem('tt_last_export', new Date().toISOString()); } catch(e) {}
+            try { const today = new Date().toISOString().split('T')[0]; localStorage.setItem('tt_export_reminder_shown_' + today, '1'); } catch(e) {}
+            if (typeof updateAlertExportInfo === 'function') setTimeout(updateAlertExportInfo, 300);
+             if (typeof showSmartNotification === 'function') showSmartNotification('💾 Backup', 'JSON-Export gestartet. Datei wurde heruntergeladen.', 'success');
         } else if (format === 'csv') {
             const csv = convertToCSV(data.entries);
             const a = document.createElement('a');
             a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv'}));
             a.download = 'time_pro_full_export.csv';
             a.click();
+            try { localStorage.setItem('tt_last_export', new Date().toISOString()); } catch(e) {}
+            try { const today = new Date().toISOString().split('T')[0]; localStorage.setItem('tt_export_reminder_shown_' + today, '1'); } catch(e) {}
+            if (typeof updateAlertExportInfo === 'function') setTimeout(updateAlertExportInfo, 300);
+            if (typeof showSmartNotification === 'function') showSmartNotification('💾 Backup', 'CSV-Export gestartet. Datei wurde heruntergeladen.', 'success');
         }
     }
     
@@ -7423,7 +7460,8 @@ TIPPS:
         saldoPositive: true,
         saldoNegative: true,
         shiftMax: true,
-        vacationLow: true
+        vacationLow: true,
+        exportReminder: true
     };
     let lastAlertCheck = {};
     const ALERT_STORAGE_KEY = 'timetracker_alerts_v2';
@@ -7470,6 +7508,11 @@ TIPPS:
         document.getElementById('alertSaldoNegative').checked = alertSettings.saldoNegative;
         document.getElementById('alertShiftMax').checked = alertSettings.shiftMax;
         document.getElementById('alertVacationLow').checked = alertSettings.vacationLow;
+        // neues Feld: Export/Backup Reminder
+        try {
+            const el = document.getElementById('alertExportReminder');
+            if (el) el.checked = alertSettings.exportReminder;
+        } catch (e) { /* ignore if element not yet present */ }
         
         // Zeige Willkommens-Alert nur beim ERSTEN Start (nie wieder danach)
         const welcomeShown = localStorage.getItem(ALERT_WELCOME_SHOWN);
@@ -7485,6 +7528,8 @@ TIPPS:
         checkAlertsThresholds();
         updateAlertBadge();
         renderAlertsList();
+        // Aktualisiere Export-Info im Alerts-Panel
+        try { updateAlertExportInfo(); } catch(e) {}
         
         console.log('✅ Alert System initialized', { alerts: alertsHistory.length });
     }
@@ -7504,11 +7549,29 @@ TIPPS:
         alertSettings.saldoNegative = document.getElementById('alertSaldoNegative').checked;
         alertSettings.shiftMax = document.getElementById('alertShiftMax').checked;
         alertSettings.vacationLow = document.getElementById('alertVacationLow').checked;
+        // Export reminder setting
+        try {
+            alertSettings.exportReminder = document.getElementById('alertExportReminder').checked;
+        } catch (e) { /* element might not exist in older builds */ }
         try {
             localStorage.setItem(ALERT_SETTINGS_KEY, JSON.stringify(alertSettings));
         } catch (e) {
             console.error('Failed to save alert settings:', e);
         }
+    }
+
+    function updateAlertExportInfo() {
+        try {
+            const last = localStorage.getItem('tt_last_export');
+            const el = document.getElementById('lastExportInfo');
+            if (!el) return;
+            if (!last) {
+                el.textContent = 'Noch kein Backup erstellt';
+            } else {
+                const d = new Date(last);
+                el.textContent = d.toLocaleString('de-DE');
+            }
+        } catch (e) { console.warn('updateAlertExportInfo failed', e); }
     }
     
     function toggleAlertsPanel() {
@@ -7527,6 +7590,8 @@ TIPPS:
             // Markiere alle als gelesen wenn Panel öffnet
             markAllAlertsAsRead();
             renderAlertsList();
+            // Aktualisiere Export-Info wenn Panel geöffnet wird
+            updateAlertExportInfo();
         }
     }
     
@@ -8491,14 +8556,21 @@ TIPPS:
             todayBreaks += (e.diff - (e.worked || 0));
         });
 
-        document.getElementById('todaySummaryDate').innerText = new Date().toLocaleDateString('de-DE', {weekday:'long', day:'2-digit', month:'2-digit'});
-        document.getElementById('todayWorked').innerText = (todayWorked / 3600).toFixed(1) + 'h';
-        document.getElementById('todayBreaks').innerText = (todayBreaks / 3600).toFixed(1) + 'h';
-        document.getElementById('todayEntries').innerText = todayEntries.length;
-        document.getElementById('todayTimerActive').innerText = (window.timer && window.timer.running) ? '▶️ AKTIV' : '⏹️ Inaktiv';
+        const elDate = document.getElementById('todaySummaryDate');
+        if (elDate) elDate.innerText = new Date().toLocaleDateString('de-DE', {weekday:'long', day:'2-digit', month:'2-digit'});
+        const elWorked = document.getElementById('todayWorked');
+        if (elWorked) elWorked.innerText = (todayWorked / 3600).toFixed(1) + 'h';
+        const elBreaks = document.getElementById('todayBreaks');
+        if (elBreaks) elBreaks.innerText = (todayBreaks / 3600).toFixed(1) + 'h';
+        const elEntries = document.getElementById('todayEntries');
+        if (elEntries) elEntries.innerText = todayEntries.length;
+        const elTimer = document.getElementById('todayTimerActive');
+        if (elTimer) elTimer.innerText = (window.timer && window.timer.running) ? '▶️ AKTIV' : '⏹️ Inaktiv';
         
         // Update Streak Counter
         if (typeof updateStreakCounter === 'function') updateStreakCounter();
+        // Update compact quick ticker (combined stats)
+        if (typeof updateQuickTicker === 'function') updateQuickTicker();
     }
 
     // FEATURE 2: Pomodoro Timer Mode
@@ -8634,11 +8706,11 @@ TIPPS:
             const entryDate = new Date(entry.date);
             const dayOfWeek = entryDate.getDay();
             
-            // Nur Arbeitstage zählen (Montag-Freitag)
             if (dayOfWeek === 0 || dayOfWeek === 6) continue;
             
-            // Prüfe ob Soll erfüllt (worked >= expected)
-            if (entry.worked >= entry.expected) {
+            const expectedHours = (typeof entry.expected === 'number' && isFinite(entry.expected)) ? entry.expected : (data.settings.workTime?.default || data.settings.hours?.[entryDate.getDay()] || 8);
+            const workedHours = (typeof entry.worked === 'number' && isFinite(entry.worked)) ? entry.worked : 0;
+            if (workedHours >= expectedHours) {
                 if (!lastDate || isConsecutiveWorkDay(lastDate, entryDate)) {
                     tempStreak++;
                 } else {
@@ -8659,9 +8731,13 @@ TIPPS:
     }
 
     function isConsecutiveWorkDay(date1, date2) {
-        const diff = Math.floor((date1 - date2) / (1000 * 60 * 60 * 24));
-        if (diff === 1) return true;
-        if (diff === 3) return true; // Freitag zu Montag
+        // Vergleiche zwei Dates und prüfe ob sie an aufeinanderfolgenden Arbeitstagen liegen
+        const oneDayMs = 1000 * 60 * 60 * 24;
+        const diffDays = Math.round((date2 - date1) / oneDayMs);
+        const absDiff = Math.abs(diffDays);
+        if (absDiff === 1) return true; // normaler aufeinanderfolgender Tag
+        // Freitag (4) zu Montag (1) ergibt diff = 3
+        if (absDiff === 3) return true; // Fri->Mon Sprung
         return false;
     }
 
@@ -8681,6 +8757,86 @@ TIPPS:
         // Trigger Notification bei neuer Best-Streak
         if (streak.current > 0 && streak.current === streak.best && streak.current > 1) {
             showSmartNotification('🔥 Neue Best-Streak!', `${streak.current} Tage in Folge mit Soll erfüllt!`, 'success');
+        }
+    }
+
+    // Compact quick stats ticker - shows short rolling stats
+    function updateQuickTicker() {
+        try {
+            // New non-redundant ticker: Backup | Autosave | Nächster Urlaub | Tage seit letztem Eintrag | Ungelesene Alerts
+            const inner = document.getElementById('quickTickerInner');
+            if (!inner) return;
+
+            // Last export
+            let lastExport = localStorage.getItem('tt_last_export');
+            let lastExportText = 'Kein Backup';
+            if (lastExport) {
+                try { lastExportText = new Date(lastExport).toLocaleString('de-DE'); } catch(e) { lastExportText = lastExport; }
+            }
+
+            // Offene Korrekturen (Einträge mit Label 'Korrektur')
+            let correctionsCount = 0;
+            try {
+                correctionsCount = (data.entries || []).filter(e => typeof e.label === 'string' && e.label.startsWith('Korrektur')).length;
+            } catch (e) { correctionsCount = 0; }
+
+            // Helper to parse various date formats (ISO YYYY-MM-DD or DD.MM.YYYY or JS Date strings)
+            function parseDateSafe(v) {
+                if (!v) return null;
+                try {
+                    if (/^\d{4}-\d{2}-\d{2}$/.test(v)) return new Date(v + 'T00:00:00');
+                    if (/^\d{2}\.\d{2}\.\d{4}$/.test(v)) {
+                        const m = v.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+                        return new Date(`${m[3]}-${m[2]}-${m[1]}T00:00:00`);
+                    }
+                    const d = new Date(v);
+                    if (!isNaN(d.getTime())) return d;
+                } catch(e) {}
+                return null;
+            }
+
+            // Next vacation entry (future) - use robust parsing
+            const todayMid = new Date(); todayMid.setHours(0,0,0,0);
+            const futureVacEntries = (data.entries || []).map(e => ({e, d: parseDateSafe(e.date)})).filter(x => x.d && x.d.getTime() > todayMid.getTime() && x.e.type === 'vacation').sort((a,b)=>a.d - b.d);
+            const nextVac = futureVacEntries.length > 0 ? futureVacEntries[0].d : null;
+            const nextVacText = nextVac ? nextVac.toLocaleDateString('de-DE') : 'keiner';
+
+            // Days since last entry (robust parsing + human-friendly for future dates)
+            // Only count actual work/school entries, ignore vacation/holiday/sick
+            let daysSince = '—';
+            if (data.entries && data.entries.length > 0) {
+                let latestDate = null;
+                let latestEntry = null;
+                (data.entries || []).forEach(e => {
+                    // Skip non-work types (vacation, holiday, sick, correction)
+                    if (!e.type || !['work', 'school'].includes(e.type)) return;
+                    const d = parseDateSafe(e.date);
+                    if (d && (!latestDate || d.getTime() > latestDate.getTime())) {
+                        latestDate = d;
+                        latestEntry = e;
+                    }
+                });
+                if (latestDate && latestEntry) {
+                    const latestMid = new Date(latestDate); latestMid.setHours(0,0,0,0);
+                    const diffDays = Math.round((todayMid - latestMid) / (1000*60*60*24));
+                    if (diffDays === 0) daysSince = 'heute';
+                    else if (diffDays > 0) daysSince = `${diffDays}d`;
+                    else daysSince = `in ${Math.abs(diffDays)}d`;
+                }
+            }
+
+            // Unread alerts
+            let unread = 0;
+            try { unread = (alertsHistory || []).filter(a => !a.isRead).length; } catch(e) { unread = 0; }
+
+            const text = `Backup: ${lastExportText}  •  Offene Korrekturen: ${correctionsCount}  •  Nächster Urlaub: ${nextVacText}  •  Seit letztem Eintrag: ${daysSince}  •  Ungelesene Alerts: ${unread}`;
+            // single copy (no doubling)
+            inner.innerText = text;
+            inner.style.paddingLeft = '0px';
+            const duration = Math.max(10, Math.min(28, Math.floor(inner.innerText.length / 3)));
+            inner.style.animation = `tickerScroll ${duration}s linear infinite`;
+        } catch (e) {
+            console.warn('updateQuickTicker error', e);
         }
     }
 
@@ -8796,6 +8952,33 @@ TIPPS:
             }
             sessionStorage.setItem('tt_notif_friday', 'shown');
         }
+
+        // Export/Backup Reminder (wenn älter als 7 Tage oder nie exportiert)
+        try {
+            if (alertSettings.exportReminder) {
+                const lastExport = localStorage.getItem('tt_last_export');
+                let needsExport = false;
+                if (!lastExport) needsExport = true;
+                else {
+                    const diffMs = Date.now() - new Date(lastExport).getTime();
+                    if (diffMs > (7 * 24 * 60 * 60 * 1000)) needsExport = true;
+                }
+                const exportReminderKey = 'tt_export_reminder_shown_' + today;
+                if (needsExport && !localStorage.getItem(exportReminderKey)) {
+                    const msg = 'Dein letztes Backup ist älter als 7 Tage (oder nicht vorhanden). Bitte exportiere deine Daten!';
+                    showSmartNotification('💾 Backup Reminder', msg, 'warning');
+                    // Füge auch einen persistenten Alert hinzu, sichtbar im Alerts-Panel
+                    try {
+                        const a = createAlert('Backup Reminder', msg, 'warning', '💾');
+                        alertsHistory.unshift(a);
+                        persistAlerts();
+                        updateAlertBadge();
+                        renderAlertsList();
+                    } catch (e) { console.warn('Failed to create persistent backup alert', e); }
+                    localStorage.setItem(exportReminderKey, '1');
+                }
+            }
+        } catch (e) { console.warn('Backup reminder check failed', e); }
 
         // Milestone-Notifications
         const totalDiff = data.entries.reduce((sum, e) => sum + (e.diff || 0), 0);
