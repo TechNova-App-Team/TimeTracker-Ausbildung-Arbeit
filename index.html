@@ -1254,10 +1254,16 @@
                 </div>
             </div>
 
-            <div class="card" style="background:rgba(168,85,247,0.08); border:1px solid rgba(168,85,247,0.15); padding:1rem;">
-                <div style="display:flex; align-items:center; gap:6px;">
-                    <span style="font-size:1rem;">📅</span>
-                    <h5 style="margin:0; color:var(--text-main); font-size:0.9rem;">Heute: <span id="todayWorked" style="color:var(--primary);">0.0h</span> | <span id="todayEntries" style="color:var(--text-muted);">0 Einträge</span></h5>
+            <div class="card" style="background:linear-gradient(90deg, rgba(168,85,247,0.08) 0%, rgba(16,185,129,0.08) 100%); border:1px solid rgba(168,85,247,0.15); padding:1rem;">
+                <div style="display:flex; align-items:center; gap:12px; justify-content:space-between;">
+                    <div style="display:flex; align-items:center; gap:6px; flex:1;">
+                        <span style="font-size:1rem;">📅</span>
+                        <h5 style="margin:0; color:var(--text-main); font-size:0.9rem;">Heute: <span id="todayWorked" style="color:var(--primary);">0.0h</span> | <span id="todayEntries" style="color:var(--text-muted);">0 Eintr.</span></h5>
+                    </div>
+                    <div style="border-left:1px solid rgba(255,255,255,0.1); padding-left:12px; display:flex; align-items:center; gap:6px;">
+                        <span style="font-size:1rem;" id="streakEmoji">🔥</span>
+                        <h5 style="margin:0; color:var(--text-main); font-size:0.9rem;">Streak: <span id="streakCount" style="color:var(--success); font-weight:800;">0</span> | <span style="font-size:0.75rem; color:var(--text-muted);" id="streakBest">Best: 0</span></h5>
+                    </div>
                 </div>
             </div>
 
@@ -8490,6 +8496,9 @@ TIPPS:
         document.getElementById('todayBreaks').innerText = (todayBreaks / 3600).toFixed(1) + 'h';
         document.getElementById('todayEntries').innerText = todayEntries.length;
         document.getElementById('todayTimerActive').innerText = (window.timer && window.timer.running) ? '▶️ AKTIV' : '⏹️ Inaktiv';
+        
+        // Update Streak Counter
+        if (typeof updateStreakCounter === 'function') updateStreakCounter();
     }
 
     // FEATURE 2: Pomodoro Timer Mode
@@ -8604,6 +8613,211 @@ TIPPS:
     if (savedTheme === 'light') {
         setTheme('light');
     }
+
+    // ============================================
+    // FEATURE: PRODUKTIVITÄTS-STREAK COUNTER
+    // ============================================
+
+    function calculateStreak() {
+        if (!data.entries || data.entries.length === 0) return { current: 0, best: 0 };
+
+        const now = new Date();
+        const entries = [...data.entries].sort((a, b) => new Date(b.date) - new Date(a.date));
+        
+        let currentStreak = 0;
+        let bestStreak = 0;
+        let tempStreak = 0;
+        let lastDate = null;
+
+        for (let i = 0; i < entries.length; i++) {
+            const entry = entries[i];
+            const entryDate = new Date(entry.date);
+            const dayOfWeek = entryDate.getDay();
+            
+            // Nur Arbeitstage zählen (Montag-Freitag)
+            if (dayOfWeek === 0 || dayOfWeek === 6) continue;
+            
+            // Prüfe ob Soll erfüllt (worked >= expected)
+            if (entry.worked >= entry.expected) {
+                if (!lastDate || isConsecutiveWorkDay(lastDate, entryDate)) {
+                    tempStreak++;
+                } else {
+                    tempStreak = 1;
+                }
+                lastDate = entryDate;
+                bestStreak = Math.max(bestStreak, tempStreak);
+            } else {
+                if (tempStreak > 0) {
+                    currentStreak = Math.max(currentStreak, tempStreak);
+                }
+                tempStreak = 0;
+            }
+        }
+
+        currentStreak = Math.max(currentStreak, tempStreak);
+        return { current: currentStreak, best: bestStreak };
+    }
+
+    function isConsecutiveWorkDay(date1, date2) {
+        const diff = Math.floor((date1 - date2) / (1000 * 60 * 60 * 24));
+        if (diff === 1) return true;
+        if (diff === 3) return true; // Freitag zu Montag
+        return false;
+    }
+
+    function updateStreakCounter() {
+        const streak = calculateStreak();
+        document.getElementById('streakCount').innerText = streak.current;
+        document.getElementById('streakBest').innerText = `Best: ${streak.best} 🏆`;
+        
+        // Emoji basiert auf aktueller Streak
+        let emoji = '🔥';
+        if (streak.current === 0) emoji = '❄️';
+        else if (streak.current >= 10) emoji = '🌟';
+        else if (streak.current >= 5) emoji = '✨';
+        
+        document.getElementById('streakEmoji').innerText = emoji;
+
+        // Trigger Notification bei neuer Best-Streak
+        if (streak.current > 0 && streak.current === streak.best && streak.current > 1) {
+            showSmartNotification('🔥 Neue Best-Streak!', `${streak.current} Tage in Folge mit Soll erfüllt!`, 'success');
+        }
+    }
+
+    // ============================================
+    // FEATURE: SMART TOAST NOTIFICATIONS
+    // ============================================
+
+    function showSmartNotification(title, message, type = 'info') {
+        const toast = document.createElement('div');
+        toast.style.cssText = `
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: ${type === 'success' ? 'rgba(16,185,129,0.9)' : (type === 'warning' ? 'rgba(245,158,11,0.9)' : 'rgba(168,85,247,0.9)')};
+            color: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            z-index: 10000;
+            font-family: var(--font-main);
+            max-width: 380px;
+            animation: slideInRight 0.4s ease forwards;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.2);
+        `;
+        
+        toast.innerHTML = `
+            <div style="font-weight:700; margin-bottom:4px; font-size:0.95rem;">${title}</div>
+            <div style="font-size:0.85rem; opacity:0.95;">${message}</div>
+        `;
+        
+        document.body.appendChild(toast);
+
+        // Auto remove nach 5 Sekunden
+        setTimeout(() => {
+            toast.style.animation = 'slideOutRight 0.4s ease forwards';
+            setTimeout(() => toast.remove(), 400);
+        }, 5000);
+    }
+
+    // Animations für Toast
+    const toastStyle = document.createElement('style');
+    toastStyle.textContent = `
+        @keyframes slideInRight {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+    `;
+    document.head.appendChild(toastStyle);
+
+    // Smart Notification Trigger Funktion
+    function checkSmartNotifications() {
+        const now = new Date();
+        const today = now.toISOString().split('T')[0];
+        const todayEntries = data.entries.filter(e => e.date === today);
+        let todayWorked = 0;
+
+        todayEntries.forEach(e => {
+            todayWorked += e.worked || 0;
+        });
+
+        const todayExpected = data.settings.workTime?.default || 8;
+        const deficit = todayExpected - (todayWorked / 3600);
+
+        // Nachmittag-Erinnerung (15:00 Uhr)
+        if (now.getHours() === 15 && !sessionStorage.getItem('tt_notif_afternoon')) {
+            if (deficit > 0) {
+                showSmartNotification('⏰ Nachmittags-Check', `Noch ${deficit.toFixed(1)}h bis zum Soll heute!`, 'warning');
+                sessionStorage.setItem('tt_notif_afternoon', 'shown');
+            }
+        }
+
+        // Feierabend-Erinnerung (17:00 Uhr)
+        if (now.getHours() === 17 && !sessionStorage.getItem('tt_notif_evening')) {
+            if (deficit > 0) {
+                showSmartNotification('🌆 Feierabend-Reminder', `Noch ${deficit.toFixed(1)}h - Magst du noch ein bisschen machen?`, 'info');
+                sessionStorage.setItem('tt_notif_evening', 'shown');
+            }
+        }
+
+        // Wochenende-Check (Freitag 16:00 Uhr)
+        if (now.getDay() === 5 && now.getHours() === 16 && !sessionStorage.getItem('tt_notif_friday')) {
+            const week = getWeek(now);
+            let weekHours = 0;
+            data.entries.forEach(e => {
+                const d = new Date(e.date);
+                if (getWeek(d) === week && d.getFullYear() === now.getFullYear()) {
+                    weekHours += e.diff || 0;
+                }
+            });
+
+            if (weekHours >= 0) {
+                showSmartNotification('✨ Starke Woche!', `+${(weekHours).toFixed(1)}h Saldo diese Woche! Wochenende verdient! 🏖️`, 'success');
+            } else {
+                const needed = Math.abs(weekHours);
+                showSmartNotification('📋 Wochenplan', `Nächste Woche ${needed.toFixed(1)}h extra planen?`, 'warning');
+            }
+            sessionStorage.setItem('tt_notif_friday', 'shown');
+        }
+
+        // Milestone-Notifications
+        const totalDiff = data.entries.reduce((sum, e) => sum + (e.diff || 0), 0);
+        
+        // 100h Überstunden
+        if (totalDiff >= 100 && totalDiff < 101 && !localStorage.getItem('tt_milestone_100h')) {
+            showSmartNotification('🎉 MEGA!', 'Du hast 100h Überstunden erreicht! 🚀', 'success');
+            localStorage.setItem('tt_milestone_100h', 'shown');
+        }
+
+        // 50h Überstunden
+        if (totalDiff >= 50 && totalDiff < 51 && !localStorage.getItem('tt_milestone_50h')) {
+            showSmartNotification('🎊 Wow!', '50h Überstunden - Das ist beeindruckend! 💪', 'success');
+            localStorage.setItem('tt_milestone_50h', 'shown');
+        }
+    }
+
+    // Starte periodische Notifications (jede Minute prüfen)
+    setInterval(checkSmartNotifications, 60000);
+
+    // Auch sofort einmal prüfen
+    checkSmartNotifications();
 
     // Call initialization on load
     if (document.readyState === 'loading') {
