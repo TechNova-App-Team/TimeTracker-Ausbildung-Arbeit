@@ -31,7 +31,7 @@
 
 ## 🌟 Kurzüberblick
 
-`Time.Tracker.SingleFile` ist eine einfache, aber mächtige Browser-Anwendung zur lokalen Zeiterfassung (kein Server). Sie speichert Daten ausschließlich lokal und eignet sich für Mitarbeiter, Auszubildende oder Einzelpersonen, die ein schnelles, datenschutzfreundliches Tool suchen.
+`TimeTracker-Ausbildung-Arbeit` ist eine einfache, aber mächtige Browser-Anwendung zur lokalen Zeiterfassung (kein Server). Sie speichert Daten ausschließlich lokal und eignet sich für Mitarbeiter, Auszubildende oder Einzelpersonen, die ein schnelles, datenschutzfreundliches Tool suchen.
 
 ## 🎯 Aktueller Projektstand (Stand: 2025-12-10)
 - **Fertig / stabil:** Kernfunktionen (Timer, Buchen, Export/Import, Gleitzeit) funktionieren lokal.
@@ -51,12 +51,6 @@
 └───────────────────────────────────────────────┘
 ```
 
----
-
-![Preview Screenshot](assets/preview-screenshot.svg)
-
-
-
 ## ✨ Features (kurz)
 - Live-Timer mit Start/Pause/Stop
 - Automatische Pausenregel (konfigurierbar)
@@ -74,12 +68,6 @@
 
 ---
 
-## 💡 Grafische Elemente (Badges & Hinweise)
-- Anzeige-Badges für: `DSGVO`, `Impressum`, `License`, `Backup`, `Stabilität`
-- Visuelle ASCII-Dashboards für README-Preview
-
----
-
 ## 🛠 Entwicklung & Beitrag
 - Fork → Branch → PR
 - Bitte `Rechtliches/CONTRIBUTING.md` lesen bevor du Änderungen vorschlägst: [Contributing](Rechtliches/CONTRIBUTING.md)
@@ -88,7 +76,6 @@
 
 ## 📌 Nächste Schritte (empfohlen)
 - UI-Feinschliff & Accessibility-Checks
-- Optional: kleine Bilder / Screenshots in `assets/` hinzufügen
 - Optional: Automatisches Test-Backup (download on interval)
 
 ---
@@ -101,7 +88,7 @@
 ---
 
 ## Kontakt
-- Bei Fragen: `support@timetracker-pro.local` oder GitHub Issues
+- Bei Fragen: `XXX` oder GitHub Issues
 
 Vielen Dank — wenn du noch mehr grafische Elemente (Screenshots, GIFs, echte SVGs) möchtest, füge kurz ein, ob ich die Dateien anlegen oder nur die README-Markdown-Referenzen erstellen soll.
 
@@ -125,7 +112,7 @@ Vielen Dank — wenn du noch mehr grafische Elemente (Screenshots, GIFs, echte S
 ## 📊 Statistiken
 
 ```
-├─ Code-Zeilen:          ~1700 (HTML/CSS/JS gemischt)
+├─ Code-Zeilen:          ~10K (HTML/CSS/JS gemischt)
 ├─ Komponenten:          15+ (Cards, Charts, Modals)
 ├─ CSS-Variablen:        20+ (Theme System)
 ├─ JavaScript-Funktionen:30+
@@ -153,32 +140,6 @@ Vielen Dank — wenn du noch mehr grafische Elemente (Screenshots, GIFs, echte S
 
 ---
 
-## 🚀 Roadmap 2025
-
-```
-Q1 2025:
-  ├─ Dark/Light Mode Toggle
-  ├─ Mehrsprachigkeit (EN, FR, ES)
-  └─ Mobile App (React Native)
-
-Q2 2025:
-  ├─ Cloud Sync Integration
-  ├─ Team-Verwaltung
-  └─ API-Schnittstelle
-
-Q3 2025:
-  ├─ KI-gestützte Prognosen
-  ├─ Automatische Schicht-Optimierung
-  └─ Integration mit Kalender-APIs
-
-Q4 2025:
-  ├─ Enterprise Features
-  ├─ LDAP/SSO Support
-  └─ Audit-Trail & Compliance
-```
-
----
-
 <div align="center">
 
 ### ⭐ Gefällt dir das Projekt?
@@ -187,7 +148,7 @@ Q4 2025:
 
 ---
 
-**Made with ❤️ by the TimeTracker Team**
+**Made with ❤️ by the TechNova App Team**
 
 *Eine moderne Lösung für intelligente Zeiterfassung*
 
@@ -195,25 +156,4 @@ Q4 2025:
 
 ---
 
-### 📝 Versionshistorie
-
-```
-v1.2.0 (2025-11-27)
-├─ ✨ Live-Timer mit Segment-Logging
-├─ 📊 Performance Analytics Dashboard
-├─ 🌴 Intelligente Urlaubsverwaltung
-├─ ⚙️ Erweiterte Einstellungen
-└─ 🎨 Neue Glassmorphism UI
-
-v1.1.0 (2025-11-20)
-├─ 🔧 Feiertags-Auto-Integration
-├─ 📈 Saldo-Trend Chart
-└─ 🎯 KPI-Ring Visualisierungen
-
-v1.0.0 (2025-11-15)
-└─ 🎉 Initial Release
-```
-
----
-
-**Time.Tracker.SingleFile V1.2.0** | Gebaut mit modernstem Web-Standard | 🚀 Production Ready
+**TimeTracker-Ausbildung-Arbeit V2.0.1** | Gebaut mit modernstem Web-Standard | 🚀 Production Ready
