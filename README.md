@@ -10,7 +10,7 @@
 
 [![Timer Badge](https://img.shields.io/badge/Timer-live-yellow?style=for-the-badge)](#) [![Backup](https://img.shields.io/badge/Backup-JSON-orange?style=for-the-badge)](#)
 
-**Version:** `v2.0.1`  •  **Build:** `local`  •  **Stand:** 2025-12-10
+**Version:** `v2.1.1`  •  **Build:** `local`  •  **Stand:** 2025-12-10
 
 ---
 
