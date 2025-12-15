@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TimeTracker V2.2.1</title>
+<title>TimeTracker V2.2.3</title>
 <meta name="description" content="TimeTracker: Eine moderne, lokal laufende Single-File Zeiterfassungs-App. Kein Server, kein Cloud, nur deine Daten. Perfekt für Auszubildende und Mitarbeiter.">
 <meta name="theme-color" content="#a855f7">
 <meta name="author" content="TechNova App Team">
 <!-- OpenGraph Meta Tags (für Social Sharing) -->
-<meta property="og:title" content="TimeTracker V2.1.3 – Moderne Zeiterfassung">
+<meta property="og:title" content="TimeTracker V2.2.1 – Moderne Zeiterfassung">
 <meta property="og:description" content="Eine einfache, aber mächtige Browser-Anwendung zur lokalen Zeiterfassung. 100% Datenschutz, lokal gespeichert, keine Server.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://github.com/YourUsername/TimeTracker-Ausbildung-Arbeit">
@@ -16,7 +16,7 @@
 <meta property="og:locale" content="de_DE">
 <!-- Twitter Card Meta Tags -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="TimeTracker V2.1.3 – Moderne Zeiterfassung">
+<meta name="twitter:title" content="TimeTracker V2.2.1 – Moderne Zeiterfassung">
 <meta name="twitter:description" content="Lokal laufende Zeiterfassungs-App ohne Server. 100% Datenschutz, Backup/Export, Gleitzeit-Konto.">
 <meta name="twitter:image" content="https://img.shields.io/badge/TimeTracker-Modern%20&%20Local-purple?style=for-the-badge&logo=javascript">
 <meta name="twitter:creator" content="@YourTwitterHandle">
@@ -600,6 +600,7 @@
         .entry-date { font-weight: 600; color: #fff; font-size: 0.95rem; }
         .entry-meta { font-size: 0.85rem; color: var(--text-muted); margin-top: 2px; }
         .tag { padding: 4px 10px; border-radius: 6px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; background: rgba(255,255,255,0.05); }
+        .project-tag { background: rgba(168, 85, 247, 0.1); color: var(--primary); }
         
         /* Unified History Filter Grid */
         .filter-grid {
@@ -1977,8 +1978,6 @@
                                 </select>
                             </div>
                             
-                            <input type="text" id="inpProject" class="glass-input" placeholder="Projekt / Kunde (z.B. Alpha-Migration)">
-                            
                             <div style="display:flex; gap:10px; align-items:center;">
                                 <div style="display:flex; gap:8px; align-items:center;">
                                     <input type="time" id="inpStart" class="glass-input" placeholder="Start">
@@ -1989,7 +1988,10 @@
                                     <button id="btnNowEnd" class="btn btn-ghost" style="padding:8px 10px; font-size:0.8rem;">Jetzt</button>
                                 </div>
                             </div>
+                            
                             <input type="number" id="inpHours" class="glass-input" step="0.25" placeholder="Stunden manuell...">
+                            
+                            <input type="text" id="inpProject" class="glass-input" placeholder="Projekt / Kunde (z.B. Alpha-Migration)">
                             
                             <input type="text" id="inpNotes" class="glass-input" placeholder="Notizen (z.B. Bugfix in Modul X)">
 
@@ -3547,7 +3549,10 @@
                 </div>
                 <div>
                     <label style="font-size:0.75rem; color:#666; display:block; margin-bottom:5px; font-weight:600;">Projekt/Kunde:</label>
-                    <input type="text" id="editInpProject" class="glass-input" placeholder="z.B. Alpha-Migration">
+                    <input type="text" id="editInpProject" class="glass-input" list="editProjectList" placeholder="Projekt eingeben oder auswählen">
+                    <datalist id="editProjectList">
+                        <!-- Options will be populated by JS -->
+                    </datalist>
                 </div>
             </div>
             
@@ -3691,6 +3696,10 @@
                         <button class="btn btn-ghost ${analyticsTimeFilter === 'month' ? 'active' : ''}" onclick="setAnalyticsFilter('month')" style="padding:4px 8px; font-size:0.7rem;">Monat</button>
                         <button class="btn btn-ghost ${analyticsTimeFilter === 'year' ? 'active' : ''}" onclick="setAnalyticsFilter('year')" style="padding:4px 8px; font-size:0.7rem;">Jahr</button>
                         <button class="btn btn-ghost ${analyticsTimeFilter === 'all' ? 'active' : ''}" onclick="setAnalyticsFilter('all')" style="padding:4px 8px; font-size:0.7rem;">Alle</button>
+                        <select id="analyticsProjectFilter" class="glass-select" onchange="setAnalyticsProjectFilter(this.value)" style="padding:4px 8px; font-size:0.7rem; height:28px;">
+                            <option value="">Alle Projekte</option>
+                            <!-- Options populated by JS -->
+                        </select>
                         <button class="btn btn-ghost" onclick="exportAnalytics()" style="padding:6px 12px; font-size:0.8rem;">📄 Export</button>
                         <button class="btn btn-ghost" onclick="generateAdvancedAnalytics()" style="padding:6px 12px; font-size:0.8rem;">🔄</button>
                     </div>
@@ -3862,7 +3871,21 @@
         document.getElementById('editInpProject').value = entry.project || '';
         document.getElementById('editInpNotes').value = entry.info || '';
         
+        populateProjectOptions();
+        
         document.getElementById('editEntryModal').classList.add('active');
+    }
+
+    function populateProjectOptions() {
+        const datalist = document.getElementById('editProjectList');
+        // Clear existing options
+        datalist.innerHTML = '';
+        // Add projects
+        data.settings.projects.forEach(project => {
+            const option = document.createElement('option');
+            option.value = project;
+            datalist.appendChild(option);
+        });
     }
 
     function closeEditModal() {
@@ -3921,6 +3944,12 @@
             data.settings.break.min = [0, oldBreakMin, oldBreakMin, oldBreakMin, oldBreakMin, 15, 0]; // 15 Min Pause für Freitag
         }
         if(!data.settings.vacation) data.settings.vacation = {total:30, used:0, usedManual:0};
+        
+        // Initialize projects list
+        if (!Array.isArray(data.settings.projects)) data.settings.projects = [];
+        // Collect unique projects from entries
+        const uniqueProjects = [...new Set(data.entries.filter(e => e.project).map(e => e.project))];
+        data.settings.projects = [...new Set([...data.settings.projects, ...uniqueProjects])];
         
         if(!data.settings.ihk) {
              data.settings.ihk = {start: '', end: '', exam_zwischen: '', note_zwischen: '', note_abschluss: ''};
@@ -5794,10 +5823,11 @@
             <div class="entry-row type-${e.type}">
                 <div>
                     <div class="entry-date">${new Date(e.date).toLocaleDateString('de-DE')}</div>
-                    <div class="entry-meta">${e.isPeriod ? e.label : e.info} (${e.worked.toFixed(2)}h) ${e.project ? `[${e.project}]` : ''} ${e.shiftWarning ? '<span style="color:var(--danger); font-weight:700;">⚠ SCHICHT MAX!</span>' : ''}</div>
+                    <div class="entry-meta">${e.isPeriod ? e.label : e.info} (${e.worked.toFixed(2)}h) ${e.shiftWarning ? '<span style="color:var(--danger); font-weight:700;">⚠ SCHICHT MAX!</span>' : ''}</div>
                 </div>
                 <div style="display:flex; align-items:center; gap:15px;">
                     <span class="tag">${e.type === 'school' ? 'SCHULE' : (e.type === 'holiday' ? 'FEIERTAG' : e.type.toUpperCase())}</span>
+                    ${e.project ? `<span class="tag project-tag">${e.project}</span>` : ''}
                     <div style="font-weight:700; width:60px; text-align:right; color:${e.diff>=0?'var(--success)':'var(--danger)'}">
                         ${e.diff>=0?'+':''}${e.diff.toFixed(2)}
                     </div>
@@ -6802,10 +6832,11 @@ TIPPS:
             <div class="entry-row type-${e.type}">
                 <div>
                     <div class="entry-date">${new Date(e.date).toLocaleDateString('de-DE')}</div>
-                    <div class="entry-meta">${e.isPeriod ? e.label : e.info} (${e.worked.toFixed(2)}h) ${e.project ? `[${e.project}]` : ''} ${e.shiftWarning ? '<span style="color:var(--danger); font-weight:700;">⚠ MAX!</span>' : ''} ${e.mood ? `<span class="mood-display" title="Stimmung: ${getMoodDescription(e.mood)}">${e.mood}</span>` : ''}</div>
+                    <div class="entry-meta">${e.isPeriod ? e.label : e.info} (${e.worked.toFixed(2)}h) ${e.shiftWarning ? '<span style="color:var(--danger); font-weight:700;">⚠ MAX!</span>' : ''} ${e.mood ? `<span class="mood-display" title="Stimmung: ${getMoodDescription(e.mood)}">${e.mood}</span>` : ''}</div>
                 </div>
                 <div style="display:flex; align-items:center; gap:15px;">
                     <span class="tag">${e.type === 'school' ? 'SCHULE' : (e.type === 'holiday' ? 'FEIERTAG' : e.type.toUpperCase())}</span>
+                    ${e.project ? `<span class="tag project-tag">${e.project}</span>` : ''}
                     <div style="font-weight:700; width:60px; text-align:right; color:${e.diff>=0?'var(--success)':'var(--danger)'}">
                         ${e.diff>=0?'+':''}${e.diff.toFixed(2)}
                     </div>
@@ -10882,6 +10913,7 @@ function closeMoreActionsModal() {
 }
 
 let analyticsTimeFilter = 'month'; // 'week', 'month', 'year', 'all'
+let analyticsProjectFilter = ''; // '' for all projects
 
 function openAnalyticsModal() {
     document.getElementById('analyticsModal').style.display = 'flex';
@@ -10898,6 +10930,29 @@ function setAnalyticsFilter(filter) {
     generateAdvancedAnalytics();
 }
 
+function setAnalyticsProjectFilter(project) {
+    analyticsProjectFilter = project;
+    generateAdvancedAnalytics();
+}
+
+function populateAnalyticsProjectOptions() {
+    const select = document.getElementById('analyticsProjectFilter');
+    if (!select) return;
+    // Clear existing options except the first
+    while (select.children.length > 1) {
+        select.removeChild(select.lastChild);
+    }
+    // Add projects
+    data.settings.projects.forEach(project => {
+        const option = document.createElement('option');
+        option.value = project;
+        option.textContent = project;
+        select.appendChild(option);
+    });
+    // Set current value
+    select.value = analyticsProjectFilter;
+}
+
 function exportAnalytics() {
     const modal = document.getElementById('analyticsModal');
     html2canvas(modal).then(canvas => {
@@ -10910,7 +10965,8 @@ function exportAnalytics() {
 }
 
 function updateAnalyticsModal() {
-    // Audit values are already updated by renderAuditProtocol
+    // Populate project filter options
+    populateAnalyticsProjectOptions();
     // Always regenerate analytics on open
     generateAdvancedAnalytics();
 }
@@ -11052,7 +11108,7 @@ function calculateAdvancedAnalytics(filter = 'month') {
         startDate = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
     } // for 'all', startDate remains null
 
-    const workEntries = data.entries.filter(e => e.type === 'work' && e.worked > 0 && (!startDate || new Date(e.date) >= startDate));
+    const workEntries = data.entries.filter(e => e.type === 'work' && e.worked > 0 && (!startDate || new Date(e.date) >= startDate) && (!analyticsProjectFilter || e.project === analyticsProjectFilter));
     if (workEntries.length === 0) {
         return {
             productivityScore: 'Keine Daten',
