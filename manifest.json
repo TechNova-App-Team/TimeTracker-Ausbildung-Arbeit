@@ -1,7 +1,7 @@
 {
   "name": "TimeTracker - Moderne Zeiterfassung",
   "short_name": "TimeTracker",
-  "description": "Eine moderne, lokal laufende Zeiterfassungs-App ohne Server, Cloud oder Tracking. 100% Datenschutz.",
+  "description": "My Work Log",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
