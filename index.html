@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TimeTracker V2.3.1</title>
+<title>TimeTracker V2.3.2</title>
 <meta name="description" content="TimeTracker: Eine moderne, lokal laufende Single-File Zeiterfassungs-App. Kein Server, kein Cloud, nur deine Daten. Perfekt für Auszubildende und Mitarbeiter.">
 <meta name="theme-color" content="#a855f7">
 <meta name="author" content="TechNova App Team">
@@ -27,7 +27,7 @@
 <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
 <!-- OpenGraph Meta Tags (für Social Sharing) -->
-<meta property="og:title" content="TimeTracker V2.3.1 – Moderne Zeiterfassung">
+<meta property="og:title" content="TimeTracker V2.3.2 – Moderne Zeiterfassung">
 <meta property="og:description" content="Eine einfache, aber mächtige Browser-Anwendung zur lokalen Zeiterfassung. 100% Datenschutz, lokal gespeichert, keine Server.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://github.com/YourUsername/TimeTracker-Ausbildung-Arbeit">
@@ -35,7 +35,7 @@
 <meta property="og:locale" content="de_DE">
 <!-- Twitter Card Meta Tags -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="TimeTracker V2.3.1 – Moderne Zeiterfassung">
+<meta name="twitter:title" content="TimeTracker V2.3.2 – Moderne Zeiterfassung">
 <meta name="twitter:description" content="Lokal laufende Zeiterfassungs-App ohne Server. 100% Datenschutz, Backup/Export, Gleitzeit-Konto.">
 <meta name="twitter:image" content="https://img.shields.io/badge/TimeTracker-Modern%20&%20Local-purple?style=for-the-badge&logo=javascript">
 <meta name="twitter:creator" content="@YourTwitterHandle">
@@ -495,26 +495,7 @@
         .dashboard-grid.edit-mode { outline: 2px dashed rgba(var(--primary-rgb), 0.3); padding: 1rem; border-radius: var(--radius); }
         .dashboard-grid.edit-mode .dashboard-item { cursor: grab; border: 1px dashed rgba(var(--primary-rgb), 0.5); padding: 0.5rem; border-radius: var(--radius); position: relative; }
         .dashboard-grid.edit-mode .dashboard-item::before { content: '⋮⋮'; position: absolute; top: 5px; left: 8px; opacity: 0.5; font-size: 0.9rem; pointer-events: none; }
-        .dashboard-grid.edit-mode .dashboard-item::after { 
-            content: '✕'; 
-            position: absolute; 
-            top: 5px; 
-            right: 8px; 
-            background: rgba(239, 68, 68, 0.9); 
-            color: white; 
-            border-radius: 50%; 
-            width: 20px; 
-            height: 20px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            font-size: 0.8rem; 
-            cursor: pointer; 
-            z-index: 10;
-            opacity: 0.8;
-            transition: opacity 0.2s;
-        }
-        .dashboard-grid.edit-mode .dashboard-item::after:hover { opacity: 1; background: var(--danger); }
+        /* Removed ::after pseudo-element to avoid conflict with JavaScript remove buttons */
         .dashboard-grid.edit-mode .dashboard-item.dragging { opacity: 0.6; background-color: rgba(var(--primary-rgb), 0.1); box-shadow: 0 8px 16px rgba(var(--primary-rgb), 0.2); }
         .dashboard-item { transition: all 0.2s ease; }
         
@@ -1825,6 +1806,34 @@
 <body>
 
     <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <!-- NEUES WIDGET MANAGER MODAL - SCHÖNES DESIGN -->
+    <div id="newWidgetManagerModal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); z-index: 200; justify-content: center; align-items: center; backdrop-filter: blur(10px);">
+        <div style="background: var(--bg-glass); border: 1px solid var(--border); border-radius: 20px; padding: 30px; max-width: 700px; width: 90%; max-height: 80vh; overflow-y: auto; color: var(--text-main); box-shadow: 0 20px 60px rgba(0,0,0,0.5);">
+            <button onclick="closeNewWidgetManager()" style="position: absolute; top: 15px; right: 15px; background: transparent; color: var(--text-muted); border: none; font-size: 24px; cursor: pointer; padding: 5px; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'; this.style.color='var(--text-main)'" onmouseout="this.style.background='transparent'; this.style.color='var(--text-muted)'">×</button>
+            <h2 style="color: var(--primary); margin-top: 0; margin-bottom: 20px; font-size: 1.5rem;">📦 Widget Manager</h2>
+            <p style="color: var(--text-muted); margin-bottom: 25px; font-size: 0.95rem;">Füge neue Widgets zu deinem Dashboard hinzu oder entferne vorhandene. Jedes Widget kann individuell konfiguriert werden.</p>
+            
+            <div style="margin: 25px 0;">
+                <h3 style="color: var(--text-main); margin-bottom: 15px; font-size: 1.1rem;">Verfügbare Widgets</h3>
+                <div id="newAvailableWidgets" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px;">
+                    <!-- Widgets werden hier geladen -->
+                </div>
+            </div>
+            
+            <div style="margin: 25px 0;">
+                <h3 style="color: var(--text-main); margin-bottom: 15px; font-size: 1.1rem;">Aktuelle Dashboard-Widgets</h3>
+                <div id="newCurrentWidgets" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px;">
+                    <!-- Widgets werden hier geladen -->
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 15px; justify-content: flex-end; margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--border);">
+                <button onclick="addRandomWidget()" style="background: var(--success); color: white; border: none; padding: 12px 20px; border-radius: 10px; cursor: pointer; font-weight: 600; transition: all 0.2s;" onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 12px rgba(16, 185, 129, 0.3)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">➕ Zufälliges Widget hinzufügen</button>
+                <button onclick="closeNewWidgetManager()" style="background: var(--bg-sidebar); color: var(--text-main); border: 1px solid var(--border); padding: 12px 20px; border-radius: 10px; cursor: pointer; font-weight: 600; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='var(--bg-sidebar)'">Schließen</button>
+            </div>
+        </div>
+    </div>
     
     <nav class="sidebar" id="sidebar">
         <div class="brand">
@@ -3138,7 +3147,7 @@
                         <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:1.5rem;">Passe die Reihenfolge aller Dashboard-Elemente an. Drag & Drop zum Verschieben! Füge neue Widgets hinzu oder entferne unerwünschte.</p>
                         <div style="display:flex; gap:12px; flex-wrap:wrap;">
                             <button id="btnEditLayout" class="btn btn-primary" style="padding:12px 20px; font-size:0.9rem; border-radius:16px; box-shadow:0 4px 15px rgba(168, 85, 247, 0.3); transition:all 0.3s ease; font-weight:600;" onclick="toggleDashboardEditMode()" title="Layout anpassen">🔧 Layout editieren</button>
-                            <button id="btnManageWidgets" class="btn btn-secondary" style="padding:12px 20px; font-size:0.9rem; border-radius:16px; background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:#fff; box-shadow:0 4px 15px rgba(102, 126, 234, 0.3); transition:all 0.3s ease; font-weight:600;" onclick="openWidgetManager()" title="Widgets verwalten">📦 Widgets verwalten</button>
+                            <button id="btnNewManageWidgets" class="btn btn-secondary" style="padding:12px 20px; font-size:0.9rem; border-radius:16px; background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:#fff; box-shadow:0 4px 15px rgba(102, 126, 234, 0.3); transition:all 0.3s ease; font-weight:600;" onclick="openNewWidgetManager()" title="Widgets verwalten">📦 Widgets verwalten</button>
                             <button id="btnResetLayout" class="btn btn-secondary" style="padding:12px 20px; font-size:0.9rem; border-radius:16px; display:none; background:linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color:#fff; box-shadow:0 4px 15px rgba(245, 87, 108, 0.3); transition:all 0.3s ease; font-weight:600;" onclick="resetDashboardLayout()" title="Standard-Layout wiederherstellen">↺ Zurücksetzen</button>
                         </div>
                         <small id="editModeStatus" style="color:var(--text-muted); display:block; margin-top:8px; opacity:0; transition:opacity 0.3s;">📍 Layout-Bearbeitungsmodus AKTIV</small>
@@ -4129,39 +4138,6 @@
             
             <div style="text-align:center; margin-top:20px;">
                 <button class="btn btn-ghost" onclick="skipMood()" style="font-size:0.9rem;">Überspringen</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Widget Manager Modal -->
-    <div class="modal" id="widgetManagerModal">
-        <div class="modal-box widget-manager-box">
-            <button class="modal-close-x" aria-label="Schließen" onclick="closeWidgetManager()" title="Schließen">×</button>
-            <h3 style="margin:0 0 20px 0; color:var(--primary);">📦 Widget Manager</h3>
-
-            <div style="margin-bottom:20px;">
-                <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:16px;">Füge neue Widgets zu deinem Dashboard hinzu oder entferne vorhandene. Jedes Widget kann individuell konfiguriert werden.</p>
-
-                <div style="display:flex; gap:12px; margin-bottom:20px;">
-                    <button class="btn btn-primary" onclick="addWidgetToDashboard()" style="padding:10px 16px;">➕ Widget hinzufügen</button>
-                    <button class="btn btn-secondary" onclick="resetAllWidgets()" style="padding:10px 16px;">🔄 Alle zurücksetzen</button>
-                </div>
-            </div>
-
-            <!-- Available Widgets -->
-            <div style="margin-bottom:24px;">
-                <h4 style="color:var(--text-main); margin-bottom:12px; font-size:1rem;">Verfügbare Widgets</h4>
-                <div id="availableWidgets" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap:16px;">
-                    <!-- Widgets werden per JS geladen -->
-                </div>
-            </div>
-
-            <!-- Current Dashboard Widgets -->
-            <div>
-                <h4 style="color:var(--text-main); margin-bottom:12px; font-size:1rem;">Aktuelle Dashboard-Widgets</h4>
-                <div id="currentWidgets" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap:16px;">
-                    <!-- Widgets werden per JS geladen -->
-                </div>
             </div>
         </div>
     </div>
@@ -12643,6 +12619,14 @@ TIPPS:
             if (editControls) editControls.style.opacity = '0';
             if (editControls) editControls.style.pointerEvents = 'none';
             if (statusEl) statusEl.style.opacity = '0';
+            
+            // Remove all remove buttons when exiting edit mode
+            console.log('Exiting edit mode, removing remove buttons');
+            container.querySelectorAll('.dashboard-item-remove-btn').forEach(btn => {
+                console.log('Removing remove button');
+                btn.remove();
+            });
+            
             saveDashboardLayout();
         }
     }
@@ -13022,7 +13006,6 @@ TIPPS:
         console.log('Modal element:', modal);
 
         if (modal) {
-            // ABSOLUTE FORCE VISIBILITY
             modal.style.cssText = `
                 display: flex !important;
                 position: fixed !important;
@@ -13030,11 +13013,12 @@ TIPPS:
                 left: 0px !important;
                 width: 100vw !important;
                 height: 100vh !important;
-                background: rgba(255, 0, 0, 0.9) !important;
-                z-index: 999999 !important;
+                background: rgba(255, 0, 0, 0.95) !important;
+                z-index: 2147483647 !important;
                 justify-content: center !important;
                 align-items: center !important;
-                backdrop-filter: blur(5px) !important;
+                backdrop-filter: blur(10px) !important;
+                pointer-events: auto !important;
             `;
 
             const modalBox = modal.querySelector('.modal-box');
@@ -13043,16 +13027,18 @@ TIPPS:
                     display: block !important;
                     position: relative !important;
                     background: white !important;
-                    border: 5px solid black !important;
-                    border-radius: 15px !important;
-                    padding: 30px !important;
-                    max-width: 700px !important;
-                    max-height: 80vh !important;
+                    border: 10px solid black !important;
+                    border-radius: 20px !important;
+                    padding: 50px !important;
+                    max-width: 800px !important;
+                    max-height: 90vh !important;
                     overflow-y: auto !important;
                     color: black !important;
-                    font-size: 16px !important;
-                    z-index: 1000000 !important;
-                    box-shadow: 0 0 50px rgba(0,0,0,0.8) !important;
+                    font-size: 18px !important;
+                    z-index: 2147483647 !important;
+                    box-shadow: 0 0 100px rgba(0,0,0,1) !important;
+                    margin: 20px auto !important;
+                    width: 90% !important;
                 `;
                 console.log('Modal box EXTREME styled');
             }
@@ -13065,6 +13051,20 @@ TIPPS:
             setTimeout(() => {
                 renderWidgetManager();
                 console.log('Widget manager rendered with delay');
+                
+                // Force scroll to top in case modal is outside viewport
+                window.scrollTo(0, 0);
+                
+                // Additional visibility check
+                setTimeout(() => {
+                    const modalRect = modal.getBoundingClientRect();
+                    console.log('Modal position:', modalRect);
+                    if (modalRect.top < 0 || modalRect.left < 0) {
+                        console.log('Modal is outside viewport, adjusting...');
+                        modal.style.top = '10px !important';
+                        modal.style.left = '10px !important';
+                    }
+                }, 200);
             }, 100);
 
         } else {
@@ -13077,6 +13077,129 @@ TIPPS:
         if (modal) {
             modal.classList.remove('active');
         }
+    }
+
+    // NEUE FUNKTIONEN FÜR DEN NEUEN WIDGET MANAGER
+    function openNewWidgetManager() {
+        console.log('Opening NEW widget manager');
+        const modal = document.getElementById('newWidgetManagerModal');
+        if (modal) {
+            modal.style.display = 'flex';
+            console.log('New widget manager opened');
+            renderNewWidgetManager();
+        } else {
+            console.error('New widget manager modal not found');
+        }
+    }
+
+    function closeNewWidgetManager() {
+        console.log('Closing NEW widget manager');
+        const modal = document.getElementById('newWidgetManagerModal');
+        if (modal) {
+            modal.style.display = 'none';
+            console.log('New widget manager closed');
+        }
+    }
+
+    function renderNewWidgetManager() {
+        console.log('Rendering NEW widget manager');
+        const availableContainer = document.getElementById('newAvailableWidgets');
+        const currentContainer = document.getElementById('newCurrentWidgets');
+        
+        if (!availableContainer || !currentContainer) {
+            console.error('New widget manager containers not found');
+            return;
+        }
+        
+        // Verfügbare Widgets anzeigen
+        availableContainer.innerHTML = '';
+        Object.keys(widgetLibrary).forEach(widgetId => {
+            if (!currentWidgets.includes(widgetId)) {
+                const widget = widgetLibrary[widgetId];
+                const widgetCard = document.createElement('div');
+                widgetCard.className = 'card';
+                widgetCard.style.cssText = `
+                    padding: 20px;
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                    border: 1px solid var(--border);
+                    background: var(--bg-glass);
+                    border-radius: 12px;
+                    display: flex;
+                    align-items: center;
+                    gap: 15px;
+                `;
+                widgetCard.onmouseover = () => widgetCard.style.transform = 'translateY(-2px)';
+                widgetCard.onmouseout = () => widgetCard.style.transform = 'translateY(0)';
+                widgetCard.onclick = () => addWidget(widgetId);
+                
+                widgetCard.innerHTML = `
+                    <div style="font-size: 2rem;">${widget.icon}</div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600; color: var(--text-main); margin-bottom: 5px;">${widget.name}</div>
+                        <div style="font-size: 0.85rem; color: var(--text-muted);">${widget.description}</div>
+                    </div>
+                    <button class="btn btn-ghost" style="padding: 8px 12px; font-size: 0.8rem;" onclick="event.stopPropagation(); addWidget('${widgetId}')">➕ Hinzufügen</button>
+                `;
+                availableContainer.appendChild(widgetCard);
+            }
+        });
+        
+        // Aktuelle Widgets anzeigen
+        currentContainer.innerHTML = '';
+        currentWidgets.forEach(widgetId => {
+            const widget = widgetLibrary[widgetId];
+            if (widget) {
+                const widgetCard = document.createElement('div');
+                widgetCard.className = 'card';
+                widgetCard.style.cssText = `
+                    padding: 20px;
+                    border: 1px solid var(--border);
+                    background: var(--bg-glass);
+                    border-radius: 12px;
+                    display: flex;
+                    align-items: center;
+                    gap: 15px;
+                `;
+                
+                widgetCard.innerHTML = `
+                    <div style="font-size: 2rem;">${widget.icon}</div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600; color: var(--text-main); margin-bottom: 5px;">${widget.name}</div>
+                        <div style="font-size: 0.85rem; color: var(--text-muted);">${widget.description}</div>
+                    </div>
+                    <button class="btn btn-ghost" style="padding: 8px 12px; font-size: 0.8rem; color: var(--danger);" onclick="removeWidget('${widgetId}')">✕ Entfernen</button>
+                `;
+                currentContainer.appendChild(widgetCard);
+            }
+        });
+    }
+
+    function addRandomWidget() {
+        const widgets = Object.keys(widgetLibrary);
+        const randomWidget = widgets[Math.floor(Math.random() * widgets.length)];
+        addWidget(randomWidget);
+        renderNewWidgetManager();
+        alert(`Zufälliges Widget hinzugefügt: ${randomWidget}`);
+    }
+
+    function getCurrentDashboardWidgets() {
+        const dashboardContainer = document.getElementById('dashboardContainer');
+        const currentWidgets = [];
+        if (dashboardContainer) {
+            const widgetElements = dashboardContainer.querySelectorAll('.dashboard-item');
+            widgetElements.forEach(el => {
+                const widgetId = el.getAttribute('data-item-id');
+                if (widgetId && widgetLibrary[widgetId]) {
+                    currentWidgets.push({
+                        id: widgetId,
+                        name: widgetLibrary[widgetId].name,
+                        icon: widgetLibrary[widgetId].icon || '📦'
+                    });
+                }
+            });
+        }
+        return currentWidgets;
     }
 
     // Alias for updateDashboard calls
@@ -13107,13 +13230,14 @@ TIPPS:
             
             // Available widgets (not currently on dashboard)
             availableContainer.innerHTML = '';
+            availableContainer.style.cssText = 'display: block !important; background: cyan !important; border: 5px solid blue !important; padding: 20px !important; margin: 20px 0 !important;';
             Object.keys(widgetLibrary).forEach(widgetId => {
                 if (!currentWidgets.includes(widgetId)) {
                     const widget = widgetLibrary[widgetId];
                     console.log('Adding available widget:', widgetId);
                     const widgetCard = document.createElement('div');
                     widgetCard.className = 'card';
-                    widgetCard.style.cssText = 'padding:16px; cursor:pointer; transition: all 0.2s; border:1px solid rgba(255,255,255,0.1);';
+                    widgetCard.style.cssText = 'padding:16px; cursor:pointer; transition: all 0.2s; border:2px solid red !important; background: yellow !important; color: black !important; margin: 10px !important; border-radius: 8px !important;';
                     widgetCard.onclick = () => addWidget(widgetId);
                     widgetCard.innerHTML = `
                         <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
