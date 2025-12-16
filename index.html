@@ -30,7 +30,7 @@
 <meta property="og:title" content="TimeTracker V2.3.2 – Moderne Zeiterfassung">
 <meta property="og:description" content="Eine einfache, aber mächtige Browser-Anwendung zur lokalen Zeiterfassung. 100% Datenschutz, lokal gespeichert, keine Server.">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://github.com/YourUsername/TimeTracker-Ausbildung-Arbeit">
+<meta property="og:url" content="https://technova-app-team.github.io/MyWorkLog/">
 <meta property="og:image" content="https://img.shields.io/badge/TimeTracker-Modern%20&%20Local-purple?style=for-the-badge&logo=javascript">
 <meta property="og:locale" content="de_DE">
 <!-- Twitter Card Meta Tags -->
@@ -4439,6 +4439,9 @@
         if (!localStorage.getItem('privacy_acknowledged')) {
             showPrivacyModal();
         }
+
+        // Warn user if accessing via localhost/127.0.0.1 on mobile devices (helps avoid mobile PWA 404 issue)
+        try { detectLocalhostAndWarn(); } catch(e) { console.warn('detectLocalhostAndWarn failed', e); }
     };
 
     function showPrivacyModal() {
@@ -15017,7 +15020,32 @@ function checkPWAStatus() {
     } catch {
         status += '❌ localStorage: Nicht verfügbar\n';
     }
+}
 
+// Warn user if they're opening from localhost/127.0.0.1 (common cause of 404 on mobile PWA installs)
+function detectLocalhostAndWarn() {
+    try {
+        const host = location.hostname;
+        if ((host === '127.0.0.1' || host === 'localhost') && !localStorage.getItem('dismissedLocalhostWarning')) {
+            const banner = document.createElement('div');
+            banner.id = 'localhostWarningBanner';
+            banner.style.cssText = 'position:fixed; top:12px; left:12px; right:12px; z-index:9999; background:linear-gradient(90deg,#f59e0b,#a855f7); color:#fff; padding:12px 14px; border-radius:10px; box-shadow:0 8px 30px rgba(0,0,0,0.35); font-weight:700; display:flex; align-items:center; gap:12px;';
+            banner.innerHTML = `
+                <div style="flex:1; font-size:0.95rem;">⚠️ Hinweis: Du greifst diese Seite über <code>${host}</code> auf. Für die Installation auf Mobilgeräten verwende die LAN‑IP deines Rechners (z.B. <code>http://192.168.1.25:5500</code>), sonst kann die App nach der Installation 404 anzeigen.</div>
+                <div style="display:flex; gap:8px;">
+                    <button id="dismissLocalhostWarning" class="btn" style="padding:8px 12px; background:rgba(0,0,0,0.06); border-radius:8px;">Verstanden</button>
+                </div>
+            `;
+            document.body.appendChild(banner);
+            document.getElementById('dismissLocalhostWarning').onclick = () => {
+                localStorage.setItem('dismissedLocalhostWarning', '1');
+                banner.remove();
+            };
+        }
+    } catch (e) {
+        console.warn('detectLocalhostAndWarn error', e);
+    }
+}
     // IndexedDB
     if (window.indexedDB) {
         status += '✅ IndexedDB: Verfügbar\n';
@@ -15030,7 +15058,6 @@ function checkPWAStatus() {
     if (typeof showCustomMessage === 'function') {
         showCustomMessage('📱 PWA Status', status, 'info');
     }
-}
 
 window.checkPWAStatus = checkPWAStatus;
 
