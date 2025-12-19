@@ -136,27 +136,41 @@ class AIBotEnginePro {
     // ===== ADVANCED INTENT RECOGNITION =====
     recognizeIntent(message) {
         const msg = message.toLowerCase();
+        
+        // WICHTIG: Spezifischere Patterns zuerst prüfen!
+        // Sonst matchen allgemeine Patterns (z.B. "analysi") frühere spezifische
+        
         const patterns = {
-            'ANNUAL': /jahres|annual|komplettes jahr|2025|ganzes jahr|jahresbericht/,
-            'GOALS_DETAIL': /meine ziele|wie stehe ich|fortschritt bei|goals?|meilenstein/,
-            'YEAR_COMP': /vergleich mit letztem jahr|vs letztes|früher|2024/,
-            'INSIGHTS': /einsicht|verstehen|warum|erklär|muster|tendenz/,
-            'WEEKLY': /woche|wöch|diese.*woche|letzte.*woche/,
-            'MONTHLY': /monat|monatlich|diese.*monat|gesamt/,
-            'ANALYSIS': /analysi|trend|muster|statistik|tief/,
-            'PRODUCTIVITY': /produktiv|effizienz|durchschnitt|leistung|performance/,
-            'FORECAST': /prognose|vorhersag|ende|prediction|forecast/,
-            'RECOMMENDATIONS': /tipp|empfehlung|rat|helfen|verbesser|wie|besser/,
-            'BREAKS': /pause|break|ruhe|entspann|erholung/,
-            'CATEGORIES': /kategorie|verteilung|typ|art|klasse/,
-            'COMPARISON': /vergleich|unterschied|versus|gegen|schneller|langsamer/,
-            'MOTIVATION': /motiv|inspir|challenge|erfolg|record/,
-            'HEALTH': /gesundheit|wellness|balance|stress|fitness|ermudet|müde/,
-            'GOALS': /ziel|target|plan|sollen|wunsch|ideal/
+            // Spezifische Patterns (zuerst prüfen!)
+            'ANNUAL': /jahres|annual|komplettes jahr|2025|ganzes jahr|jahresbericht/i,
+            'GOALS_DETAIL': /meine ziele|wie stehe ich|fortschritt bei|meilenstein/i,
+            'YEAR_COMP': /vergleich.*letztem jahr|vs.*2024|jahresvergleich|jahr.*vergleich/i,
+            'INSIGHTS': /personalisiert|einsicht(?!en-mix)/i,  // einsicht aber nicht "einsichten-mix"
+            
+            // Allgemeine Patterns (danach)
+            'ANALYSIS': /analy[sz]|arbeitsgewohnheit|verhalten|statistik|tiefe/i,
+            'WEEKLY': /woche|wöch|diese.*woche|letzte.*woche/i,
+            'MONTHLY': /monat|monatlich|diese.*monat|gesamt/i,
+            'PRODUCTIVITY': /produktiv|effizienz|durchschnitt|leistung|performance/i,
+            'FORECAST': /prognose|vorhersag|ende|prediction|forecast/i,
+            'RECOMMENDATIONS': /tipp|empfehlung|rat|helfen|verbesser|wie|besser/i,
+            'BREAKS': /pause|break|ruhe|entspann|erholung/i,
+            'CATEGORIES': /kategorie|verteilung|typ|art|klasse/i,
+            'COMPARISON': /vergleich|unterschied|versus|gegen|schneller|langsamer/i,
+            'MOTIVATION': /motiv|inspir|challenge|erfolg|record/i,
+            'HEALTH': /gesundheit|wellness|balance|stress|fitness|ermudet|müde/i,
+            'GOALS': /ziel|target|plan|sollen|wunsch|ideal/i
         };
 
+        // Spezifischere Patterns haben Vorrang
+        const specialOrder = ['ANNUAL', 'GOALS_DETAIL', 'YEAR_COMP', 'INSIGHTS'];
+        for (const intent of specialOrder) {
+            if (patterns[intent].test(msg)) return intent;
+        }
+        
+        // Dann allgemeine Patterns
         for (const [intent, pattern] of Object.entries(patterns)) {
-            if (pattern.test(msg)) return intent;
+            if (!specialOrder.includes(intent) && pattern.test(msg)) return intent;
         }
 
         return 'GENERAL';
