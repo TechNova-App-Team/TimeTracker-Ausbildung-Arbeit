@@ -209,4 +209,4 @@ Vielen Dank — wenn du noch mehr grafische Elemente (Screenshots, GIFs, echte S
 
 ---
 
-**TimeTracker-Ausbildung-Arbeit V2.4.0** | Gebaut mit modernstem Web-Standard | 🤖 AI-Bot powered | 🚀 Production Ready
+**MyWorkLog V2.4.0** | Gebaut mit modernstem Web-Standard | 🤖 AI-Bot powered | 🚀 Production Ready
