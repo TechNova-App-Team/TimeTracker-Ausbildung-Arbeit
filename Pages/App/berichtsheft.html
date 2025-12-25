@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script defer src="../../Assets/js/icons.js"></script>
+    <script defer src="../../Assets/js/touch-mobile-optimizations.js"></script>
+    <title>Berichtsheft Generator - IHK Ausbildungsnachweis</title>
+    <style>
+        /* --- CORE VARIABLES --- */
+        :root {
+            --bg-deep: #030305;
+            --bg-glass: rgba(22, 22, 26, 0.65);
+            --bg-sidebar: rgba(10, 10, 12, 0.95);
+            --primary: #a855f7;
+            --primary-rgb: 168, 85, 247;
+            --primary-dim: rgba(168, 85, 247, 0.1);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --success: #10b981;
+            --success-rgb: 16, 185, 129;
+            --danger: #ef4444;
+            --danger-rgb: 239, 68, 68;
+            --warning: #f59e0b;
+            --warning-rgb: 245, 158, 11;
+            --info: #3b82f6;
+            --border: rgba(255, 255, 255, 0.06);
+            --font-main: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', 'Roboto Mono', monospace;
+            --radius: 20px;
+        }
+
+        [data-theme="light"] {
+            --bg-deep: #f8fafc;
+            --bg-glass: rgba(255,255,255,0.85);
+            --bg-sidebar: rgba(255,255,255,0.98);
+            --text-main: #071023;
+            --text-muted: #475569;
+            --border: rgba(7, 16, 35, 0.06);
+            --primary-dim: rgba(168, 85, 247, 0.08);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: var(--font-main);
+            background-color: var(--bg-deep);
+            background-image:
+                radial-gradient(circle at 15% 15%, rgba(var(--primary-rgb), 0.08), transparent 40%),
+                radial-gradient(circle at 85% 85%, rgba(var(--primary-rgb), 0.05), transparent 40%);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 2rem;
+            overflow-x: hidden;
+        }
+
+        /* --- SCROLLBAR --- */
+        ::-webkit-scrollbar { width: 10px; height: 10px; }
+        ::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.03); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, var(--primary), rgba(var(--primary-rgb), 0.7));
+            border-radius: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.05);
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, rgba(var(--primary-rgb), 0.9), var(--primary));
+            box-shadow: 0 0 12px rgba(var(--primary-rgb), 0.4);
+        }
+
+        /* --- HEADER --- */
+        .header {
+            max-width: 1400px;
+            margin: 0 auto 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+        }
+        .brand {
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .brand::before {
+            content:'';
+            display:block;
+            width:16px;
+            height:16px;
+            background:var(--primary);
+            border-radius:50%;
+            box-shadow:0 0 20px var(--primary);
+        }
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+            margin-top: 0.5rem;
+        }
+        .page-subtitle {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-top: 0.5rem;
+        }
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-main);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .btn-back:hover {
+            background: rgba(var(--primary-rgb), 0.15);
+            border-color: var(--primary);
+            transform: translateX(-4px);
+        }
+
+        /* --- CONTAINER --- */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* --- STATS GRID --- */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(var(--primary-rgb), 0.3);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+        }
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            font-family: var(--font-mono);
+            margin-bottom: 0.5rem;
+        }
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* --- CARD --- */
+        .card {
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* --- BUTTONS --- */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), #8b5cf6);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(var(--primary-rgb), 0.4);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(var(--primary-rgb), 0.6);
+        }
+        .btn-secondary {
+            background: rgba(255,255,255,0.05);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+        }
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: var(--primary);
+        }
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #059669);
+            color: #fff;
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger), #dc2626);
+            color: #fff;
+        }
+
+        /* --- FORM ELEMENTS --- */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-main);
+            font-size: 0.9rem;
+        }
+        .form-input,
+        .form-textarea,
+        .form-select {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-main);
+            font-family: var(--font-main);
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+        .form-input:focus,
+        .form-textarea:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(var(--primary-rgb), 0.05);
+            box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
+        }
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+            font-family: var(--font-main);
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        /* --- REPORT LIST --- */
+        .report-list {
+            display: grid;
+            gap: 1rem;
+        }
+        .report-item {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 1.5rem;
+            align-items: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .report-item:hover {
+            background: rgba(var(--primary-rgb), 0.08);
+            border-color: var(--primary);
+            transform: translateX(4px);
+        }
+        .report-week {
+            background: var(--primary);
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-family: var(--font-mono);
+            text-align: center;
+            min-width: 80px;
+        }
+        .report-content {
+            flex: 1;
+        }
+        .report-title {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        .report-meta {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .report-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .btn-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1rem;
+        }
+        .btn-icon:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+            transform: scale(1.1);
+        }
+
+        /* --- BADGE --- */
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .badge-success {
+            background: rgba(var(--success-rgb), 0.15);
+            color: var(--success);
+        }
+        .badge-warning {
+            background: rgba(var(--warning-rgb), 0.15);
+            color: var(--warning);
+        }
+        .badge-danger {
+            background: rgba(var(--danger-rgb), 0.15);
+            color: var(--danger);
+        }
+
+        /* --- MODAL --- */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-content {
+            background: var(--bg-sidebar);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 2rem;
+            max-width: 900px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        .modal-close {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        .modal-close:hover {
+            background: var(--danger);
+            border-color: var(--danger);
+            transform: rotate(90deg);
+        }
+
+        /* --- EMPTY STATE --- */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+        .empty-icon {
+            font-size: 5rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        .empty-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        .empty-text {
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+
+        /* --- SEARCH & FILTER --- */
+        .search-filter-bar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        .search-input {
+            flex: 1;
+            min-width: 250px;
+            padding: 12px 16px 12px 44px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: 12px center;
+            background-size: 20px;
+        }
+        .filter-select {
+            padding: 12px 16px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            cursor: pointer;
+        }
+
+        /* --- TEMPLATE CARDS --- */
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        .template-card {
+            background: rgba(255,255,255,0.03);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        .template-card:hover {
+            border-color: var(--primary);
+            background: rgba(var(--primary-rgb), 0.1);
+            transform: translateY(-4px);
+        }
+        .template-card.selected {
+            border-color: var(--primary);
+            background: rgba(var(--primary-rgb), 0.15);
+            box-shadow: 0 0 20px rgba(var(--primary-rgb), 0.3);
+        }
+        .template-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        .template-name {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        .template-desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        /* --- PRINT STYLES --- */
+        @media print {
+            body {
+                background: white;
+                color: black;
+            }
+            .header, .btn, .search-filter-bar {
+                display: none;
+            }
+            .card {
+                border: 1px solid #ccc;
+                page-break-inside: avoid;
+            }
+        }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 768px) {
+            body { padding: 1rem; }
+            .header { flex-direction: column; align-items: flex-start; }
+            .page-title { font-size: 1.8rem; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .report-item {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            .report-actions {
+                justify-self: start;
+            }
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div>
+            <div class="brand">
+                <span>BERICHTSHEFT.PRO</span>
+            </div>
+            <h1 class="page-title">📋 Berichtsheft Generator</h1>
+            <p class="page-subtitle">IHK-konforme Ausbildungsnachweise erstellen & verwalten</p>
+        </div>
+        <a href="../../index.html" class="btn-back">
+            <span>←</span> Zurück zum Dashboard
+        </a>
+    </div>
+
+    <div class="container">
+        <!-- Stats Overview -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="totalReports">0</div>
+                <div class="stat-label">Berichte erstellt</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalWeeks">0</div>
+                <div class="stat-label">Wochen erfasst</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="completionRate">0%</div>
+                <div class="stat-label">Vollständigkeit</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="avgWordsPerWeek">0</div>
+                <div class="stat-label">Ø Wörter/Woche</div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div style="display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap;">
+            <button class="btn btn-primary" onclick="openNewReportModal()">
+                <span>➕</span> Neuen Bericht erstellen
+            </button>
+            <button class="btn btn-secondary" onclick="autoFillFromTimeTracker()">
+                <span>🔄</span> Aus TimeTracker importieren
+            </button>
+            <button class="btn btn-secondary" onclick="exportAllPDF()">
+                <span>📄</span> Alle als PDF exportieren
+            </button>
+            <button class="btn btn-secondary" onclick="showTemplates()">
+                <span>📝</span> Vorlagen
+            </button>
+        </div>
+
+        <!-- Search & Filter -->
+        <div class="search-filter-bar">
+            <input type="text" class="search-input" id="searchInput" placeholder="Berichte durchsuchen..." oninput="filterReports()">
+            <select class="filter-select" id="yearFilter" onchange="filterReports()">
+                <option value="">Alle Jahre</option>
+            </select>
+            <select class="filter-select" id="statusFilter" onchange="filterReports()">
+                <option value="">Alle Status</option>
+                <option value="complete">Vollständig</option>
+                <option value="incomplete">Unvollständig</option>
+            </select>
+        </div>
+
+        <!-- Reports List -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">
+                    <span>📚</span> Meine Berichtshefte
+                </div>
+                <div style="color: var(--text-muted); font-size: 0.9rem;" id="reportCount">0 Berichte</div>
+            </div>
+            <div class="report-list" id="reportList">
+                <!-- Reports will be loaded here -->
+            </div>
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <div class="empty-icon">📋</div>
+                <div class="empty-title">Noch keine Berichte</div>
+                <div class="empty-text">Erstelle deinen ersten Ausbildungsnachweis und starte mit der Dokumentation!</div>
+                <button class="btn btn-primary" onclick="openNewReportModal()">
+                    <span>➕</span> Ersten Bericht erstellen
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- New/Edit Report Modal -->
+    <div class="modal" id="reportModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeReportModal()">×</button>
+            <h2 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px;">
+                <span>📝</span> <span id="modalTitle">Neuen Bericht erstellen</span>
+            </h2>
+
+            <form id="reportForm" onsubmit="saveReport(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Ausbildungsjahr</label>
+                        <select class="form-select" id="reportYear" required>
+                            <option value="1">1. Ausbildungsjahr</option>
+                            <option value="2">2. Ausbildungsjahr</option>
+                            <option value="3">3. Ausbildungsjahr</option>
+                            <option value="4">4. Ausbildungsjahr</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Kalenderwoche</label>
+                        <input type="number" class="form-input" id="reportWeek" min="1" max="53" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Datum von</label>
+                        <input type="date" class="form-input" id="reportDateFrom" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Datum bis</label>
+                        <input type="date" class="form-input" id="reportDateTo" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Abteilung / Bereich</label>
+                    <input type="text" class="form-input" id="reportDepartment" placeholder="z.B. IT-Entwicklung, Buchhaltung, etc.">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Ausgeführte Tätigkeiten / Beschreibung</label>
+                    <textarea class="form-textarea" id="reportActivities" rows="8" placeholder="Beschreibe detailliert deine Tätigkeiten in dieser Woche...
+
+Beispiel:
+• Entwicklung einer REST-API mit Node.js
+• Implementierung von Unit-Tests
+• Code Review und Bugfixing
+• Teilnahme an Daily Stand-up Meetings" required></textarea>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem;">
+                        <small style="color: var(--text-muted);">Mind. 50 Zeichen empfohlen</small>
+                        <small style="color: var(--text-muted);" id="charCount">0 Zeichen</small>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Berufsschule (optional)</label>
+                    <textarea class="form-textarea" id="reportSchool" rows="4" placeholder="Themen und Inhalte der Berufsschule in dieser Woche..."></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Gesamtstunden</label>
+                        <input type="number" class="form-input" id="reportHours" step="0.5" placeholder="40.0">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Status</label>
+                        <select class="form-select" id="reportStatus">
+                            <option value="incomplete">In Bearbeitung</option>
+                            <option value="complete">Vollständig</option>
+                            <option value="signed">Unterschrieben</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <button type="submit" class="btn btn-success" style="flex: 1;">
+                        <span>💾</span> Speichern
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="closeReportModal()">
+                        Abbrechen
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- View Report Modal -->
+    <div class="modal" id="viewModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeViewModal()">×</button>
+            <div id="viewContent"></div>
+        </div>
+    </div>
+
+    <!-- Templates Modal -->
+    <div class="modal" id="templatesModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeTemplatesModal()">×</button>
+            <h2 style="margin-bottom: 1rem;">📝 Vorlagen</h2>
+            <p style="color: var(--text-muted); margin-bottom: 2rem;">Wähle eine Vorlage für deinen Bericht aus</p>
+            <div class="template-grid" id="templateGrid"></div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+        // LocalStorage key
+        const STORAGE_KEY = 'berichtsheft_reports';
+        let reports = [];
+        let editingId = null;
+
+        // Templates
+        const templates = [
+            {
+                id: 'it-dev',
+                name: 'IT-Entwicklung',
+                icon: '💻',
+                description: 'Für Fachinformatiker Anwendungsentwicklung',
+                content: `• Entwicklung und Implementierung von Software-Komponenten
+• Code-Review und Qualitätssicherung
+• Debugging und Fehlerbehebung
+• Dokumentation der Entwicklungsprozesse
+• Teilnahme an Team-Meetings und Planungen`
+            },
+            {
+                id: 'it-admin',
+                name: 'IT-Systemadministration',
+                icon: '🖥️',
+                description: 'Für Fachinformatiker Systemintegration',
+                content: `• Wartung und Administration von IT-Systemen
+• Benutzer- und Rechteverwaltung
+• Installation und Konfiguration von Software
+• Netzwerk-Monitoring und Troubleshooting
+• Erstellung von technischen Dokumentationen`
+            },
+            {
+                id: 'business',
+                name: 'Kaufmännisch',
+                icon: '📊',
+                description: 'Für kaufmännische Berufe',
+                content: `• Bearbeitung von Geschäftsvorfällen
+• Kundenkommunikation und -betreuung
+• Erstellung von Angeboten und Rechnungen
+• Büroorganisation und Verwaltung
+• Mitarbeit an Projekten und Präsentationen`
+            },
+            {
+                id: 'design',
+                name: 'Mediengestaltung',
+                icon: '🎨',
+                description: 'Für Mediengestalter',
+                content: `• Konzeption und Gestaltung von Medienprodukten
+• Bildbearbeitung und Layout-Erstellung
+• Abstimmung mit Kunden und Kollegen
+• Qualitätsprüfung und Korrekturschleifen
+• Recherche und Trend-Analyse`
+            }
+        ];
+
+        // Load reports from localStorage
+        function loadReports() {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            reports = stored ? JSON.parse(stored) : [];
+            updateUI();
+        }
+
+        // Save reports to localStorage
+        function saveToStorage() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(reports));
+        }
+
+        // Update UI
+        function updateUI() {
+            updateStats();
+            renderReports();
+            populateYearFilter();
+        }
+
+        // Update statistics
+        function updateStats() {
+            const totalReports = reports.length;
+            const uniqueWeeks = new Set(reports.map(r => `${r.year}-${r.week}`)).size;
+            const completeReports = reports.filter(r => r.status === 'complete' || r.status === 'signed').length;
+            const completionRate = totalReports > 0 ? Math.round((completeReports / totalReports) * 100) : 0;
+
+            const totalWords = reports.reduce((sum, r) => {
+                const words = (r.activities + ' ' + (r.school || '')).split(/\s+/).filter(w => w.length > 0).length;
+                return sum + words;
+            }, 0);
+            const avgWords = totalReports > 0 ? Math.round(totalWords / totalReports) : 0;
+
+            document.getElementById('totalReports').textContent = totalReports;
+            document.getElementById('totalWeeks').textContent = uniqueWeeks;
+            document.getElementById('completionRate').textContent = completionRate + '%';
+            document.getElementById('avgWordsPerWeek').textContent = avgWords;
+        }
+
+        // Render reports list
+        function renderReports() {
+            const list = document.getElementById('reportList');
+            const emptyState = document.getElementById('emptyState');
+            const reportCount = document.getElementById('reportCount');
+
+            // Apply filters
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const yearFilter = document.getElementById('yearFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+
+            const filtered = reports.filter(r => {
+                const matchesSearch = r.activities.toLowerCase().includes(searchTerm) ||
+                                    (r.department && r.department.toLowerCase().includes(searchTerm));
+                const matchesYear = !yearFilter || r.year.toString() === yearFilter;
+                const matchesStatus = !statusFilter || r.status === statusFilter;
+                return matchesSearch && matchesYear && matchesStatus;
+            });
+
+            // Sort by year and week (newest first)
+            filtered.sort((a, b) => {
+                if (a.year !== b.year) return b.year - a.year;
+                return b.week - a.week;
+            });
+
+            if (filtered.length === 0) {
+                list.innerHTML = '';
+                emptyState.style.display = 'block';
+                reportCount.textContent = '0 Berichte';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            reportCount.textContent = `${filtered.length} Bericht${filtered.length !== 1 ? 'e' : ''}`;
+
+            list.innerHTML = filtered.map(report => {
+                const statusBadge = {
+                    'incomplete': '<span class="badge badge-warning">In Bearbeitung</span>',
+                    'complete': '<span class="badge badge-success">Vollständig</span>',
+                    'signed': '<span class="badge badge-success">✓ Unterschrieben</span>'
+                }[report.status];
+
+                return `
+                    <div class="report-item" onclick="viewReport('${report.id}')">
+                        <div class="report-week">
+                            KW ${report.week}<br>
+                            <small style="font-size: 0.7rem; opacity: 0.8;">${report.year}. Jahr</small>
+                        </div>
+                        <div class="report-content">
+                            <div class="report-title">
+                                ${report.department || 'Ausbildungsnachweis'}
+                            </div>
+                            <div class="report-meta">
+                                <span>📅 ${formatDate(report.dateFrom)} - ${formatDate(report.dateTo)}</span>
+                                <span>⏱️ ${report.hours || 0} Std.</span>
+                                ${statusBadge}
+                            </div>
+                        </div>
+                        <div class="report-actions" onclick="event.stopPropagation()">
+                            <button class="btn-icon" onclick="editReport('${report.id}')" title="Bearbeiten">✏️</button>
+                            <button class="btn-icon" onclick="exportReportPDF('${report.id}')" title="Als PDF exportieren">📄</button>
+                            <button class="btn-icon" onclick="deleteReport('${report.id}')" title="Löschen" style="color: var(--danger);">🗑️</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Format date
+        function formatDate(dateStr) {
+            const d = new Date(dateStr);
+            return d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        }
+
+        // Populate year filter
+        function populateYearFilter() {
+            const yearFilter = document.getElementById('yearFilter');
+            const years = [...new Set(reports.map(r => r.year))].sort((a, b) => b - a);
+
+            const currentOptions = Array.from(yearFilter.options).slice(1).map(o => o.value);
+            const newYears = years.filter(y => !currentOptions.includes(y.toString()));
+
+            newYears.forEach(year => {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = `${year}. Ausbildungsjahr`;
+                yearFilter.appendChild(option);
+            });
+        }
+
+        // Filter reports
+        function filterReports() {
+            renderReports();
+        }
+
+        // Open new report modal
+        function openNewReportModal() {
+            editingId = null;
+            document.getElementById('modalTitle').textContent = 'Neuen Bericht erstellen';
+            document.getElementById('reportForm').reset();
+
+            // Set current week
+            const now = new Date();
+            const week = getWeekNumber(now);
+            document.getElementById('reportWeek').value = week;
+
+            // Set current week dates
+            const { monday, friday } = getWeekDates(week);
+            document.getElementById('reportDateFrom').value = monday;
+            document.getElementById('reportDateTo').value = friday;
+
+            document.getElementById('reportModal').classList.add('active');
+        }
+
+        // Close report modal
+        function closeReportModal() {
+            document.getElementById('reportModal').classList.remove('active');
+            editingId = null;
+        }
+
+        // Get week number
+        function getWeekNumber(date) {
+            const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+            const dayNum = d.getUTCDay() || 7;
+            d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+            const yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
+            return Math.ceil((((d - yearStart) / 86400000) + 1)/7);
+        }
+
+        // Get week dates (Monday to Friday)
+        function getWeekDates(weekNum) {
+            const year = new Date().getFullYear();
+            const jan1 = new Date(year, 0, 1);
+            const days = (weekNum - 1) * 7;
+            const monday = new Date(year, 0, 1 + days + (8 - jan1.getDay()) % 7);
+            const friday = new Date(monday);
+            friday.setDate(monday.getDate() + 4);
+
+            return {
+                monday: monday.toISOString().split('T')[0],
+                friday: friday.toISOString().split('T')[0]
+            };
+        }
+
+        // Character counter
+        document.addEventListener('DOMContentLoaded', () => {
+            const textarea = document.getElementById('reportActivities');
+            const counter = document.getElementById('charCount');
+
+            textarea.addEventListener('input', () => {
+                counter.textContent = textarea.value.length + ' Zeichen';
+            });
+        });
+
+        // Save report
+        function saveReport(event) {
+            event.preventDefault();
+
+            const report = {
+                id: editingId || Date.now().toString(),
+                year: parseInt(document.getElementById('reportYear').value),
+                week: parseInt(document.getElementById('reportWeek').value),
+                dateFrom: document.getElementById('reportDateFrom').value,
+                dateTo: document.getElementById('reportDateTo').value,
+                department: document.getElementById('reportDepartment').value,
+                activities: document.getElementById('reportActivities').value,
+                school: document.getElementById('reportSchool').value,
+                hours: parseFloat(document.getElementById('reportHours').value) || 0,
+                status: document.getElementById('reportStatus').value,
+                createdAt: editingId ? reports.find(r => r.id === editingId).createdAt : new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+
+            if (editingId) {
+                const index = reports.findIndex(r => r.id === editingId);
+                reports[index] = report;
+            } else {
+                reports.push(report);
+            }
+
+            saveToStorage();
+            updateUI();
+            closeReportModal();
+
+            showNotification('✅ Bericht erfolgreich gespeichert!', 'success');
+        }
+
+        // Edit report
+        function editReport(id) {
+            const report = reports.find(r => r.id === id);
+            if (!report) return;
+
+            editingId = id;
+            document.getElementById('modalTitle').textContent = 'Bericht bearbeiten';
+            document.getElementById('reportYear').value = report.year;
+            document.getElementById('reportWeek').value = report.week;
+            document.getElementById('reportDateFrom').value = report.dateFrom;
+            document.getElementById('reportDateTo').value = report.dateTo;
+            document.getElementById('reportDepartment').value = report.department || '';
+            document.getElementById('reportActivities').value = report.activities;
+            document.getElementById('reportSchool').value = report.school || '';
+            document.getElementById('reportHours').value = report.hours;
+            document.getElementById('reportStatus').value = report.status;
+
+            document.getElementById('reportModal').classList.add('active');
+        }
+
+        // View report
+        function viewReport(id) {
+            const report = reports.find(r => r.id === id);
+            if (!report) return;
+
+            const statusText = {
+                'incomplete': 'In Bearbeitung',
+                'complete': 'Vollständig',
+                'signed': 'Unterschrieben'
+            }[report.status];
+
+            const content = `
+                <div style="text-align: center; margin-bottom: 2rem;">
+                    <h2 style="margin-bottom: 0.5rem;">Ausbildungsnachweis</h2>
+                    <p style="color: var(--text-muted);">KW ${report.week} • ${report.year}. Ausbildungsjahr</p>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; padding: 1.5rem; background: rgba(255,255,255,0.03); border-radius: 12px;">
+                    <div>
+                        <div style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 0.25rem;">Zeitraum</div>
+                        <div style="font-weight: 600;">${formatDate(report.dateFrom)} - ${formatDate(report.dateTo)}</div>
+                    </div>
+                    <div>
+                        <div style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 0.25rem;">Abteilung</div>
+                        <div style="font-weight: 600;">${report.department || '-'}</div>
+                    </div>
+                    <div>
+                        <div style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 0.25rem;">Stunden</div>
+                        <div style="font-weight: 600;">${report.hours || 0} Std.</div>
+                    </div>
+                    <div>
+                        <div style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 0.25rem;">Status</div>
+                        <div style="font-weight: 600;">${statusText}</div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 2rem;">
+                    <h3 style="font-size: 1.1rem; margin-bottom: 1rem; color: var(--primary);">Ausgeführte Tätigkeiten</h3>
+                    <div style="background: rgba(255,255,255,0.03); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--border); white-space: pre-wrap; line-height: 1.8;">${report.activities}</div>
+                </div>
+
+                ${report.school ? `
+                <div style="margin-bottom: 2rem;">
+                    <h3 style="font-size: 1.1rem; margin-bottom: 1rem; color: var(--primary);">Berufsschule</h3>
+                    <div style="background: rgba(255,255,255,0.03); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--border); white-space: pre-wrap; line-height: 1.8;">${report.school}</div>
+                </div>
+                ` : ''}
+
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <button class="btn btn-primary" onclick="editReport('${report.id}'); closeViewModal();">
+                        <span>✏️</span> Bearbeiten
+                    </button>
+                    <button class="btn btn-secondary" onclick="exportReportPDF('${report.id}')">
+                        <span>📄</span> Als PDF exportieren
+                    </button>
+                    <button class="btn btn-secondary" onclick="window.print()">
+                        <span>🖨️</span> Drucken
+                    </button>
+                </div>
+            `;
+
+            document.getElementById('viewContent').innerHTML = content;
+            document.getElementById('viewModal').classList.add('active');
+        }
+
+        // Close view modal
+        function closeViewModal() {
+            document.getElementById('viewModal').classList.remove('active');
+        }
+
+        // Delete report
+        function deleteReport(id) {
+            if (!confirm('Möchtest du diesen Bericht wirklich löschen?')) return;
+
+            reports = reports.filter(r => r.id !== id);
+            saveToStorage();
+            updateUI();
+            showNotification('🗑️ Bericht gelöscht', 'success');
+        }
+
+        // Export report as PDF
+        function exportReportPDF(id) {
+            const report = reports.find(r => r.id === id);
+            if (!report) return;
+
+            if (typeof jspdf === 'undefined' || !jspdf.jsPDF) {
+                alert('PDF-Export ist derzeit nicht verfügbar. Bitte verwende die Druckfunktion.');
+                return;
+            }
+
+            const { jsPDF } = jspdf;
+            const doc = new jsPDF();
+
+            // Header
+            doc.setFontSize(18);
+            doc.text('Ausbildungsnachweis', 105, 20, { align: 'center' });
+
+            doc.setFontSize(11);
+            doc.text(`KW ${report.week} • ${report.year}. Ausbildungsjahr`, 105, 28, { align: 'center' });
+
+            // Info box
+            doc.setFontSize(10);
+            const info = [
+                `Zeitraum: ${formatDate(report.dateFrom)} - ${formatDate(report.dateTo)}`,
+                `Abteilung: ${report.department || '-'}`,
+                `Stunden: ${report.hours || 0}`,
+            ];
+            let y = 40;
+            info.forEach(line => {
+                doc.text(line, 20, y);
+                y += 7;
+            });
+
+            // Activities
+            y += 5;
+            doc.setFontSize(12);
+            doc.setFont(undefined, 'bold');
+            doc.text('Ausgeführte Tätigkeiten:', 20, y);
+            y += 8;
+
+            doc.setFontSize(10);
+            doc.setFont(undefined, 'normal');
+            const activitiesLines = doc.splitTextToSize(report.activities, 170);
+            doc.text(activitiesLines, 20, y);
+            y += activitiesLines.length * 5 + 10;
+
+            // School
+            if (report.school && y < 250) {
+                doc.setFontSize(12);
+                doc.setFont(undefined, 'bold');
+                doc.text('Berufsschule:', 20, y);
+                y += 8;
+
+                doc.setFontSize(10);
+                doc.setFont(undefined, 'normal');
+                const schoolLines = doc.splitTextToSize(report.school, 170);
+                doc.text(schoolLines, 20, y);
+            }
+
+            // Signature line
+            if (y < 250) {
+                doc.line(20, 270, 90, 270);
+                doc.text('Unterschrift Auszubildende/r', 20, 275);
+
+                doc.line(120, 270, 190, 270);
+                doc.text('Unterschrift Ausbilder/in', 120, 275);
+            }
+
+            doc.save(`Berichtsheft_KW${report.week}_Jahr${report.year}.pdf`);
+            showNotification('📄 PDF erfolgreich exportiert!', 'success');
+        }
+
+        // Export all as PDF
+        function exportAllPDF() {
+            if (reports.length === 0) {
+                alert('Keine Berichte zum Exportieren vorhanden.');
+                return;
+            }
+
+            // For simplicity, export each report separately
+            let exported = 0;
+            reports.forEach(report => {
+                setTimeout(() => {
+                    exportReportPDF(report.id);
+                }, exported * 500);
+                exported++;
+            });
+        }
+
+        // Auto-fill from TimeTracker
+        function autoFillFromTimeTracker() {
+            const timeTrackerData = localStorage.getItem('tg_pro_data');
+            if (!timeTrackerData) {
+                alert('Keine TimeTracker-Daten gefunden. Bitte erfasse zuerst Einträge im TimeTracker.');
+                return;
+            }
+
+            const data = JSON.parse(timeTrackerData);
+            const entries = data.entries || [];
+
+            if (entries.length === 0) {
+                alert('Keine Einträge im TimeTracker vorhanden.');
+                return;
+            }
+
+            // Group entries by week
+            const weekGroups = {};
+            entries.forEach(entry => {
+                const date = new Date(entry.date);
+                const week = getWeekNumber(date);
+                const year = date.getFullYear();
+                const key = `${year}-${week}`;
+
+                if (!weekGroups[key]) {
+                    weekGroups[key] = {
+                        week,
+                        year,
+                        entries: [],
+                        totalHours: 0
+                    };
+                }
+
+                weekGroups[key].entries.push(entry);
+                weekGroups[key].totalHours += entry.worked || 0;
+            });
+
+            // Create reports for weeks not yet documented
+            let imported = 0;
+            Object.values(weekGroups).forEach(group => {
+                // Check if report already exists
+                const exists = reports.some(r => r.week === group.week && r.year === group.year);
+                if (exists) return;
+
+                const { monday, friday } = getWeekDates(group.week);
+
+                const activities = group.entries
+                    .filter(e => e.type === 'work')
+                    .map(e => `• Arbeitszeit erfasst: ${e.worked} Stunden${e.notes ? ' - ' + e.notes : ''}`)
+                    .join('\n');
+
+                const report = {
+                    id: Date.now().toString() + imported,
+                    year: 1, // Default to first year
+                    week: group.week,
+                    dateFrom: monday,
+                    dateTo: friday,
+                    department: '',
+                    activities: activities || '• Arbeitszeiten wurden erfasst',
+                    school: '',
+                    hours: group.totalHours,
+                    status: 'incomplete',
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                };
+
+                reports.push(report);
+                imported++;
+            });
+
+            if (imported > 0) {
+                saveToStorage();
+                updateUI();
+                showNotification(`✅ ${imported} Berichte aus TimeTracker importiert!`, 'success');
+            } else {
+                showNotification('ℹ️ Alle Wochen wurden bereits dokumentiert.', 'info');
+            }
+        }
+
+        // Show templates
+        function showTemplates() {
+            const grid = document.getElementById('templateGrid');
+            grid.innerHTML = templates.map(t => `
+                <div class="template-card" onclick="applyTemplate('${t.id}')">
+                    <div class="template-icon">${t.icon}</div>
+                    <div class="template-name">${t.name}</div>
+                    <div class="template-desc">${t.description}</div>
+                </div>
+            `).join('');
+
+            document.getElementById('templatesModal').classList.add('active');
+        }
+
+        // Close templates modal
+        function closeTemplatesModal() {
+            document.getElementById('templatesModal').classList.remove('active');
+        }
+
+        // Apply template
+        function applyTemplate(templateId) {
+            const template = templates.find(t => t.id === templateId);
+            if (!template) return;
+
+            document.getElementById('reportActivities').value = template.content;
+            document.getElementById('charCount').textContent = template.content.length + ' Zeichen';
+
+            closeTemplatesModal();
+            openNewReportModal();
+
+            showNotification(`✅ Vorlage "${template.name}" angewendet`, 'success');
+        }
+
+        // Show notification
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 2rem;
+                right: 2rem;
+                padding: 1rem 1.5rem;
+                background: ${type === 'success' ? 'var(--success)' : type === 'error' ? 'var(--danger)' : 'var(--info)'};
+                color: white;
+                border-radius: 12px;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+                z-index: 10000;
+                animation: slideIn 0.3s ease;
+                font-weight: 600;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Initialize
+        loadReports();
+    </script>
+
+    <style>
+        @keyframes slideIn {
+            from { transform: translateX(400px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(400px); opacity: 0; }
+        }
+    </style>
+</body>
+</html>
