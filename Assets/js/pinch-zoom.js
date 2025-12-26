@@ -404,14 +404,13 @@ class PinchZoom {
     }
 }
 
-// Auto-initialize
+// Auto-initialize - DEAKTIVIERT wegen Display-Bugs
+/*
 document.addEventListener('DOMContentLoaded', () => {
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) 
                      || (navigator.maxTouchPoints && navigator.maxTouchPoints > 2);
     
     if (isMobile) {
-        // Nur auf spezifischen Elementen anwenden, nicht auf body!
-        // Das verhindert Zoom-Probleme beim Initial Load
         window.pinchZoom = new PinchZoom({
             element: document.documentElement,
             minZoom: 1,
@@ -421,6 +420,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+*/
 
 if (typeof window !== 'undefined') {
     window.PinchZoom = PinchZoom;
