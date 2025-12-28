@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fachinformatiker Ausbildung</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #000000;
+            color: #ffffff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 20px;
+            background: #0a0a0a;
+            border-radius: 15px;
+            border: 1px solid #8b5cf6;
+            box-shadow: 0 0 30px rgba(139, 92, 246, 0.2);
+        }
+
+        h1 {
+            font-size: 2.8em;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #8b5cf6 0%, #c084fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            color: #a0a0a0;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .tab-btn {
+            padding: 14px 28px;
+            background: #0a0a0a;
+            border: 2px solid #333;
+            border-radius: 8px;
+            color: #ffffff;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1em;
+            font-weight: 500;
+        }
+
+        .tab-btn:hover {
+            border-color: #8b5cf6;
+            background: #111;
+            transform: translateY(-2px);
+        }
+
+        .tab-btn.active {
+            background: #8b5cf6;
+            border-color: #8b5cf6;
+            box-shadow: 0 5px 20px rgba(139, 92, 246, 0.4);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.4s;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background: #0a0a0a;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 25px;
+            border: 1px solid #222;
+            transition: all 0.3s;
+        }
+
+        .card:hover {
+            border-color: #8b5cf6;
+            box-shadow: 0 5px 25px rgba(139, 92, 246, 0.15);
+        }
+
+        .card h2 {
+            color: #8b5cf6;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .roadmap {
+            display: grid;
+            gap: 25px;
+        }
+
+        .roadmap-item {
+            background: #111;
+            padding: 25px;
+            border-radius: 10px;
+            border-left: 5px solid #8b5cf6;
+            transition: all 0.3s;
+        }
+
+        .roadmap-item:hover {
+            background: #151515;
+            transform: translateX(5px);
+            box-shadow: 0 5px 20px rgba(139, 92, 246, 0.2);
+        }
+
+        .roadmap-item h3 {
+            color: #c084fc;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .roadmap-item ul {
+            list-style: none;
+            padding-left: 20px;
+        }
+
+        .roadmap-item li {
+            padding: 8px 0;
+            position: relative;
+            color: #d0d0d0;
+        }
+
+        .roadmap-item li:before {
+            content: "▸";
+            color: #8b5cf6;
+            position: absolute;
+            left: -20px;
+            font-weight: bold;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 25px;
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-top: 15px;
+            border: 1px solid #222;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #8b5cf6 0%, #c084fc 100%);
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+
+        .module-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .module-card {
+            background: #111;
+            padding: 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid #222;
+        }
+
+        .module-card:hover {
+            border-color: #8b5cf6;
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3);
+        }
+
+        .module-card.completed {
+            border-color: #10b981;
+            background: #0d1f17;
+        }
+
+        .module-card h3 {
+            margin-bottom: 10px;
+            color: #ffffff;
+            font-size: 1.2em;
+        }
+
+        .module-card p {
+            color: #888;
+            font-size: 0.95em;
+        }
+
+        .module-status {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 15px;
+            font-size: 0.85em;
+            margin-top: 12px;
+            font-weight: 500;
+        }
+
+        .status-todo {
+            background: #1a0a0a;
+            color: #ef4444;
+            border: 1px solid #ef4444;
+        }
+
+        .status-progress {
+            background: #1a1506;
+            color: #f59e0b;
+            border: 1px solid #f59e0b;
+        }
+
+        .status-done {
+            background: #0a1a0f;
+            color: #10b981;
+            border: 1px solid #10b981;
+        }
+
+        .quiz-container {
+            background: #111;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            border: 1px solid #222;
+        }
+
+        .quiz-question {
+            font-size: 1.3em;
+            margin-bottom: 25px;
+            color: #c084fc;
+            font-weight: 500;
+        }
+
+        .quiz-options {
+            display: grid;
+            gap: 12px;
+        }
+
+        .quiz-option {
+            padding: 18px;
+            background: #0a0a0a;
+            border: 2px solid #222;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .quiz-option:hover {
+            background: #111;
+            border-color: #8b5cf6;
+        }
+
+        .quiz-option.correct {
+            background: #0d1f17;
+            border-color: #10b981;
+            color: #10b981;
+        }
+
+        .quiz-option.wrong {
+            background: #1a0a0a;
+            border-color: #ef4444;
+            color: #ef4444;
+        }
+
+        .btn {
+            padding: 14px 32px;
+            background: #8b5cf6;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+            margin-top: 15px;
+            margin-right: 10px;
+            font-weight: 500;
+        }
+
+        .btn:hover {
+            background: #7c3aed;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(139, 92, 246, 0.4);
+        }
+
+        .btn-secondary {
+            background: #ef4444;
+        }
+
+        .btn-secondary:hover {
+            background: #dc2626;
+        }
+
+        .resources-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .resource-item {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+            background: #111;
+            border-radius: 10px;
+            transition: all 0.3s;
+            border: 1px solid #222;
+        }
+
+        .resource-item:hover {
+            background: #151515;
+            border-color: #8b5cf6;
+            transform: translateX(5px);
+        }
+
+        .resource-icon {
+            font-size: 2.5em;
+        }
+
+        .resource-item strong {
+            color: #c084fc;
+        }
+
+        .integration-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .integration-card {
+            background: #111;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid #222;
+        }
+
+        .integration-card:hover {
+            border-color: #8b5cf6;
+            transform: translateY(-8px);
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);
+        }
+
+        .integration-icon {
+            font-size: 3.5em;
+            margin-bottom: 15px;
+        }
+
+        .integration-card h3 {
+            color: #ffffff;
+            margin-bottom: 10px;
+        }
+
+        .integration-card p {
+            color: #888;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: #0a0a0a;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid #222;
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            border-color: #8b5cf6;
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(139, 92, 246, 0.2);
+        }
+
+        .stat-value {
+            font-size: 2.8em;
+            font-weight: bold;
+            background: linear-gradient(135deg, #8b5cf6 0%, #c084fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 0.95em;
+            color: #888;
+        }
+
+        .tips-list {
+            list-style: none;
+        }
+
+        .tips-list li {
+            padding: 18px;
+            background: #111;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            border-left: 4px solid #8b5cf6;
+            color: #d0d0d0;
+        }
+
+        .tips-list li strong {
+            color: #c084fc;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+
+            .subtitle {
+                font-size: 1em;
+            }
+
+            .nav-tabs {
+                flex-direction: column;
+            }
+
+            .tab-btn {
+                width: 100%;
+            }
+
+            .module-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎓 Fachinformatiker Ausbildung</h1>
+            <p class="subtitle">Dein kompletter Leitfaden zur erfolgreichen Ausbildung</p>
+        </header>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="totalProgress">0%</div>
+                <div class="stat-label">Gesamtfortschritt</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="completedModules">0</div>
+                <div class="stat-label">Module abgeschlossen</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="studyDays">0</div>
+                <div class="stat-label">Tage gelernt</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="quizScore">0%</div>
+                <div class="stat-label">Quiz-Erfolgsquote</div>
+            </div>
+        </div>
+
+        <div class="nav-tabs">
+            <button class="tab-btn active" onclick="switchTab('roadmap')">🗺️ Lernpfad</button>
+            <button class="tab-btn" onclick="switchTab('modules')">📚 Module</button>
+            <button class="tab-btn" onclick="switchTab('exam')">🧪 Prüfungsvorbereitung</button>
+            <button class="tab-btn" onclick="switchTab('resources')">📖 Ressourcen</button>
+            <button class="tab-btn" onclick="switchTab('integration')">🔗 Integration</button>
+        </div>
+
+        <div id="roadmap" class="tab-content active">
+            <div class="card">
+                <h2>🗺️ Dein Ausbildungs-Roadmap</h2>
+                <p style="margin-bottom: 25px; color: #a0a0a0;">Folge diesem strukturierten Lernpfad für eine erfolgreiche Ausbildung</p>
+                
+                <div class="roadmap">
+                    <div class="roadmap-item">
+                        <h3>📅 Erste Woche: Grundlagen</h3>
+                        <ul>
+                            <li>HTML5 Grundlagen & semantische Struktur</li>
+                            <li>CSS3 Styling & Flexbox/Grid</li>
+                            <li>JavaScript Basics & DOM-Manipulation</li>
+                            <li>Entwicklungsumgebung einrichten</li>
+                        </ul>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 0%" id="week1-progress">0%</div>
+                        </div>
+                        <button class="btn" onclick="updateProgress('week1-progress', 25)" style="margin-top: 15px;">+25%</button>
+                    </div>
+
+                    <div class="roadmap-item">
+                        <h3>📅 Monat 1-3: Frontend-Entwicklung</h3>
+                        <ul>
+                            <li>Responsive Design & Mobile First</li>
+                            <li>JavaScript ES6+ Features</li>
+                            <li>Git & Versionskontrolle</li>
+                            <li>Framework-Grundlagen (React/Vue)</li>
+                            <li>API-Integration & Fetch</li>
+                        </ul>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 0%" id="month1-3-progress">0%</div>
+                        </div>
+                        <button class="btn" onclick="updateProgress('month1-3-progress', 20)" style="margin-top: 15px;">+20%</button>
+                    </div>
+
+                    <div class="roadmap-item">
+                        <h3>📅 Monat 4-6: Backend & Datenbanken</h3>
+                        <ul>
+                            <li>Node.js & Express.js</li>
+                            <li>SQL & Datenbankdesign</li>
+                            <li>RESTful APIs erstellen</li>
+                            <li>Authentifizierung & Sicherheit</li>
+                            <li>NoSQL Datenbanken (MongoDB)</li>
+                        </ul>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 0%" id="month4-6-progress">0%</div>
+                        </div>
+                        <button class="btn" onclick="updateProgress('month4-6-progress', 20)" style="margin-top: 15px;">+20%</button>
+                    </div>
+
+                    <div class="roadmap-item">
+                        <h3>📅 Monat 7-9: DevOps & Deployment</h3>
+                        <ul>
+                            <li>Docker & Container</li>
+                            <li>CI/CD Pipelines</li>
+                            <li>Cloud-Plattformen (AWS/Azure)</li>
+                            <li>Testing & Test-Driven Development</li>
+                            <li>Monitoring & Logging</li>
+                        </ul>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 0%" id="month7-9-progress">0%</div>
+                        </div>
+                        <button class="btn" onclick="updateProgress('month7-9-progress', 20)" style="margin-top: 15px;">+20%</button>
+                    </div>
+
+                    <div class="roadmap-item">
+                        <h3>📅 Monat 10-12: Spezialisierung & Projekt</h3>
+                        <ul>
+                            <li>Spezialisierungsbereich wählen</li>
+                            <li>Abschlussprojekt planen</li>
+                            <li>Dokumentation erstellen</li>
+                            <li>Prüfungsvorbereitung intensiv</li>
+                            <li>Portfolio aufbauen</li>
+                        </ul>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 0%" id="month10-12-progress">0%</div>
+                        </div>
+                        <button class="btn" onclick="updateProgress('month10-12-progress', 20)" style="margin-top: 15px;">+20%</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="modules" class="tab-content">
+            <div class="card">
+                <h2>📚 Interaktive Lernmodule</h2>
+                <p style="margin-bottom: 25px; color: #a0a0a0;">Klicke auf ein Modul, um den Status zu ändern</p>
+                
+                <div class="module-grid" id="moduleGrid"></div>
+            </div>
+        </div>
+
+        <div id="exam" class="tab-content">
+            <div class="card">
+                <h2>🧪 Prüfungsvorbereitung</h2>
+                
+                <div class="quiz-container">
+                    <h3 style="color: #8b5cf6; margin-bottom: 20px;">📝 Quiz: Teste dein Wissen</h3>
+                    <div id="quizArea"></div>
+                    <button class="btn" onclick="nextQuestion()">Nächste Frage</button>
+                    <button class="btn btn-secondary" onclick="resetQuiz()">Quiz zurücksetzen</button>
+                </div>
+
+                <h3 style="margin: 30px 0 20px 0; color: #8b5cf6; font-size: 1.5em;">💡 Prüfungstipps</h3>
+                <ul class="tips-list">
+                    <li><strong>Zeitmanagement:</strong> Plane 1,5 Minuten pro Multiple-Choice-Frage ein</li>
+                    <li><strong>Reihenfolge:</strong> Beantworte zuerst die einfachen Fragen, markiere schwierige</li>
+                    <li><strong>Dokumentation:</strong> Führe dein Berichtsheft gewissenhaft</li>
+                    <li><strong>Praxisprojekt:</strong> Beginne frühzeitig mit der Planung</li>
+                    <li><strong>Mock-Exams:</strong> Übe unter realen Prüfungsbedingungen</li>
+                    <li><strong>Pausen:</strong> Mache regelmäßige Lernpausen für bessere Konzentration</li>
+                </ul>
+            </div>
+        </div>
+
+        <div id="resources" class="tab-content">
+            <div class="card">
+                <h2>📖 Lernressourcen</h2>
+                <div class="resources-list">
+                    <div class="resource-item">
+                        <div class="resource-icon">📚</div>
+                        <div>
+                            <strong>MDN Web Docs</strong><br>
+                            <span style="color: #888;">Umfassende Dokumentation für HTML, CSS & JavaScript</span>
+                        </div>
+                    </div>
+                    <div class="resource-item">
+                        <div class="resource-icon">🎥</div>
+                        <div>
+                            <strong>freeCodeCamp</strong><br>
+                            <span style="color: #888;">Kostenlose interaktive Coding-Kurse</span>
+                        </div>
+                    </div>
+                    <div class="resource-item">
+                        <div class="resource-icon">💻</div>
+                        <div>
+                            <strong>GitHub</strong><br>
+                            <span style="color: #888;">Open-Source Projekte & Code-Beispiele</span>
+                        </div>
+                    </div>
+                    <div class="resource-item">
+                        <div class="resource-icon">📝</div>
+                        <div>
+                            <strong>Stack Overflow</strong><br>
+                            <span style="color: #888;">Community-Support & Problemlösungen</span>
+                        </div>
+                    </div>
+                    <div class="resource-item">
+                        <div class="resource-icon">🎓</div>
+                        <div>
+                            <strong>Udemy / Coursera</strong><br>
+                            <span style="color: #888;">Strukturierte Online-Kurse</span>
+                        </div>
+                    </div>
+                    <div class="resource-item">
+                        <div class="resource-icon">📖</div>
+                        <div>
+                            <strong>IHK Prüfungsaufgaben</strong><br>
+                            <span style="color: #888;">Offizielle Prüfungsvorbereitung</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="integration" class="tab-content">
+            <div class="card">
+                <h2>🔗 Integration mit anderen Tools</h2>
+                <p style="margin-bottom: 25px; color: #a0a0a0;">Verknüpfe deine Ausbildung mit anderen Lerntools</p>
+                
+                <div class="integration-grid">
+                    <div class="integration-card" onclick="alert('Öffne lern-hub.html für Flashcards und Lernpläne')">
+                        <div class="integration-icon">🎴</div>
+                        <h3>Lern-Hub</h3>
+                        <p>Flashcards & Learning Plans</p>
+                    </div>
+                    <div class="integration-card" onclick="alert('Öffne berichtsheft.html für deine Ausbildungsdokumentation')">
+                        <div class="integration-icon">📔</div>
+                        <h3>Berichtsheft</h3>
+                        <p>Ausbildungsdokumentation</p>
+                    </div>
+                    <div class="integration-card" onclick="alert('AI-Bot Integration kommt bald!')">
+                        <div class="integration-icon">🤖</div>
+                        <h3>AI-Assistent</h3>
+                        <p>Fragen & Antworten</p>
+                    </div>
+                    <div class="integration-card" onclick="alert('Code-Sandbox Integration kommt bald!')">
+                        <div class="integration-icon">💻</div>
+                        <h3>Code-Sandbox</h3>
+                        <p>Live-Coding Übungen</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const modules = [
+            { id: 1, name: 'HTML Grundlagen', category: 'Frontend', status: 'todo' },
+            { id: 2, name: 'CSS Styling', category: 'Frontend', status: 'todo' },
+            { id: 3, name: 'JavaScript Basics', category: 'Frontend', status: 'todo' },
+            { id: 4, name: 'Responsive Design', category: 'Frontend', status: 'todo' },
+            { id: 5, name: 'Git & GitHub', category: 'Tools', status: 'todo' },
+            { id: 6, name: 'Node.js', category: 'Backend', status: 'todo' },
+            { id: 7, name: 'Express.js', category: 'Backend', status: 'todo' },
+            { id: 8, name: 'SQL Datenbanken', category: 'Backend', status: 'todo' },
+            { id: 9, name: 'REST APIs', category: 'Backend', status: 'todo' },
+            { id: 10, name: 'Docker', category: 'DevOps', status: 'todo' },
+            { id: 11, name: 'Testing', category: 'Quality', status: 'todo' },
+            { id: 12, name: 'Sicherheit', category: 'Security', status: 'todo' }
+        ];
+
+        const quizQuestions = [
+            {
+                question: 'Was ist HTML?',
+                options: [
+                    'Eine Programmiersprache',
+                    'Eine Markup-Sprache zur Strukturierung von Webseiten',
+                    'Ein Datenbanksystem',
+                    'Ein Betriebssystem'
+                ],
+                correct: 1
+            },
+            {
+                question: 'Welches CSS-Property wird für Flexbox verwendet?',
+                options: ['display: flex', 'flex: box', 'layout: flex', 'box: flex'],
+                correct: 0
+            },
+            {
+                question: 'Was bedeutet API?',
+                options: [
+                    'Advanced Programming Interface',
+                    'Application Programming Interface',
+                    'Automated Program Integration',
+                    'Applied Programming Instructions'
+                ],
+                correct: 1
+            },
+            {
+                question: 'Welche Datenbank ist eine NoSQL-Datenbank?',
+                options: ['MySQL', 'PostgreSQL', 'MongoDB', 'Oracle'],
+                correct: 2
+            },
+            {
+                question: 'Was ist Git?',
+                options: [
+                    'Eine Programmiersprache',
+                    'Ein Versionskontrollsystem',
+                    'Ein Webserver',
+                    'Eine Datenbank'
+                ],
+                correct: 1
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let quizResults = { correct: 0, total: 0 };
+        let progressData = {};
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function renderModules() {
+            const grid = document.getElementById('moduleGrid');
+            grid.innerHTML = '';
+            
+            modules.forEach(module => {
+                const card = document.createElement('div');
+                card.className = `module-card ${module.status === 'done' ? 'completed' : ''}`;
+                card.onclick = () => toggleModuleStatus(module.id);
+                
+                let statusClass = 'status-todo';
+                let statusText = '📝 Zu erledigen';
+                
+                if (module.status === 'progress') {
+                    statusClass = 'status-progress';
+                    statusText = '🔄 In Bearbeitung';
+                } else if (module.status === 'done') {
+                    statusClass = 'status-done';
+                    statusText = '✅ Abgeschlossen';
+                }
+                
+                card.innerHTML = `
+                    <h3>${module.name}</h3>
+                    <p>${module.category}</p>
+                    <span class="module-status ${statusClass}">${statusText}</span>
+                `;
+                
+                grid.appendChild(card);
+            });
+            
+            updateStats();
+        }
+
+        function toggleModuleStatus(id) {
+            const module = modules.find(m => m.id === id);
+            if (module) {
+                if (module.status === 'todo') {
+                    module.status = 'progress';
+                } else if (module.status === 'progress') {
+                    module.status = 'done';
+                } else {
+                    module.status = 'todo';
+                }
+                renderModules();
+            }
+        }
+
+        function updateStats () {
+            const completed = modules.filter(m => m.status === 'done').length;
+            const total = modules.length;
+            const percentage = Math.round((completed / total) * 100);
+            
+            document.getElementById('totalProgress').textContent = percentage + '%';
+            document.getElementById('completedModules').textContent = completed;
+            
+            // Calculate quiz score
+            const quizPercentage = quizResults.total > 0 
+                ? Math.round((quizResults.correct / quizResults.total) * 100) 
+                : 0;
+            document.getElementById('quizScore').textContent = quizPercentage + '%';
+            
+            // Study days (you can implement actual tracking)
+            const studyDays = localStorage.getItem('studyDays') || 0;
+            document.getElementById('studyDays').textContent = studyDays;
+        }
+
+        function showQuestion() {
+            if (currentQuestionIndex >= quizQuestions.length) {
+                document.getElementById('quizArea').innerHTML = `
+                    <div style="text-align: center; padding: 40px;">
+                        <h3 style="color: #10b981; font-size: 2em; margin-bottom: 20px;">🎉 Quiz abgeschlossen!</h3>
+                        <p style="font-size: 1.3em; color: #c084fc;">
+                            Ergebnis: ${quizResults.correct} von ${quizResults.total} Fragen richtig
+                        </p>
+                        <p style="font-size: 1.1em; color: #888; margin-top: 15px;">
+                            Das sind ${Math.round((quizResults.correct / quizResults.total) * 100)}%
+                        </p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const question = quizQuestions[currentQuestionIndex];
+            let html = `
+                <div class="quiz-question">${question.question}</div>
+                <div class="quiz-options">
+            `;
+            
+            question.options.forEach((option, index) => {
+                html += `
+                    <div class="quiz-option" onclick="checkAnswer(${index})">
+                        ${option}
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            document.getElementById('quizArea').innerHTML = html;
+        }
+
+        function checkAnswer(selected) {
+            const question = quizQuestions[currentQuestionIndex];
+            const options = document.querySelectorAll('.quiz-option');
+            
+            options.forEach((option, index) => {
+                option.style.pointerEvents = 'none';
+                if (index === question.correct) {
+                    option.classList.add('correct');
+                } else if (index === selected) {
+                    option.classList.add('wrong');
+                }
+            });
+            
+            quizResults.total++;
+            if (selected === question.correct) {
+                quizResults.correct++;
+            }
+            
+            updateStats();
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            showQuestion();
+        }
+
+        function resetQuiz() {
+            currentQuestionIndex = 0;
+            quizResults = { correct: 0, total: 0 };
+            showQuestion();
+            updateStats();
+        }
+
+        function updateProgress(elementId, increment) {
+            const progressBar = document.getElementById(elementId);
+            const currentWidth = parseInt(progressBar.style.width) || 0;
+            const newWidth = Math.min(currentWidth + increment, 100);
+            progressBar.style.width = newWidth + '%';
+            progressBar.textContent = newWidth + '%';
+            
+            // Update overall progress
+            calculateOverallProgress();
+        }
+
+        function calculateOverallProgress() {
+            const progressBars = [
+                'week1-progress',
+                'month1-3-progress',
+                'month4-6-progress',
+                'month7-9-progress',
+                'month10-12-progress'
+            ];
+            
+            let totalProgress = 0;
+            progressBars.forEach(barId => {
+                const bar = document.getElementById(barId);
+                totalProgress += parseInt(bar.style.width) || 0;
+            });
+            
+            const avgProgress = Math.round(totalProgress / progressBars.length);
+            document.getElementById('totalProgress').textContent = avgProgress + '%';
+        }
+
+        // Initialize
+        renderModules();
+        showQuestion();
+        updateStats();
+
+        // Increment study days on each visit (simplified tracking)
+        const today = new Date().toDateString();
+        const lastVisit = localStorage.getItem('lastVisit');
+        if (lastVisit !== today) {
+            const currentDays = parseInt(localStorage.getItem('studyDays') || 0);
+            localStorage.setItem('studyDays', currentDays + 1);
+            localStorage.setItem('lastVisit', today);
+            updateStats();
+        }
+    </script>
+</body>
+</html>

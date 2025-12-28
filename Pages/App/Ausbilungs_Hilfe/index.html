@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ausbildungshilfe Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-deep: #030305;
+            --bg-glass: rgba(22, 22, 26, 0.65);
+            --primary: #a855f7;
+            --primary-rgb: 168, 85, 247;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: rgba(255, 255, 255, 0.06);
+            --radius: 20px;
+            --font-main: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body {
+            background: var(--bg-deep);
+            color: var(--text-main);
+            font-family: var(--font-main);
+            min-height: 100vh;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: fadeIn 0.6s ease;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #a855f7, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        .header-subtitle {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .subtitle-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Grid */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+            animation: fadeIn 0.8s ease 0.2s both;
+        }
+
+        /* Card */
+        .card {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(139, 92, 246, 0.05));
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 2rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            text-decoration: none;
+            color: inherit;
+            cursor: pointer;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), #8b5cf6);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: rgba(168, 85, 247, 0.3);
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.15), rgba(139, 92, 246, 0.1));
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(168, 85, 247, 0.15);
+        }
+
+        .card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .card-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: #fff;
+        }
+
+        .card-description {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            flex: 1;
+        }
+
+        .card-tag {
+            display: inline-block;
+            background: rgba(168, 85, 247, 0.15);
+            color: #a855f7;
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 1rem;
+        }
+
+        .card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .card-arrow {
+            display: inline-block;
+            transition: transform 0.3s ease;
+            font-size: 1.2rem;
+        }
+
+        .card:hover .card-arrow {
+            transform: translateX(6px);
+        }
+
+        /* Section Title */
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin-bottom: 2rem;
+            margin-top: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border);
+            animation: fadeIn 0.6s ease;
+        }
+
+        .section-title::before {
+            content: '';
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background: var(--primary);
+            border-radius: 50%;
+            margin-right: 0.8rem;
+            box-shadow: 0 0 10px var(--primary);
+        }
+
+        /* Back Button */
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 0.8rem 1.5rem;
+            border-radius: 10px;
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            margin-bottom: 2rem;
+            cursor: pointer;
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-muted);
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .header p {
+                font-size: 0.95rem;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .card {
+                padding: 1.5rem;
+            }
+
+            .card-title {
+                font-size: 1.15rem;
+            }
+
+            .section-title {
+                font-size: 1.5rem;
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, var(--primary), rgba(var(--primary-rgb), 0.7));
+            border-radius: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.05);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, rgba(var(--primary-rgb), 0.9), var(--primary));
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Back Button -->
+        <a href="../../../index.html" class="back-button">
+            ← Zurück zur App
+        </a>
+
+        <!-- Header -->
+        <div class="header">
+            <h1>🎓 Ausbildungshilfe</h1>
+            <p>Dein umfassender Leitfaden durch die IT-Ausbildung</p>
+            <div class="header-subtitle">
+                <span class="subtitle-item">📚 Lerninhalte</span>
+                <span class="subtitle-item">🎯 Karriere-Roadmap</span>
+                <span class="subtitle-item">✨ Prüfungsvorbereitung</span>
+            </div>
+        </div>
+
+        <!-- Fachinformatiker Section -->
+        <h2 class="section-title">IT-Ausbildungsberufe</h2>
+        <div class="grid">
+            <a href="./Fachinformatiker/Fachinformatiker.html" class="card">
+                <span class="card-tag">Anwendungsentwicklung</span>
+                <div class="card-icon">💻</div>
+                <h3 class="card-title">Fachinformatiker</h3>
+                <p class="card-description">
+                    Dein kompletter Leitfaden für die Fachinformatiker-Ausbildung mit Fokus auf Softwareentwicklung, Projektmanagement und IHK-Prüfungsvorbereitung.
+                </p>
+                <div class="card-footer">
+                    <span>Zum Leitfaden</span>
+                    <span class="card-arrow">→</span>
+                </div>
+            </a>
+
+            <div class="card" style="opacity: 0.6; cursor: not-allowed;">
+                <span class="card-tag">Systemintegration</span>
+                <div class="card-icon">🏢</div>
+                <h3 class="card-title">Fachinformatiker - Systemintegration</h3>
+                <p class="card-description">
+                    Spezialisiere dich auf Systemadministration, Netzwerke und IT-Infrastruktur. (Coming Soon)
+                </p>
+                <div class="card-footer">
+                    <span>Bald verfügbar</span>
+                    <span class="card-arrow">🔜</span>
+                </div>
+            </div>
+
+            <div class="card" style="opacity: 0.6; cursor: not-allowed;">
+                <span class="card-tag">In Planung</span>
+                <div class="card-icon">🔒</div>
+                <h3 class="card-title">IT-Systemelektroniker</h3>
+                <p class="card-description">
+                    Lerne Hardware, Netzwerke und IT-Sicherheit auf Systemebene. (Coming Soon)
+                </p>
+                <div class="card-footer">
+                    <span>Bald verfügbar</span>
+                    <span class="card-arrow">🔜</span>
+                </div>
+            </div>
+
+            <div class="card" style="opacity: 0.6; cursor: not-allowed;">
+                <span class="card-tag">In Planung</span>
+                <div class="card-icon">📱</div>
+                <h3 class="card-title">Informatiker (Fachrichtung: Softwareentwicklung)</h3>
+                <p class="card-description">
+                    Die 3-jährige Studienausbildung mit erweiterten Programmierkenntnissen. (Coming Soon)
+                </p>
+                <div class="card-footer">
+                    <span>Bald verfügbar</span>
+                    <span class="card-arrow">🔜</span>
+                </div>
+            </div>
+
+            <div class="card" style="opacity: 0.6; cursor: not-allowed;">
+                <span class="card-tag">In Planung</span>
+                <div class="card-icon">🤖</div>
+                <h3 class="card-title">Informatiker (Fachrichtung: Systemintegration)</h3>
+                <p class="card-description">
+                    Komplexe IT-Systeme entwerfen und realisieren. (Coming Soon)
+                </p>
+                <div class="card-footer">
+                    <span>Bald verfügbar</span>
+                    <span class="card-arrow">🔜</span>
+                </div>
+            </div>
+
+            <div class="card" style="opacity: 0.6; cursor: not-allowed;">
+                <span class="card-tag">In Planung</span>
+                <div class="card-icon">🌐</div>
+                <h3 class="card-title">Kaufmann für IT-Systemmanagement</h3>
+                <p class="card-description">
+                    Kombination aus IT und kaufmännischen Fähigkeiten. (Coming Soon)
+                </p>
+                <div class="card-footer">
+                    <span>Bald verfügbar</span>
+                    <span class="card-arrow">🔜</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resources Section -->
+        <h2 class="section-title">Wichtige Ressourcen</h2>
+        <div class="grid">
+            <a href="../../App/berichtsheft.html" class="card">
+                <span class="card-tag">Dokument</span>
+                <div class="card-icon">📝</div>
+                <h3 class="card-title">Berichtsheft</h3>
+                <p class="card-description">
+                    Verwalte dein Ausbildungsberichtsheft, tracke deine Aufgaben und dokumentiere deinen Ausbildungsfortschritt.
+                </p>
+                <div class="card-footer">
+                    <span>Öffnen</span>
+                    <span class="card-arrow">→</span>
+                </div>
+            </a>
+
+            <a href="../../App/lern-hub.html" class="card">
+                <span class="card-tag">Lernen</span>
+                <div class="card-icon">📚</div>
+                <h3 class="card-title">Lern-Hub</h3>
+                <p class="card-description">
+                    Flashcards, Learning Plans, Quizze und interaktive Inhalte zum Lernen. Dein persönlicher Lernbegleiter!
+                </p>
+                <div class="card-footer">
+                    <span>Erkunden</span>
+                    <span class="card-arrow">→</span>
+                </div>
+            </a>
+
+            <a href="../../App/vertrags-manager.html" class="card">
+                <span class="card-tag">Management</span>
+                <div class="card-icon">📋</div>
+                <h3 class="card-title">Vertrags-Manager</h3>
+                <p class="card-description">
+                    Verwalte deine Ausbildungsunterlagen, Verträge und wichtige Dokumente an einem Ort.
+                </p>
+                <div class="card-footer">
+                    <span>Verwalten</span>
+                    <span class="card-arrow">→</span>
+                </div>
+            </a>
+        </div>
+        </a>
+    </div>
+</body>
+</html>
