@@ -15,25 +15,29 @@
     let creationInterval = 1800;
     
     if (isMobile) {
-        fireworkCount = isLowPerformance ? 8 : 12;
+        fireworkCount = isLowPerformance ? 6 : 10;
         creationInterval = 2500;
     } else if (window.innerWidth > 1920) {
-        fireworkCount = 30;
-        creationInterval = 1200;
+        fireworkCount = 20;
+        creationInterval = 1400;
     }
     
-    // TIME.PRO Explosions-Wahrscheinlichkeit
-    let timeProChance = 0.15;
+    // TIME.PRO Explosions-Wahrscheinlichkeit (reduziert für bessere Performance)
+    let timeProChance = 0.03; // 3% statt 15% - viel weniger oft
     
     let activeFireworks = 0;
     const maxFireworks = fireworkCount;
+    let lastTimeProExplosion = 0;
+    const minTimeProInterval = 8000; // Mindestens 8 Sekunden zwischen TIME.PRO
     
     function createFirework() {
         if (activeFireworks >= maxFireworks) return;
         
-        const isTimePro = Math.random() < timeProChance;
+        const now = Date.now();
+        const isTimePro = Math.random() < timeProChance && (now - lastTimeProExplosion) > minTimeProInterval;
         
         if (isTimePro) {
+            lastTimeProExplosion = now;
             createTimeProExplosion();
         } else {
             const type = fireworkTypes[Math.floor(Math.random() * fireworkTypes.length)];
@@ -92,7 +96,7 @@
     
     // Standard Burst - symmetrische Explosion
     function createBurstExplosion(x, y) {
-        const particleCount = isMobile ? 35 : 60;
+        const particleCount = isMobile ? 25 : 40;
         const color = colors[Math.floor(Math.random() * colors.length)];
         
         for (let i = 0; i < particleCount; i++) {
@@ -102,7 +106,7 @@
     
     // Willow - hängende Äste
     function createWillowExplosion(x, y) {
-        const particleCount = isMobile ? 30 : 50;
+        const particleCount = isMobile ? 20 : 35;
         const color = colors[Math.floor(Math.random() * colors.length)];
         
         for (let i = 0; i < particleCount; i++) {
@@ -112,7 +116,7 @@
     
     // Palm - Palmen-Form
     function createPalmExplosion(x, y) {
-        const particleCount = isMobile ? 25 : 40;
+        const particleCount = isMobile ? 18 : 30;
         const color = colors[Math.floor(Math.random() * colors.length)];
         
         for (let i = 0; i < particleCount; i++) {
@@ -122,7 +126,7 @@
     
     // Chrysanthemum - Blumen-Form
     function createChrysanthemumExplosion(x, y) {
-        const particleCount = isMobile ? 40 : 70;
+        const particleCount = isMobile ? 28 : 50;
         const colors1 = colors[Math.floor(Math.random() * colors.length)];
         const colors2 = colors[Math.floor(Math.random() * colors.length)];
         
@@ -134,7 +138,7 @@
     
     // Ring - Kreisförmig
     function createRingExplosion(x, y) {
-        const particleCount = isMobile ? 30 : 50;
+        const particleCount = isMobile ? 20 : 35;
         const color = colors[Math.floor(Math.random() * colors.length)];
         
         for (let i = 0; i < particleCount; i++) {
@@ -229,8 +233,8 @@
         
         document.body.appendChild(particle);
         
-        // Schweif-Effekt für größere Partikel
-        if (sizeClass === 'large' && Math.random() > 0.6) {
+        // Schweif-Effekt für größere Partikel (nur Desktop, nicht auf Mobile)
+        if (!isMobile && sizeClass === 'large' && Math.random() > 0.7) {
             createTrail(x, y, burstX, burstY, colorClass, duration);
         }
         
@@ -305,8 +309,8 @@
         
         document.body.appendChild(explosion);
         
-        // STARK reduzierte Partikel: 25 statt 50-80 (Performance!)
-        const sparkCount = isMobile ? 15 : 25;
+        // STARK reduzierte Partikel: 12-18 statt 15-25 (Performance!)
+        const sparkCount = isMobile ? 10 : 18;
         for (let i = 0; i < sparkCount; i++) {
             setTimeout(() => {
                 const spark = document.createElement('div');
@@ -399,13 +403,13 @@
     
     // Burst von mehreren Feuerwerken manchmal
     setInterval(() => {
-        if (Math.random() > 0.7 && activeFireworks < maxFireworks * 0.5) {
-            const burstCount = isMobile ? 2 : 4;
+        if (Math.random() > 0.8 && activeFireworks < maxFireworks * 0.4) {
+            const burstCount = isMobile ? 1 : 2;
             for (let i = 0; i < burstCount; i++) {
-                setTimeout(() => createFirework(), i * 300);
+                setTimeout(() => createFirework(), i * 400);
             }
         }
-    }, creationInterval * 3);
+    }, creationInterval * 4);
     
     // Cleanup bei inaktivem Tab
     document.addEventListener('visibilitychange', () => {
